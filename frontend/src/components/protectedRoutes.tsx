@@ -13,15 +13,15 @@ export default function ProtectedRoute() {
     return <Navigate to={"/login"} replace />;
   }
 
-  if (user?.role === null && location.pathname !== "/select-role") {
+  if (!user?.role && location.pathname !== "/select-role") {
     return <Navigate to={"/select-role"} replace />;
   }
 
-  if (user?.role !== null && location.pathname !== "/select-role") {
-    return <Navigate to={"/"} replace />;
-  }
+  console.log(user?.role !== null && location.pathname !== "/select-role");
 
-  console.log("I am here");
+  // if (user?.role !== null && location.pathname !== "/select-role") {
+  //   return <Navigate to={"/"} replace />;
+  // }
 
   return <Outlet />;
 }
