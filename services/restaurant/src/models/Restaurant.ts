@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-export interface IRestaurent extends Document {
+export interface IRestaurant extends Document {
   name: string;
   description?: string;
   image: string;
@@ -16,7 +16,7 @@ export interface IRestaurent extends Document {
   createdAt: Date;
 }
 
-const schema = new Schema<IRestaurent>(
+const schema = new Schema<IRestaurant>(
   {
     name: {
       type: String,
@@ -68,4 +68,4 @@ const schema = new Schema<IRestaurent>(
 
 schema.index({ autoLocation: "2dsphere" });
 
-export default mongoose.model<IRestaurent>("Restaurent");
+export default mongoose.model<IRestaurant>("Restaurant");
