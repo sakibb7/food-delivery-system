@@ -11,6 +11,7 @@ import { useAppData } from "./context/useAppData";
 import Restaurant from "./pages/Restaurant";
 
 export const authService = "http://localhost:5000";
+export const restaurantServices = "http://localhost:5001";
 
 export default function App() {
   const { user } = useAppData();

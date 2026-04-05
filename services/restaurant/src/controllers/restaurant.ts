@@ -3,7 +3,7 @@ import getBuffer from "../config/datauri.js";
 import { AuthenticatedRequest } from "../middlewares/isAuth.js";
 import TryCatch from "../middlewares/trycatch.js";
 import Restaurant from "../models/Restaurant.js";
-import Restaurent from "../models/Restaurent.js";
+import jwt from "jsonwebtoken";
 
 export const addRestaurant = TryCatch(
   async (req: AuthenticatedRequest, res) => {
@@ -50,6 +50,8 @@ export const addRestaurant = TryCatch(
       });
     }
 
+    console.log("I am here");
+
     const { data: uploadResult } = await axios.post(
       `${process.env.UTILS_SERVICE}/api/upload`,
       {
@@ -57,7 +59,9 @@ export const addRestaurant = TryCatch(
       },
     );
 
-    const restaurant = await Restaurent.create({
+    console.log(uploadResult);
+
+    const restaurant = await Restaurant.create({
       name,
       description,
       phone,
@@ -68,10 +72,12 @@ export const addRestaurant = TryCatch(
         coordinates: [Number(longitude), Number(latitude)],
         formattedAddress,
       },
+      isVerified: false,
     });
 
     return res.status(201).json({
       message: "Restaurant is created",
+      restaurant,
     });
   },
 );
@@ -83,5 +89,32 @@ export const fetchMyRestarurant = TryCatch(
         message: "Please login!",
       });
     }
+
+    const restaurant = await Restaurant.findOne({ ownerId: req.user._id });
+
+    if (!restaurant) {
+      return res.status(400).json({
+        message: "No restaurant found!",
+      });
+    }
+
+    if (!req.user.restaurantId) {
+      const token = jwt.sign(
+        {
+          user: {
+            ...req.user,
+            restaurantId: restaurant._id,
+          },
+        },
+        process.env.JWT_SEC as string,
+        {
+          expiresIn: "15d",
+        },
+      );
+
+      return res.json({ restaurant, token });
+    }
+
+    res.json({ restaurant });
   },
 );

@@ -7,6 +7,7 @@ export interface IUser {
   email: string;
   image: string;
   role: string;
+  restaurantId: string;
 }
 
 export interface AuthenticatedRequest extends Request {
@@ -21,7 +22,7 @@ export const isAuth = async (
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!authHeader || !authHeader.toLowerCase().startsWith("bearer ")) {
       res.status(401).json({
         message: "Please Login - No auth header",
       });
@@ -56,7 +57,7 @@ export const isAuth = async (
     next();
   } catch (error) {
     res.status(500).json({
-      message: "Internel Server Error",
+      message: error,
     });
   }
 };

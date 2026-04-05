@@ -68,4 +68,4 @@ const schema = new Schema<IRestaurant>(
 
 schema.index({ autoLocation: "2dsphere" });
 
-export default mongoose.model<IRestaurant>("Restaurant");
+export default mongoose.model<IRestaurant>("Restaurant", schema);

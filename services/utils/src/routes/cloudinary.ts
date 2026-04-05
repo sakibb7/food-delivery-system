@@ -13,6 +13,7 @@ router.post("/upload", async (req, res) => {
       url: cloud.secure_url,
     });
   } catch (err: any) {
+    console.log(err);
     res.status(500).json({
       message: err.message,
     });
