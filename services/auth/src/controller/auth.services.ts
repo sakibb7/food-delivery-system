@@ -10,7 +10,6 @@ import appAssert from "../utils/appAssert.js";
 import { refreshTokenSignOptions, signToken } from "../utils/jwt.js";
 import { sessionsTable } from "../db/schema/sessionSchema.js";
 import { thirtyDaysFromNow } from "../utils/date.js";
-import { compare } from "bcryptjs";
 import { compareValue, hashValue } from "../utils/bcrypt.js";
 
 export type CreataAccountParams = {
