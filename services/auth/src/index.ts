@@ -1,19 +1,26 @@
 import express from "express";
-import dotenv from "dotenv";
+import "dotenv/config";
 import authRoute from "./routes/auth.js";
 import cors from "cors";
-
-dotenv.config();
+import { NODE_ENV, PORT } from "./constants/env.js";
+import errorHandler from "./middlewares/errorHandler.js";
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  }),
+);
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-const PORT = process.env.PORT || 5000;
+app.use("/api/v1/auth", authRoute);
 
-app.use("/api/auth", authRoute);
+app.use(errorHandler);
 
 app.listen(PORT, async () => {
-  console.log(`Auth service is running on port ${PORT}`);
-  console.log("DB URL:", process.env.DATABASE_URL);
+  console.log(
+    `Auth service is running on port ${PORT} in ${NODE_ENV} environment`,
+  );
 });

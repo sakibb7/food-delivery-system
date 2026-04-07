@@ -2,6 +2,16 @@ import { Request, Response } from "express";
 import { Pool } from "pg";
 import { db } from "../db/index.js";
 import { usersTable } from "../db/schema/userSchema.js";
+import { eq } from "drizzle-orm";
+import {
+  BAD_REQUEST,
+  CREATED,
+  INTERNAL_SERVER_ERROR,
+} from "../constants/http.js";
+import catchErrors from "../utils/catchErrors.js";
+import { registerSchema } from "./auth.schemas.js";
+import { setAuthCookies } from "../utils/cookies.js";
+import { createAccount } from "./auth.services.js";
 // import User from "../model/User.js";
 // import jwt from "jsonwebtoken";
 // import TryCatch from "../middlewares/trycatch.js";
@@ -93,19 +103,45 @@ import { usersTable } from "../db/schema/userSchema.js";
 //   res.json(user);
 // });
 
-export async function createUser(req: Request, res: Response) {
-  const { name, email } = req.body;
-  console.log(req.body);
+// export async function createUser(req: Request, res: Response) {
+//   const { name, email } = req.body;
 
-  try {
-    await db.insert(usersTable).values({
-      name,
-      email,
-    });
+//   try {
+// const existingUser = await db
+//   .select()
+//   .from(usersTable)
+//   .where(eq(usersTable.email, email));
 
-    res.status(201).json({ message: "User created" });
-  } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ message: "Failed to create user", error: error });
-  }
-}
+//     if (existingUser.length > 0) {
+//       return res.status(BAD_REQUEST).json({ message: "Email Already exists" });
+//     }
+
+//     await db.insert(usersTable).values({
+//       name,
+//       email,
+//     });
+
+//     res.status(CREATED).json({ message: "User created" });
+//   } catch (error) {
+//     res
+//       .status(INTERNAL_SERVER_ERROR)
+//       .json({ message: "Failed to create user" });
+//   }
+// }
+
+export const registerHandler = catchErrors(async (req, res) => {
+  //validate request
+  const request = registerSchema.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+
+  console.log(request);
+
+  //call service
+  const { user, accessToken, refreshToken } = await createAccount(request);
+
+  return setAuthCookies({ res, accessToken, refreshToken })
+    .status(CREATED)
+    .json(user);
+});

@@ -1,13 +1,21 @@
 import express from "express";
-// import { addUserRole, loginUser, myProfile } from "../controller/auth.js";
-import { isAuth } from "../middlewares/isAuth.js";
-import { createUser } from "../controller/auth.js";
+import { registerHandler } from "../controller/auth.js";
+import catchErrors from "../utils/catchErrors.js";
+import { OK } from "../constants/http.js";
 
 const router = express.Router();
 
 // router.post("/login", loginUser);
 // router.put("/add/role", isAuth, addUserRole);
 // router.get("/me", isAuth, myProfile);
-router.post("/create", createUser);
+router.get(
+  "/",
+  catchErrors(async (req, res, next) => {
+    return res.status(OK).json({
+      status: "healthy",
+    });
+  }),
+);
+router.post("/register", registerHandler);
 
 export default router;
