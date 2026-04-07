@@ -7,9 +7,14 @@ import {
 import { db } from "../db/index.js";
 import { usersTable } from "../db/schema/userSchema.js";
 import appAssert from "../utils/appAssert.js";
-import { refreshTokenSignOptions, signToken } from "../utils/jwt.js";
+import {
+  RefreshTokenPayload,
+  refreshTokenSignOptions,
+  signToken,
+  verifyToken,
+} from "../utils/jwt.js";
 import { sessionsTable } from "../db/schema/sessionSchema.js";
-import { thirtyDaysFromNow } from "../utils/date.js";
+import { ONE_DAY_MS, thirtyDaysFromNow } from "../utils/date.js";
 import { compareValue, hashValue } from "../utils/bcrypt.js";
 
 export type CreataAccountParams = {
@@ -129,5 +134,58 @@ export const loginUser = async ({
     user: omitPassword(user),
     accessToken,
     refreshToken,
+  };
+};
+
+export const refreshUserAccessToken = async (refreshToken: string) => {
+  const { payload } = verifyToken<RefreshTokenPayload>(refreshToken, {
+    secret: refreshTokenSignOptions.secret,
+  });
+  appAssert(payload, UNAUTHORIZED, "Invalid refresh token");
+
+  const [session] = await db
+    .select()
+    .from(sessionsTable)
+    .where(eq(sessionsTable.id, payload.sessionId))
+    .limit(1);
+
+  const now = Date.now();
+  appAssert(
+    session && session.expiresAt.getTime() > now,
+    UNAUTHORIZED,
+    "Session expired",
+  );
+
+  // refresh the session if it expires in the next 24hrs
+  const sessionNeedsRefresh = session.expiresAt.getTime() - now <= ONE_DAY_MS;
+
+  if (sessionNeedsRefresh) {
+    session.expiresAt = thirtyDaysFromNow();
+
+    await db
+      .update(sessionsTable)
+      .set({
+        expiresAt: new Date(),
+      })
+      .where(eq(sessionsTable.id, session.id));
+  }
+
+  const newRefreshToken = sessionNeedsRefresh
+    ? signToken(
+        {
+          sessionId: session.id,
+        },
+        refreshTokenSignOptions,
+      )
+    : undefined;
+
+  const accessToken = signToken({
+    userId: session.userId,
+    sessionId: session.id,
+  });
+
+  return {
+    accessToken,
+    newRefreshToken,
   };
 };
