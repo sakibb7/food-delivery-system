@@ -1,5 +1,5 @@
 import express from "express";
-import { registerHandler } from "../controller/auth.js";
+import { loginHandler, registerHandler } from "../controller/auth.js";
 import catchErrors from "../utils/catchErrors.js";
 import { OK } from "../constants/http.js";
 
@@ -17,5 +17,6 @@ router.get(
   }),
 );
 router.post("/register", registerHandler);
+router.post("/login", loginHandler);
 
 export default router;
