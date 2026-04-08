@@ -1,6 +1,16 @@
-import { CREATED, OK, UNAUTHORIZED } from "../constants/http.js";
+import {
+  CREATED,
+  INTERNAL_SERVER_ERROR,
+  NOT_FOUND,
+  OK,
+  UNAUTHORIZED,
+} from "../constants/http.js";
 import catchErrors from "../utils/catchErrors.js";
-import { loginSchema, registerSchema } from "./auth.schemas.js";
+import {
+  loginSchema,
+  registerSchema,
+  verificationCodeSchema,
+} from "./auth.schemas.js";
 import {
   clearAuthCookies,
   getAccessTokenCookieOptions,
@@ -10,13 +20,20 @@ import {
 import {
   createAccount,
   loginUser,
+  omitPassword,
   refreshUserAccessToken,
+  verifyEmail,
 } from "./auth.services.js";
 import { verifyToken } from "../utils/jwt.js";
 import { db } from "../db/index.js";
 import { sessionsTable } from "../db/schema/sessionSchema.js";
-import { eq } from "drizzle-orm";
+import { and, eq, gt } from "drizzle-orm";
 import appAssert from "../utils/appAssert.js";
+import {
+  VerificationCodeType,
+  verificationTable,
+} from "../db/schema/verificationSchema.js";
+import { usersTable } from "../db/schema/userSchema.js";
 
 export const registerHandler = catchErrors(async (req, res) => {
   //validate request
@@ -61,6 +78,14 @@ export const logoutHandler = catchErrors(async (req, res) => {
   return clearAuthCookies(res)
     .status(OK)
     .json({ message: "Logout successful" });
+});
+
+export const verifyEmailHandler = catchErrors(async (req, res) => {
+  const verificationCode = verificationCodeSchema.parse(req.params.code);
+
+  await verifyEmail(verificationCode);
+
+  return res.status(OK).json({ message: "Email was successfully verified" });
 });
 
 export const refreshHandler = catchErrors(async (req, res) => {

@@ -1,5 +1,10 @@
 import express from "express";
-import { loginHandler, registerHandler } from "../controller/auth.js";
+import {
+  loginHandler,
+  logoutHandler,
+  registerHandler,
+  verifyEmailHandler,
+} from "../controller/auth.service.js";
 import catchErrors from "../utils/catchErrors.js";
 import { OK } from "../constants/http.js";
 
@@ -18,5 +23,7 @@ router.get(
 );
 router.post("/register", registerHandler);
 router.post("/login", loginHandler);
+router.get("/logout", logoutHandler);
+router.get("/email/verify/:code", verifyEmailHandler);
 
 export default router;
