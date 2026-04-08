@@ -51,7 +51,8 @@ export const Input: React.FC<InputProps> = ({
       name={name}
       value={value}
       onChange={(e) => handleTextChange(e.target.value)}
-      className={`${validationError && ""} ${isInvalid && ""} ${className}`}
+      // className={`${validationError && ""} ${isInvalid && ""} ${className}`}
+      className="w-full outline-none bg-transparent"
       placeholder={placeholder}
       required={required}
       aria-invalid={!!validationError}

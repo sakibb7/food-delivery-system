@@ -3,11 +3,56 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { User, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Check } from "lucide-react";
 import { InputGroup } from "@/components/form/InputGroup";
+import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
+import { signUp } from "@/utils/api";
 
-export default function SignUp() {
+export interface SignUpFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string; // Optional if you don't always want to pass the hash
+  confirmPassword?: string; // Usually only needed during registration/DTOs
+  phone?: string;
+  avatar?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  zipcode?: string;
+}
+
+export default function SignUpPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm<SignUpFormData>();
+
+  const { mutate: signUpFn, isPending } = useMutation({
+    mutationFn: signUp,
+    onSuccess: (data) => {
+      console.log(data);
+      // router.push("/sign-in");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const onSubmit = handleSubmit(async (data: SignUpFormData) => {
+    console.log(data);
+
+    console.log(process.env.NEXT_PUBLIC_API_BASE_URL);
+
+    signUpFn(data);
+  });
 
   return (
     <div className="min-h-screen bg-white flex font-sans">
@@ -35,22 +80,13 @@ export default function SignUp() {
             Sign up to start ordering the most delicious food near you.
           </p>
 
-          <form className="space-y-6">
-            <div className="">
-              <InputGroup
-                label={"First Name 2"}
-                name="first_name"
-                value={"First Name"}
-                onChange={(e) => {}}
-                placeholder="Enter Your First Name"
-              />
-            </div>
+          <form onSubmit={onSubmit} className="space-y-6">
             <div>
               <label
                 className="block text-sm font-semibold text-gray-700 mb-2"
-                htmlFor="name"
+                htmlFor="firstName"
               >
-                Full Name
+                First Name
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -61,8 +97,40 @@ export default function SignUp() {
                   id="name"
                   placeholder="John Doe"
                   className="pl-11 w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl py-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all font-medium"
+                  {...register("firstName", {
+                    required: "This field is required",
+                  })}
                 />
               </div>
+              {errors.firstName && (
+                <span className="">{errors.firstName.message}</span>
+              )}
+            </div>
+
+            <div>
+              <label
+                className="block text-sm font-semibold text-gray-700 mb-2"
+                htmlFor="lastName"
+              >
+                Last Name
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <User size={18} className="text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  id="lastName"
+                  placeholder="John Doe"
+                  className="pl-11 w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl py-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all font-medium"
+                  {...register("lastName", {
+                    required: "This field is required",
+                  })}
+                />
+              </div>
+              {errors.lastName && (
+                <span className="">{errors.lastName.message}</span>
+              )}
             </div>
 
             <div>
@@ -81,6 +149,9 @@ export default function SignUp() {
                   id="email"
                   placeholder="name@example.com"
                   className="pl-11 w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl py-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all font-medium"
+                  {...register("email", {
+                    required: "This field is required",
+                  })}
                 />
               </div>
             </div>
@@ -98,9 +169,15 @@ export default function SignUp() {
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
-                  id="password"
-                  placeholder="••••••••"
-                  className="pl-11 pr-12 w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl py-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all font-medium"
+                  placeholder="********"
+                  className="pl-11 w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl py-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all font-medium"
+                  {...register("password", {
+                    required: "This field is required",
+                    minLength: {
+                      value: 8,
+                      message: "Password must be at least 8 charectersd",
+                    },
+                  })}
                 />
                 <button
                   type="button"
@@ -113,6 +190,57 @@ export default function SignUp() {
               <p className="text-xs text-gray-500 mt-2">
                 Must be at least 8 characters long.
               </p>
+            </div>
+            <div>
+              <label
+                className="block text-sm font-semibold text-gray-700 mb-2"
+                htmlFor="confirmPassword"
+              >
+                Conrim Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock size={18} className="text-gray-400" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="********"
+                  className="pl-11 w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl py-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all font-medium"
+                  {...register("confirmPassword", {
+                    required: "This field is required",
+                    minLength: {
+                      value: 8,
+                      message: "Password must be at least 8 charectersd",
+                    },
+                  })}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-red-500 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-start items-center gap-1 ">
+              <label
+                htmlFor="remember"
+                className="flex justify-start items-center gap-2 cursor-pointer"
+              >
+                <input type="checkbox" className="hidden peer" id="remember" />
+                <div className="size-4 rounded-sm border border-red-100 peer-checked:text-red-200 text-sm flex justify-center items-center text-transparent">
+                  <Check />
+                </div>
+                <p>I agree to Quizyon </p>
+              </label>
+              <Link
+                href=""
+                className="text-primary hover:underline font-medium"
+              >
+                Terms & Conditions
+              </Link>
             </div>
 
             <button

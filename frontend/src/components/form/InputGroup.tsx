@@ -33,7 +33,7 @@ export const InputGroup: React.FC<InputGroupProps> = ({
       >
         {label} {required && <span className="text-red-500">*</span>}
       </label>
-      <div className="w-full flex justify-start items-center gap-2 p-4 bg-gray-50 border border-gray-200 text-gray-900 rounded-xl font-medium">
+      <div className="w-full flex justify-start items-center gap-3 p-4 bg-gray-50 border border-gray-200 text-gray-900 rounded-xl font-medium">
         <User size={18} className="text-gray-400" />
         <Input
           type={type}

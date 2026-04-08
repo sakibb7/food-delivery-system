@@ -47,7 +47,6 @@ export const createAccount = async (data: CreateAccountParams) => {
     .values({
       firstName: data.firstName,
       lastName: data.lastName,
-      username: data?.username,
       avatar: data?.avatar,
 
       passwordHash: hashedPassword,
@@ -58,8 +57,9 @@ export const createAccount = async (data: CreateAccountParams) => {
       city: data?.city,
       country: data?.country,
       zipcode: data?.zipcode,
+      status: "active",
 
-      role: data?.role,
+      role: "user",
     })
     .returning();
 

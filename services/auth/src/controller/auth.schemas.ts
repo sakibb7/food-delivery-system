@@ -16,12 +16,9 @@ export const registerSchema = loginSchema
   .extend({
     firstName: z.string().min(1).max(255),
     lastName: z.string().min(1).max(255),
-    username: z.string().min(3).max(255),
     avatar: z.url().optional(),
     confirmPassword: z.string().min(8).max(255).optional(),
     phone: z.string().min(10).max(20).optional(),
-    status: userStatusEnum,
-    role: roles,
 
     address: z.string().max(255).optional(),
     city: z.string().max(255).optional(),
