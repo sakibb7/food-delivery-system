@@ -16,23 +16,21 @@ import {
 import { sessionsTable } from "../db/schema/sessionSchema.js";
 import { ONE_DAY_MS, thirtyDaysFromNow } from "../utils/date.js";
 import { compareValue, hashValue } from "../utils/bcrypt.js";
+import { registerSchema } from "./auth.schemas.js";
+import z from "zod";
 
-export type CreataAccountParams = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
+export type CreateAccountParams = z.infer<typeof registerSchema> & {
   userAgent?: string | undefined;
 };
 
 type User = InferSelectModel<typeof usersTable>;
 
 function omitPassword(user: User) {
-  const { password, ...rest } = user;
+  const { passwordHash, ...rest } = user;
   return rest;
 }
 
-export const createAccount = async (data: CreataAccountParams) => {
+export const createAccount = async (data: CreateAccountParams) => {
   // verify user doesn't exist
   const existingUser = await db
     .select()
@@ -41,7 +39,7 @@ export const createAccount = async (data: CreataAccountParams) => {
 
   appAssert(existingUser.length === 0, CONFLICT, "Email already in use");
 
-  const hashedPassword = await hashValue(data?.password);
+  const hashedPassword = data?.password ? await hashValue(data?.password) : "";
 
   // create user
   const [user] = await db
@@ -49,8 +47,19 @@ export const createAccount = async (data: CreataAccountParams) => {
     .values({
       firstName: data.firstName,
       lastName: data.lastName,
+      username: data?.username,
+      avatar: data?.avatar,
+
+      passwordHash: hashedPassword,
       email: data.email,
-      password: hashedPassword,
+      phone: data?.phone,
+
+      address: data?.address,
+      city: data?.city,
+      country: data?.country,
+      zipcode: data?.zipcode,
+
+      role: data?.role,
     })
     .returning();
 
@@ -103,7 +112,7 @@ export const loginUser = async ({
   appAssert(user, UNAUTHORIZED, "Invalid email or password");
 
   // validate password (assuming you stored hashed password)
-  const isValid = await compareValue(password, user.password);
+  const isValid = await compareValue(password, user.passwordHash);
 
   appAssert(isValid, UNAUTHORIZED, "Invalid email or password");
 

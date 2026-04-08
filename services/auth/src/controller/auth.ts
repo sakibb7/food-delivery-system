@@ -7,7 +7,11 @@ import {
   getRefreshTokenCookieOptions,
   setAuthCookies,
 } from "../utils/cookies.js";
-import { createAccount, loginUser } from "./auth.services.js";
+import {
+  createAccount,
+  loginUser,
+  refreshUserAccessToken,
+} from "./auth.services.js";
 import { verifyToken } from "../utils/jwt.js";
 import { db } from "../db/index.js";
 import { sessionsTable } from "../db/schema/sessionSchema.js";
