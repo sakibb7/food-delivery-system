@@ -112,9 +112,11 @@ export const loginUser = async ({
   appAssert(user, UNAUTHORIZED, "Invalid email or password");
 
   // validate password (assuming you stored hashed password)
-  const isValid = await compareValue(password, user.passwordHash);
+  if (user.passwordHash) {
+    const isValid = await compareValue(password, user.passwordHash);
 
-  appAssert(isValid, UNAUTHORIZED, "Invalid email or password");
+    appAssert(isValid, UNAUTHORIZED, "Invalid email or password");
+  }
 
   const userId = user.id;
 
