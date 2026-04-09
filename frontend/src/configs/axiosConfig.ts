@@ -25,8 +25,10 @@ export const privateInstance: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     Accept: "application/json",
-    "Content-Type": "multipart/form-data",
+    "Content-Type": "application/json",
   },
+  withCredentials: true,
+  withXSRFToken: true,
 });
 
 // Track ongoing refresh to prevent multiple simultaneous refresh calls
@@ -52,6 +54,7 @@ const processQueue = (error: unknown) => {
 privateInstance.interceptors.request.use(
   (config) => {
     const token = Cookies.get(process.env.NEXT_PUBLIC_TOKEN_NAME ?? "token");
+
     config.headers["Authorization"] = `Bearer ${token}`;
     return config;
   },
@@ -67,7 +70,7 @@ privateInstance.interceptors.response.use(
     const config = error?.config;
 
     // ── Token refresh ──────────────────────────────────────────────────────────
-    if (status === 401 && data?.errorCode === "InvalidAccessToken") {
+    if (status === 401 && data?.errorCode === "InvalidAccessToken" && !config?._retry) {
       // Queue subsequent requests while a refresh is already in flight
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -76,11 +79,12 @@ privateInstance.interceptors.response.use(
       }
 
       isRefreshing = true;
+      config._retry = true; // prevent infinite refresh loops
 
       try {
         await TokenRefreshClient.get("/auth/refresh");
 
-        // Re-read the new token set by the server (via cookie) and update defaults
+        // Re-read the new JWT set by the server (via cookie) and update defaults
         const newToken = Cookies.get(
           process.env.NEXT_PUBLIC_TOKEN_NAME ?? "token",
         );

@@ -1,10 +1,9 @@
-/** @format */
 "use client";
 import { publicInstance, privateInstance } from "@/configs/axiosConfig";
-import { useTranslations } from "@/providers/TranslationProviders";
+
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 interface MutateProps {
   isPublic?: boolean;
@@ -20,7 +19,6 @@ export const useQueryMutation = ({
   isUpdateMethod = false,
 }: MutateProps) => {
   const [backendErrors, setBackendErrors] = useState<any>(null);
-  const { tran } = useTranslations();
   const postData = async (body: { [key: string]: any }) => {
     if (isUpdateMethod) {
       body = { ...body, _method: "PUT" };
@@ -80,9 +78,8 @@ export const useQueryMutation = ({
 
       // Display error message
       if (message) {
-        toast.error(tran(message), {
+        toast.error(message, {
           position: "top-right",
-          iconTheme: { primary: "#FF5733", secondary: "#fff" },
         });
       }
     },

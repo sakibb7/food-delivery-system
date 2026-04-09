@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 type AsyncController = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => Promise<any>;
 
 const catchErrors =
@@ -12,6 +12,7 @@ const catchErrors =
     try {
       await controller(req, res, next);
     } catch (error) {
+      console.log(error);
       // pass error on
       next(error);
     }

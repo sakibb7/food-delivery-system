@@ -1,4 +1,5 @@
-import { z } from "zod";
+import { z, ZodError } from "zod";
+import { ZodIssue } from "zod/v3";
 
 export const userStatusEnum = z.enum(["active", "inactive", "banned"]);
 export const roles = z.enum(["admin", "restaurant", "rider", "user"]);
@@ -31,3 +32,10 @@ export const registerSchema = loginSchema
   });
 
 export const verificationCodeSchema = z.string().min(1).max(255);
+
+export const formatZodErrors = (error: ZodError<any>) => {
+  return error.issues.map((issue) => ({
+    path: issue.path.join("."),
+    message: issue.message,
+  }));
+};

@@ -13,21 +13,12 @@ import PasswordField from "@/components/form/passwordField";
 import apple from "@/../public/apple.svg";
 import google from "@/../public/google.svg";
 import Button from "@/components/ui/button";
-import { toast } from "sonner";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
-export interface SignUpFormData {
-  firstName: string;
-  lastName: string;
+import { toast } from "sonner";
+
+export interface SignInFormData {
   email: string;
   password: string; // Optional if you don't always want to pass the hash
-  confirmPassword?: string; // Usually only needed during registration/DTOs
-  phone?: string;
-  avatar?: string;
-  address?: string;
-  city?: string;
-  country?: string;
-  zipcode?: string;
-  termsAccept: boolean;
 }
 
 export default function SignUpPage() {
@@ -39,40 +30,26 @@ export default function SignUpPage() {
     formState: { errors },
     handleSubmit,
     watch,
-  } = useForm<SignUpFormData>();
+  } = useForm<SignInFormData>();
 
   const { mutate, isLoading, backendErrors } = useQueryMutation({
     isPublic: true,
-    url: "/auth/register",
+    url: "/auth/login",
   });
 
-  // const {
-  //   mutate: signUpFn,
-  //   isPending,
-  //   error,
-  // } = useMutation({
-  //   mutationFn: signUp,
-  //   onSuccess: (data) => {
-  //     console.log(data);
-  //     // router.push("/sign-in");
-  //   },
-  //   onError: (error) => {
-  //     toast.error(error.response?.data?.message);
-  //   },
-  // });
+  const onSubmit = handleSubmit(async (data: SignInFormData) => {
+    console.log(data);
 
-  const onSubmit = handleSubmit(async (data: SignUpFormData) => {
+    console.log(process.env.NEXT_PUBLIC_API_BASE_URL);
+
     mutate(data, {
       onSuccess: () => {
-        toast.success("Account Created Successfully!");
-      },
-      onError: (error) => {
-        console.log(backendErrors, "Backend Error");
+        toast.success("Login Success");
+
+        router.push("/profile");
       },
     });
   });
-
-  console.log(errors, "Hook Errors");
 
   return (
     <main className="">
@@ -93,31 +70,13 @@ export default function SignUpPage() {
               </Link>
               <div className="max-w-md w-full mx-auto sm:mx-0 mt-16 lg:mt-0">
                 <h1 className="text-4xl font-extrabold text-gray-900 mb-2 tracking-tight">
-                  Create an account
+                  Sign In
                 </h1>
                 <p className="text-gray-500 mb-10">
-                  Sign up to start ordering the most delicious food near you.
+                  Sign in to start ordering the most delicious food near you.
                 </p>
 
                 <form onSubmit={onSubmit} className="space-y-6">
-                  <InputField
-                    label="First Name"
-                    placeholder="John"
-                    name="firstName"
-                    register={register}
-                    error={errors.firstName}
-                    icon={UserIcon}
-                    required
-                  />
-                  <InputField
-                    label="Last Name"
-                    placeholder="Doe"
-                    name="lastName"
-                    register={register}
-                    error={errors.lastName}
-                    icon={UserIcon}
-                    required
-                  />
                   <InputField
                     label="Email"
                     placeholder="johndoe@gmail.com"
@@ -135,15 +94,6 @@ export default function SignUpPage() {
                     error={errors.password}
                     required
                   />
-                  <PasswordField
-                    label="Confirm Password"
-                    name="confirmPassword"
-                    register={register}
-                    watch={watch}
-                    compareWith="password"
-                    error={errors.confirmPassword}
-                    required
-                  />
 
                   <div className="flex justify-start items-center gap-1 ">
                     <label
@@ -159,14 +109,8 @@ export default function SignUpPage() {
                       <div className="size-5 rounded-sm border border-red-700 peer-checked:bg-red-700 text-sm flex justify-center items-center text-transparent peer-checked:text-white">
                         <Check />
                       </div>
-                      <p>I agree to Quizyon </p>
+                      <p>Remember me </p>
                     </label>
-                    <Link
-                      href=""
-                      className="text-red-700 hover:underline font-medium"
-                    >
-                      Terms & Conditions
-                    </Link>
                   </div>
 
                   <Button
@@ -175,17 +119,17 @@ export default function SignUpPage() {
                     rightIcon={<ArrowRight size={20} />}
                     loading={isLoading}
                   >
-                    Sign Up
+                    Sign In
                   </Button>
                 </form>
 
                 <div className="mt-8 text-center text-gray-500 font-medium text-sm">
-                  Already have an account?{" "}
+                  Don&apos;t have an account?{" "}
                   <Link
-                    href="/login"
+                    href="/signup"
                     className="text-red-600 font-bold hover:text-red-700 hover:underline"
                   >
-                    Log in
+                    Sign Up
                   </Link>
                 </div>
 

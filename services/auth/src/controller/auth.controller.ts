@@ -1,10 +1,4 @@
-import {
-  CREATED,
-  INTERNAL_SERVER_ERROR,
-  NOT_FOUND,
-  OK,
-  UNAUTHORIZED,
-} from "../constants/http.js";
+import { CREATED, OK, UNAUTHORIZED } from "../constants/http.js";
 import catchErrors from "../utils/catchErrors.js";
 import {
   loginSchema,
@@ -20,20 +14,14 @@ import {
 import {
   createAccount,
   loginUser,
-  omitPassword,
   refreshUserAccessToken,
   verifyEmail,
 } from "./auth.services.js";
 import { verifyToken } from "../utils/jwt.js";
 import { db } from "../db/index.js";
 import { sessionsTable } from "../db/schema/sessionSchema.js";
-import { and, eq, gt } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import appAssert from "../utils/appAssert.js";
-import {
-  VerificationCodeType,
-  verificationTable,
-} from "../db/schema/verificationSchema.js";
-import { usersTable } from "../db/schema/userSchema.js";
 
 export const registerHandler = catchErrors(async (req, res) => {
   //validate request

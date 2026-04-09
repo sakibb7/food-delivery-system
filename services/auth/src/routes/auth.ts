@@ -4,7 +4,7 @@ import {
   logoutHandler,
   registerHandler,
   verifyEmailHandler,
-} from "../controller/auth.service.js";
+} from "../controller/auth.controller.js";
 import catchErrors from "../utils/catchErrors.js";
 import { OK } from "../constants/http.js";
 
