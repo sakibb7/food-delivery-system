@@ -46,6 +46,8 @@ export const loginHandler = catchErrors(async (req, res) => {
 
   const { accessToken, refreshToken } = await loginUser(request);
 
+  console.log(accessToken, "access token", refreshToken, "refresh token");
+
   return setAuthCookies({ res, accessToken, refreshToken })
     .status(OK)
     .json({ message: "Login Successfull" });
@@ -78,6 +80,7 @@ export const verifyEmailHandler = catchErrors(async (req, res) => {
 
 export const refreshHandler = catchErrors(async (req, res) => {
   const refreshToken = req.cookies.refreshToken as string | undefined;
+
   appAssert(refreshToken, UNAUTHORIZED, "Missing refresh token");
 
   const { accessToken, newRefreshToken } =

@@ -161,9 +161,9 @@ export default function SignUpPage() {
                 <Image
                   src="/hero-bg.png"
                   alt="Sign up delicious background"
-                  fill
                   className="object-cover object-center"
                   priority
+                  fill
                 />
                 <div className="absolute bottom-16 left-16 right-16 z-20 text-white bg-black/70 rounded-2xl p-6">
                   <h2 className="text-4xl font-extrabold mb-4 leading-tight">

@@ -1,9 +1,10 @@
 import { CookieOptions, Response } from "express";
-import { fifteenMinutesFromNow, thirtyDaysFromNow } from "./date.js";
+import { fifteenMinutesFromNow, oneMinuteFromNow, thirtyDaysFromNow } from "./date.js";
 
 const secure = process.env.NODE_ENV !== "development";
 
-export const REFRESH_PATH = "/auth/refresh";
+//this route cause me 6 plus hours to debug
+export const REFRESH_PATH = "/api/v1/auth/refresh";
 
 const defaults: CookieOptions = {
   sameSite: "strict",

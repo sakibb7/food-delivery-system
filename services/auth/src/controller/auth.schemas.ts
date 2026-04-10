@@ -1,5 +1,4 @@
 import { z, ZodError } from "zod";
-import { ZodIssue } from "zod/v3";
 
 export const userStatusEnum = z.enum(["active", "inactive", "banned"]);
 export const roles = z.enum(["admin", "restaurant", "rider", "user"]);

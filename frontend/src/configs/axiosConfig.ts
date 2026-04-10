@@ -55,7 +55,10 @@ privateInstance.interceptors.request.use(
   (config) => {
     const token = Cookies.get(process.env.NEXT_PUBLIC_TOKEN_NAME ?? "token");
 
-    config.headers["Authorization"] = `Bearer ${token}`;
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+
     return config;
   },
   (error) => Promise.reject(error),
@@ -69,14 +72,37 @@ privateInstance.interceptors.response.use(
     const data = error?.response?.data;
     const config = error?.config;
 
+    console.log("INTERCEPTOR HIT");
+
+    console.log({
+      status: error?.response?.status,
+      data: error?.response?.data,
+      retry: error?.config?._retry,
+    });
+
+    console.log(
+      status === 401,
+      data?.errorCode === "InvalidAccessToken",
+      !config?._retry,
+    );
+
     // ── Token refresh ──────────────────────────────────────────────────────────
-    if (status === 401 && data?.errorCode === "InvalidAccessToken" && !config?._retry) {
+    if (
+      status === 401 &&
+      data?.errorCode === "InvalidAccessToken" &&
+      !config?._retry
+    ) {
       // Queue subsequent requests while a refresh is already in flight
+
+      console.log("i am here");
       if (isRefreshing) {
+        console.log("refreshing");
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject, config });
         });
       }
+
+      console.log("I never got here");
 
       isRefreshing = true;
       config._retry = true; // prevent infinite refresh loops
@@ -88,12 +114,17 @@ privateInstance.interceptors.response.use(
         const newToken = Cookies.get(
           process.env.NEXT_PUBLIC_TOKEN_NAME ?? "token",
         );
-        privateInstance.defaults.headers.common["Authorization"] =
-          `Bearer ${newToken}`;
+        if (newToken) {
+          privateInstance.defaults.headers.common["Authorization"] =
+            `Bearer ${newToken}`;
+        }
+
+        console.log(newToken);
 
         processQueue(null);
         return privateInstance(config); // retry original request
       } catch (refreshError) {
+        console.log(refreshError, "Refresh Error");
         processQueue(refreshError);
 
         Cookies.remove(process.env.NEXT_PUBLIC_TOKEN_NAME ?? "token");

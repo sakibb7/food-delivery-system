@@ -13,6 +13,8 @@ interface CustomJwtPayload extends JwtPayload {
 const authenticate: RequestHandler = (req, res, next) => {
   const accessToken = req.cookies.accessToken as string | undefined;
 
+  console.log(accessToken, "Access Token");
+
   appAssert(
     accessToken,
     UNAUTHORIZED,

@@ -217,7 +217,6 @@ export default function SignUpPage() {
                 <Image
                   src="/hero-bg.png"
                   alt="Sign up delicious background"
-                  fill
                   className="object-cover object-center"
                   priority
                 />

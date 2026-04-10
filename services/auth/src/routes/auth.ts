@@ -2,6 +2,7 @@ import express from "express";
 import {
   loginHandler,
   logoutHandler,
+  refreshHandler,
   registerHandler,
   verifyEmailHandler,
 } from "../controller/auth.controller.js";
@@ -24,6 +25,7 @@ router.get(
 router.post("/register", registerHandler);
 router.post("/login", loginHandler);
 router.get("/logout", logoutHandler);
+router.get("/refresh", refreshHandler);
 router.get("/email/verify/:code", verifyEmailHandler);
 
 export default router;
