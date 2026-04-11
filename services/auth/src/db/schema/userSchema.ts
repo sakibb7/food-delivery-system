@@ -20,6 +20,11 @@ export const roles = pgEnum("user_role", [
   "user",
 ]);
 
+export const authProviderEnum = pgEnum("auth_provider", [
+  "local",
+  "google",
+]);
+
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
 
@@ -42,6 +47,9 @@ export const usersTable = pgTable("users", {
   zipcode: varchar({ length: 20 }),
 
   fcmToken: varchar({ length: 255 }),
+
+  provider: authProviderEnum().default("local"),
+  providerId: varchar("provider_id", { length: 255 }),
 
   status: userStatusEnum().default("active"),
 

@@ -5,15 +5,17 @@ import {
   refreshHandler,
   registerHandler,
   verifyEmailHandler,
+  forgotPasswordHandler,
+  resetPasswordHandler,
+  myProfileHandler,
+  googleAuthHandler,
+  googleAuthCallbackHandler,
 } from "../controller/auth.controller.js";
 import catchErrors from "../utils/catchErrors.js";
 import { OK } from "../constants/http.js";
+import authenticate from "../middlewares/authenticate.js";
 
 const router = express.Router();
-
-// router.post("/login", loginUser);
-// router.put("/add/role", isAuth, addUserRole);
-// router.get("/me", isAuth, myProfile);
 router.get(
   "/",
   catchErrors(async (req, res, next) => {
@@ -27,5 +29,10 @@ router.post("/login", loginHandler);
 router.get("/logout", logoutHandler);
 router.get("/refresh", refreshHandler);
 router.get("/email/verify/:code", verifyEmailHandler);
+router.post("/password/forgot", forgotPasswordHandler);
+router.post("/password/reset", resetPasswordHandler);
+router.get("/me", authenticate, myProfileHandler);
+router.get("/google", googleAuthHandler);
+router.get("/google/callback", googleAuthCallbackHandler);
 
 export default router;

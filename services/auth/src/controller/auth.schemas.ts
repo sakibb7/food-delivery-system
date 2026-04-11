@@ -32,6 +32,15 @@ export const registerSchema = loginSchema
 
 export const verificationCodeSchema = z.string().min(1).max(255);
 
+export const forgotPasswordSchema = z.object({
+  email: emailSchema,
+});
+
+export const resetPasswordSchema = z.object({
+  password: passwordSchema,
+  verificationCode: verificationCodeSchema,
+});
+
 export const formatZodErrors = (error: ZodError<any>) => {
   return error.issues.map((issue) => ({
     path: issue.path.join("."),

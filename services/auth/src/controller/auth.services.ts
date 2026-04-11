@@ -273,3 +273,163 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
     newRefreshToken,
   };
 };
+
+export const forgotPassword = async (email: string) => {
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, email))
+    .limit(1);
+
+  if (!user) {
+    return;
+  }
+
+  const [verification] = await db
+    .insert(verificationTable)
+    .values({
+      userId: user.id,
+      type: "password_reset",
+      expiresAt: oneHourFromNow(),
+    })
+    .returning();
+
+  await transporter.sendMail({
+    from: "no-reply@yourapp.com",
+    to: user.email,
+    subject: "Reset your password",
+    html: `
+      <h2>Reset your password</h2>
+      <p>Click the link below:</p>
+      <a href="${APP_ORIGIN}/reset-password?token=${verification?.id}">
+        Reset Password
+      </a>
+    `,
+  });
+};
+
+export const resetPassword = async (password: string, code: string) => {
+  const [validCode] = await db
+    .select()
+    .from(verificationTable)
+    .where(
+      and(
+        eq(verificationTable.id, code),
+        eq(verificationTable.type, "password_reset"),
+        gt(verificationTable.expiresAt, new Date()),
+      ),
+    )
+    .limit(1);
+
+  appAssert(validCode, NOT_FOUND, "Invalid or expired reset token");
+
+  const hashedPassword = await hashValue(password);
+
+  const [updatedUser] = await db
+    .update(usersTable)
+    .set({
+      passwordHash: hashedPassword,
+    })
+    .where(eq(usersTable.id, validCode.userId))
+    .returning();
+
+  appAssert(updatedUser, INTERNAL_SERVER_ERROR, "Failed to reset password");
+
+  await db
+    .delete(sessionsTable)
+    .where(eq(sessionsTable.userId, validCode.userId));
+
+  await db
+    .delete(verificationTable)
+    .where(eq(verificationTable.id, validCode.id));
+};
+
+export const loginWithGoogle = async (
+  googleUser: {
+    email?: string | null;
+    given_name?: string | null;
+    family_name?: string | null;
+    picture?: string | null;
+    id?: string | null;
+  },
+  userAgent?: string,
+) => {
+  if (!googleUser.email || !googleUser.id) {
+    throw new Error("Invalid Google user profile");
+  }
+
+  const [existingUser] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, googleUser.email))
+    .limit(1);
+
+  let user = existingUser;
+
+  if (!user) {
+    const [newUser] = await db
+      .insert(usersTable)
+      .values({
+        email: googleUser.email,
+        firstName: googleUser.given_name || "User",
+        lastName: googleUser.family_name || "",
+        avatar: googleUser.picture,
+        provider: "google",
+        providerId: googleUser.id,
+        emailVerifiedAt: new Date(),
+        status: "active",
+        role: "user",
+      })
+      .returning();
+    user = newUser;
+  } else if (user.provider !== "google" || user.providerId !== googleUser.id) {
+    const [updatedUser] = await db
+      .update(usersTable)
+      .set({
+        provider: "google",
+        providerId: googleUser.id,
+      })
+      .where(eq(usersTable.id, user.id))
+      .returning();
+    user = updatedUser;
+  }
+
+  appAssert(user, INTERNAL_SERVER_ERROR, "Failed to authenticate user");
+
+  const [session] = await db
+    .insert(sessionsTable)
+    .values({
+      userId: user.id,
+      userAgent: userAgent ?? "unknown",
+      expiresAt: thirtyDaysFromNow(),
+    })
+    .returning();
+
+  appAssert(session, INTERNAL_SERVER_ERROR, "Session creation failed");
+
+  const payload = {
+    userId: user.id,
+    sessionId: session.id,
+  };
+
+  const refreshToken = signToken(payload, refreshTokenSignOptions);
+  const accessToken = signToken(payload);
+
+  return {
+    user: omitPassword(user),
+    accessToken,
+    refreshToken,
+  };
+};
+
+export const getMyProfile = async (userId: number) => {
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, userId))
+    .limit(1);
+
+  appAssert(user, NOT_FOUND, "User not found");
+
+  return omitPassword(user);
+};

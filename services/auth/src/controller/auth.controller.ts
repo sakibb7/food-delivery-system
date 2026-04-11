@@ -1,9 +1,17 @@
-import { CREATED, OK, UNAUTHORIZED } from "../constants/http.js";
+import {
+  CREATED,
+  OK,
+  UNAUTHORIZED,
+  BAD_REQUEST,
+  INTERNAL_SERVER_ERROR,
+} from "../constants/http.js";
 import catchErrors from "../utils/catchErrors.js";
 import {
   loginSchema,
   registerSchema,
   verificationCodeSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 } from "./auth.schemas.js";
 import {
   clearAuthCookies,
@@ -16,12 +24,22 @@ import {
   loginUser,
   refreshUserAccessToken,
   verifyEmail,
+  forgotPassword,
+  resetPassword,
+  getMyProfile,
+  loginWithGoogle,
 } from "./auth.services.js";
 import { verifyToken } from "../utils/jwt.js";
 import { db } from "../db/index.js";
 import { sessionsTable } from "../db/schema/sessionSchema.js";
 import { eq } from "drizzle-orm";
 import appAssert from "../utils/appAssert.js";
+import {
+  getGoogleAuthUrl,
+  getGoogleOAuthTokens,
+  getGoogleUser,
+} from "../utils/googleAuth.js";
+import { APP_ORIGIN, CLIENT_WEB_APP_URL } from "../constants/env.js";
 
 export const registerHandler = catchErrors(async (req, res) => {
   //validate request
@@ -92,4 +110,62 @@ export const refreshHandler = catchErrors(async (req, res) => {
     .status(OK)
     .cookie("accessToken", accessToken, getAccessTokenCookieOptions())
     .json({ message: "Access token refreshed" });
+});
+
+export const forgotPasswordHandler = catchErrors(async (req, res) => {
+  const { email } = forgotPasswordSchema.parse(req.body);
+  await forgotPassword(email);
+  return res
+    .status(OK)
+    .json({ message: "If that email exists, we sent a password reset link." });
+});
+
+export const resetPasswordHandler = catchErrors(async (req, res) => {
+  const { password, verificationCode } = resetPasswordSchema.parse(req.body);
+  await resetPassword(password, verificationCode);
+  return clearAuthCookies(res)
+    .status(OK)
+    .json({ message: "Password reset successful, please login again" });
+});
+
+export const myProfileHandler = catchErrors(async (req, res) => {
+  const customReq = req as typeof req & { userId: number };
+  const user = await getMyProfile(customReq.userId);
+  return res.status(OK).json(user);
+});
+
+export const googleAuthHandler = catchErrors(async (req, res) => {
+  const url = getGoogleAuthUrl();
+  return res.redirect(url);
+});
+
+export const googleAuthCallbackHandler = catchErrors(async (req, res) => {
+  const code = req.query.code as string;
+  appAssert(code, BAD_REQUEST, "Authorization code not provided");
+
+  const tokens = await getGoogleOAuthTokens(code);
+  const id_token = tokens.id_token as string;
+  const access_token = tokens.access_token as string;
+
+  appAssert(
+    id_token && access_token,
+    INTERNAL_SERVER_ERROR,
+    "Failed to retrieve Google tokens",
+  );
+
+  const googleUser = await getGoogleUser(id_token, access_token);
+  appAssert(
+    googleUser && googleUser.email,
+    INTERNAL_SERVER_ERROR,
+    "Failed to retrieve Google user",
+  );
+
+  const { accessToken, refreshToken } = await loginWithGoogle(
+    googleUser,
+    req.headers["user-agent"] as string | undefined,
+  );
+
+  setAuthCookies({ res, accessToken, refreshToken });
+
+  return res.redirect(`${CLIENT_WEB_APP_URL}/dashboard`);
 });
