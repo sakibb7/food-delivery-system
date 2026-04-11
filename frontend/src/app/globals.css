@@ -46,3 +46,7 @@ body {
 .container {
   @apply xxl:max-w-[1400px] mx-auto px-3 sm:max-w-[540px] md:max-w-[720px] lg:max-w-[972px] xl:max-w-[1180px];
 }
+
+button {
+  cursor: pointer;
+}

@@ -1,20 +1,37 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { User, Settings, LogOut, ChevronDown, Menu, X, Heart, MapPin, Package } from 'lucide-react';
+import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  User,
+  Settings,
+  LogOut,
+  ChevronDown,
+  Menu,
+  X,
+  Heart,
+  MapPin,
+  Package,
+} from "lucide-react";
+import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
+import { toast } from "sonner";
+import { getQueryClient } from "@/configs/query-client";
 
 export default function ProtectedHeader() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     }
@@ -23,10 +40,33 @@ export default function ProtectedHeader() {
   }, []);
 
   const navLinks = [
-    { name: 'Dashboard', href: '/dashboard' },
-    { name: 'Orders', href: '/orders' },
-    { name: 'Favorites', href: '/favorites' },
+    { name: "Dashboard", href: "/dashboard" },
+    { name: "Orders", href: "/orders" },
+    { name: "Favorites", href: "/favorites" },
   ];
+
+  const { mutate, isLoading, backendErrors } = useQueryMutation({
+    isPublic: true,
+    url: "/auth/logout",
+  });
+
+  const signOut = () => {
+    mutate(
+      {},
+      {
+        onSuccess: () => {
+          setIsDropdownOpen(false);
+          getQueryClient().invalidateQueries();
+          router.push("/sign-in");
+          toast.success("Logout Successfully!");
+        },
+        onError: (data) => {
+          console.log(data.error);
+          toast.error("Something went wrong!");
+        },
+      },
+    );
+  };
 
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
@@ -35,10 +75,14 @@ export default function ProtectedHeader() {
           {/* Logo & Desktop Nav */}
           <div className="flex items-center gap-8">
             <Link href="/dashboard" className="flex items-center gap-2 group">
-              <div className="bg-red-600 text-white p-1.5 rounded-lg font-bold text-lg tracking-tight group-hover:bg-red-700 transition-colors">T</div>
-              <span className="font-extrabold text-xl tracking-tight text-gray-900 group-hover:text-red-600 transition-colors">Tomato.</span>
+              <div className="bg-red-600 text-white p-1.5 rounded-lg font-bold text-lg tracking-tight group-hover:bg-red-700 transition-colors">
+                T
+              </div>
+              <span className="font-extrabold text-xl tracking-tight text-gray-900 group-hover:text-red-600 transition-colors">
+                Tomato.
+              </span>
             </Link>
-            
+
             <nav className="hidden md:flex space-x-6">
               {navLinks.map((link) => (
                 <Link
@@ -46,8 +90,8 @@ export default function ProtectedHeader() {
                   href={link.href}
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-semibold transition-colors ${
                     pathname === link.href
-                      ? 'border-red-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300'
+                      ? "border-red-500 text-gray-900"
+                      : "border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300"
                   }`}
                 >
                   {link.name}
@@ -58,14 +102,16 @@ export default function ProtectedHeader() {
 
           {/* Right Side - Profile and Cart */}
           <div className="hidden md:flex items-center gap-6">
-            
-            <Link href="/checkout" className="text-gray-500 hover:text-red-500 transition-colors relative">
+            <Link
+              href="/checkout"
+              className="text-gray-500 hover:text-red-500 transition-colors relative"
+            >
               <Package size={22} />
               <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                 2
               </span>
             </Link>
-          
+
             {/* User Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
@@ -75,16 +121,28 @@ export default function ProtectedHeader() {
                 <div className="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm">
                   JD
                 </div>
-                <span className="font-semibold text-gray-700 text-sm">John Doe</span>
-                <ChevronDown size={16} className={`text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <span className="font-semibold text-gray-700 text-sm">
+                  John Doe
+                </span>
+                <ChevronDown
+                  size={16}
+                  className={`text-gray-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+                />
               </button>
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-2xl shadow-xl bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none animate-in fade-in slide-in-from-top-2">
                   <div className="px-4 py-3">
-                    <p className="text-sm font-medium text-gray-900">Signed in as</p>
-                    <p className="text-sm font-bold text-gray-500 truncate" title="john.doe@example.com">john.doe@example.com</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      Signed in as
+                    </p>
+                    <p
+                      className="text-sm font-bold text-gray-500 truncate"
+                      title="john.doe@example.com"
+                    >
+                      john.doe@example.com
+                    </p>
                   </div>
                   <div className="py-2">
                     <Link
@@ -92,7 +150,10 @@ export default function ProtectedHeader() {
                       onClick={() => setIsDropdownOpen(false)}
                       className="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors font-medium"
                     >
-                      <User size={16} className="mr-3 text-gray-400 group-hover:text-red-500" />
+                      <User
+                        size={16}
+                        className="mr-3 text-gray-400 group-hover:text-red-500"
+                      />
                       Account Settings
                     </Link>
                     <Link
@@ -100,7 +161,10 @@ export default function ProtectedHeader() {
                       onClick={() => setIsDropdownOpen(false)}
                       className="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors font-medium"
                     >
-                      <MapPin size={16} className="mr-3 text-gray-400 group-hover:text-red-500" />
+                      <MapPin
+                        size={16}
+                        className="mr-3 text-gray-400 group-hover:text-red-500"
+                      />
                       Saved Addresses
                     </Link>
                     <Link
@@ -108,16 +172,22 @@ export default function ProtectedHeader() {
                       onClick={() => setIsDropdownOpen(false)}
                       className="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors font-medium"
                     >
-                      <Heart size={16} className="mr-3 text-gray-400 group-hover:text-red-500" />
+                      <Heart
+                        size={16}
+                        className="mr-3 text-gray-400 group-hover:text-red-500"
+                      />
                       Favorites
                     </Link>
                   </div>
                   <div className="py-2">
                     <button
-                      onClick={() => setIsDropdownOpen(false)}
+                      onClick={signOut}
                       className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors font-medium"
                     >
-                      <LogOut size={16} className="mr-3 text-gray-400 group-hover:text-red-500" />
+                      <LogOut
+                        size={16}
+                        className="mr-3 text-gray-400 group-hover:text-red-500"
+                      />
                       Sign out
                     </button>
                   </div>
@@ -160,8 +230,8 @@ export default function ProtectedHeader() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
                   pathname === link.href
-                    ? 'border-red-500 text-red-700 bg-red-50'
-                    : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'
+                    ? "border-red-500 text-red-700 bg-red-50"
+                    : "border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
                 }`}
               >
                 {link.name}
@@ -176,8 +246,12 @@ export default function ProtectedHeader() {
                 </div>
               </div>
               <div className="ml-3">
-                <div className="text-base font-semibold text-gray-800">John Doe</div>
-                <div className="text-sm font-medium text-gray-500">john.doe@example.com</div>
+                <div className="text-base font-semibold text-gray-800">
+                  John Doe
+                </div>
+                <div className="text-sm font-medium text-gray-500">
+                  john.doe@example.com
+                </div>
               </div>
             </div>
             <div className="mt-3 space-y-1">

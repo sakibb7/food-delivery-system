@@ -15,7 +15,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const baseStyles =
-  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all active:translate-y-[1px] disabled:opacity-50 disabled:cursor-not-allowed group";
+  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all active:translate-y-[1px] disabled:opacity-50 disabled:cursor-not-allowed group cursor-pointer";
 
 const variants: Record<Variant, string> = {
   primary: "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/30",

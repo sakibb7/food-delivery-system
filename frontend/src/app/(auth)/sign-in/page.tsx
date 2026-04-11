@@ -1,0 +1,125 @@
+"use client";
+import Link from "next/link";
+import { useState } from "react";
+import { Mail, ArrowRight, Check } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import InputField from "@/components/form/InputField";
+import PasswordField from "@/components/form/passwordField";
+
+import Button from "@/components/ui/button";
+import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
+import { toast } from "sonner";
+import SocialLogin from "@/components/ui/SocialLogin";
+import AuthLayout from "@/components/layout/auth-layout";
+
+export interface SignInFormData {
+  email: string;
+  password: string; // Optional if you don't always want to pass the hash
+}
+
+export default function SignUpPage() {
+  const router = useRouter();
+  const [termsAccept, setTermsAccept] = useState(false);
+
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm<SignInFormData>();
+
+  const { mutate, isLoading } = useQueryMutation({
+    isPublic: true,
+    url: "/auth/login",
+  });
+
+  const onSubmit = handleSubmit(async (data: SignInFormData) => {
+    console.log(data);
+
+    console.log(process.env.NEXT_PUBLIC_API_BASE_URL);
+
+    mutate(data, {
+      onSuccess: () => {
+        toast.success("Login Success");
+
+        router.push("/profile");
+      },
+    });
+  });
+
+  return (
+    <AuthLayout>
+      <div className="max-w-md w-full mx-auto sm:mx-0 mt-16 lg:mt-0">
+        <h1 className="text-4xl font-extrabold text-gray-900 mb-2 tracking-tight">
+          Sign In
+        </h1>
+        <p className="text-gray-500 mb-10">
+          Sign in to start ordering the most delicious food near you.
+        </p>
+
+        <form onSubmit={onSubmit} className="space-y-6">
+          <InputField
+            label="Email"
+            placeholder="johndoe@gmail.com"
+            name="email"
+            register={register}
+            error={errors.email}
+            icon={Mail}
+            required
+          />
+
+          <PasswordField
+            label="Password"
+            name="password"
+            register={register}
+            error={errors.password}
+            required
+          />
+
+          <div className="flex justify-start items-center gap-1 ">
+            <label
+              htmlFor="remember"
+              className="flex justify-start items-center gap-2 cursor-pointer"
+              onClick={() => setTermsAccept(!termsAccept)}
+            >
+              <input type="checkbox" className="hidden peer" id="remember" />
+              <div className="size-5 rounded-sm border border-red-700 peer-checked:bg-red-700 text-sm flex justify-center items-center text-transparent peer-checked:text-white">
+                <Check />
+              </div>
+              <p>Remember me </p>
+            </label>
+          </div>
+
+          <Button
+            type="submit"
+            fullWidth
+            rightIcon={<ArrowRight size={20} />}
+            loading={isLoading}
+          >
+            Sign In
+          </Button>
+        </form>
+
+        <div className="mt-8 text-center text-gray-500 font-medium text-sm">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/sign-up"
+            className="text-red-600 font-bold hover:text-red-700 hover:underline"
+          >
+            Sign Up
+          </Link>
+        </div>
+
+        <div className="mt-12 flex items-center">
+          <div className="h-px bg-gray-200 flex-1"></div>
+          <span className="px-4 text-xs font-semibold text-gray-400 tracking-wider">
+            OR CONTINUE WITH
+          </span>
+          <div className="h-px bg-gray-200 flex-1"></div>
+        </div>
+
+        <SocialLogin />
+      </div>
+    </AuthLayout>
+  );
+}

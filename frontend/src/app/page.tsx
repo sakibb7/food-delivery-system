@@ -45,10 +45,10 @@ export default function Home() {
             className="hidden sm:flex items-center gap-2 font-medium hover:text-red-400 transition-colors"
           >
             <User size={20} />
-            Log in
+            Sign in
           </Link>
           <Link
-            href="/signup"
+            href="/sign-up"
             className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-full font-medium transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-red-600/30"
           >
             Sign up

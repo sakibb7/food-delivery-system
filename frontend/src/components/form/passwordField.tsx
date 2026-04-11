@@ -19,6 +19,7 @@ interface PasswordFieldProps<T extends FieldValues> {
   // 👇 new props
   compareWith?: Path<T>;
   watch?: UseFormWatch<T>;
+  isRegisterPage?: boolean;
 }
 
 const getPasswordStrength = (password: string) => {
@@ -54,6 +55,7 @@ const PasswordField = <T extends FieldValues>({
   required,
   compareWith,
   watch,
+  isRegisterPage = false,
 }: PasswordFieldProps<T>) => {
   const [show, setShow] = useState(false);
 
@@ -108,7 +110,7 @@ const PasswordField = <T extends FieldValues>({
         </button>
       </div>
       {/* Strength bar */}
-      {value && name === "password" && (
+      {value && name === "password" && isRegisterPage && (
         <div className="mt-2">
           <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
             <div

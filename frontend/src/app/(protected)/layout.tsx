@@ -7,25 +7,25 @@ export default function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const {
-    data: user,
-    refetch,
-    isLoading: isUserLoading,
-  } = useGetQuery({
-    isPublic: false,
-    url: "/user/me",
-    queryKey: "user",
-  });
+  // const {
+  //   data: user,
+  //   refetch,
+  //   isLoading: isUserLoading,
+  // } = useGetQuery({
+  //   isPublic: false,
+  //   url: "/user/me",
+  //   queryKey: "user",
+  // });
 
-  if (isUserLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        Loading...
-      </div>
-    );
-  }
+  // if (isUserLoading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-screen">
+  //       Loading...
+  //     </div>
+  //   );
+  // }
 
-  console.log(user, "user");
+  // console.log(user, "user");
 
   // console.log(user);
   return (

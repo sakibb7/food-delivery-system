@@ -1,7 +1,8 @@
 import express from "express";
 import "dotenv/config";
 import authRoute from "./routes/auth.js";
-import userRoute from "./routes/me.js";
+import userRoute from "./routes/user.js";
+import restaurantRoute from "./routes/restaurant.js";
 import cors from "cors";
 import { NODE_ENV, PORT, CLIENT_WEB_APP_URL } from "./constants/env.js";
 import errorHandler from "./middlewares/errorHandler.js";
@@ -36,6 +37,7 @@ app.use("/api/v1/auth/password/forgot", authLimiter);
 
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/user", authenticate, userRoute);
+app.use("/api/v1/restaurant", restaurantRoute);
 
 app.use(errorHandler);
 

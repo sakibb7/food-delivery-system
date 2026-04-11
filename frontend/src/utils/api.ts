@@ -1,4 +1,4 @@
-import { SignUpFormData } from "@/app/signup/page";
+import { SignUpFormData } from "@/app/(auth)/sign-up/page";
 import { publicInstance } from "@/configs/axiosConfig";
 
 export const signUp = async (data: SignUpFormData) => {
