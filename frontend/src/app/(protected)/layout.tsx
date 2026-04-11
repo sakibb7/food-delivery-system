@@ -1,33 +1,37 @@
 "use client";
+
 import ProtectedHeader from "@/components/ProtectedHeader";
-import { useGetQuery } from "@/hooks/mutate/useGetQuery";
+import { useAuthStore } from "@/store/auth";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // const {
-  //   data: user,
-  //   refetch,
-  //   isLoading: isUserLoading,
-  // } = useGetQuery({
-  //   isPublic: false,
-  //   url: "/user/me",
-  //   queryKey: "user",
-  // });
+  const { getUser, user, isLoading } = useAuthStore();
+  const router = useRouter();
 
-  // if (isUserLoading) {
-  //   return (
-  //     <div className="flex justify-center items-center h-screen">
-  //       Loading...
-  //     </div>
-  //   );
+  useEffect(() => {
+    if (!user) {
+      getUser();
+    }
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-red-600"></div>
+      </div>
+    );
+  }
+
+  // if (!user) {
+  //   router.replace("/sign-in");
+  //   return null;
   // }
 
-  // console.log(user, "user");
-
-  // console.log(user);
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       <ProtectedHeader />
