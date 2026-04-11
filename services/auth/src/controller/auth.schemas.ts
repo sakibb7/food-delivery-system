@@ -17,7 +17,7 @@ export const registerSchema = loginSchema
     firstName: z.string().min(1).max(255),
     lastName: z.string().min(1).max(255),
     avatar: z.url().optional(),
-    confirmPassword: z.string().min(8).max(255),
+    confirmPassword: passwordSchema,
     phone: z.string().min(10).max(20).optional(),
 
     address: z.string().max(255).optional(),

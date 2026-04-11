@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import {
   CREATED,
   OK,
@@ -24,12 +25,16 @@ import {
   loginUser,
   refreshUserAccessToken,
   verifyEmail,
+  resendVerificationEmail,
   forgotPassword,
   resetPassword,
-  getMyProfile,
   loginWithGoogle,
 } from "./auth.services.js";
-import { verifyToken } from "../utils/jwt.js";
+import {
+  verifyToken,
+  RefreshTokenPayload,
+  refreshTokenSignOptions,
+} from "../utils/jwt.js";
 import { db } from "../db/index.js";
 import { sessionsTable } from "../db/schema/sessionSchema.js";
 import { eq } from "drizzle-orm";
@@ -64,8 +69,6 @@ export const loginHandler = catchErrors(async (req, res) => {
 
   const { accessToken, refreshToken } = await loginUser(request);
 
-  console.log(accessToken, "access token", refreshToken, "refresh token");
-
   return setAuthCookies({ res, accessToken, refreshToken })
     .status(OK)
     .json({ message: "Login Successfull" });
@@ -73,16 +76,29 @@ export const loginHandler = catchErrors(async (req, res) => {
 
 export const logoutHandler = catchErrors(async (req, res) => {
   const accessToken = req.cookies.accessToken as string | undefined;
-  const { payload } = verifyToken(accessToken || "");
+  const refreshToken = req.cookies.refreshToken as string | undefined;
 
-  if (payload) {
-    // remove session from db
+  // Try access token first to find the session
+  const { payload: accessPayload } = verifyToken(accessToken || "");
+
+  if (accessPayload) {
     await db
       .delete(sessionsTable)
-      .where(eq(sessionsTable.id, payload.sessionId));
+      .where(eq(sessionsTable.id, accessPayload.sessionId));
+  } else if (refreshToken) {
+    // Fall back to refresh token if access token is expired/invalid
+    const { payload: refreshPayload } = verifyToken<RefreshTokenPayload>(
+      refreshToken,
+      { secret: refreshTokenSignOptions.secret },
+    );
+
+    if (refreshPayload) {
+      await db
+        .delete(sessionsTable)
+        .where(eq(sessionsTable.id, refreshPayload.sessionId));
+    }
   }
 
-  // clear cookies
   return clearAuthCookies(res)
     .status(OK)
     .json({ message: "Logout successful" });
@@ -94,6 +110,15 @@ export const verifyEmailHandler = catchErrors(async (req, res) => {
   await verifyEmail(verificationCode);
 
   return res.status(OK).json({ message: "Email was successfully verified" });
+});
+
+export const resendVerificationHandler = catchErrors(async (req, res) => {
+  const userId = req.userId;
+  appAssert(userId, UNAUTHORIZED, "Authentication required");
+
+  const result = await resendVerificationEmail(userId);
+
+  return res.status(OK).json(result);
 });
 
 export const refreshHandler = catchErrors(async (req, res) => {
@@ -128,20 +153,32 @@ export const resetPasswordHandler = catchErrors(async (req, res) => {
     .json({ message: "Password reset successful, please login again" });
 });
 
-export const myProfileHandler = catchErrors(async (req, res) => {
-  const customReq = req as typeof req & { userId: number };
-  const user = await getMyProfile(customReq.userId);
-  return res.status(OK).json(user);
-});
-
 export const googleAuthHandler = catchErrors(async (req, res) => {
-  const url = getGoogleAuthUrl();
+  const state = crypto.randomUUID();
+  res.cookie("oauth_state", state, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "development",
+    sameSite: "lax",
+    maxAge: 10 * 60 * 1000, // 10 minutes
+    path: "/api/v1/auth/google/callback",
+  });
+  const url = getGoogleAuthUrl(state);
   return res.redirect(url);
 });
 
 export const googleAuthCallbackHandler = catchErrors(async (req, res) => {
   const code = req.query.code as string;
   appAssert(code, BAD_REQUEST, "Authorization code not provided");
+
+  // Verify CSRF state parameter
+  const state = req.query.state as string;
+  const storedState = req.cookies.oauth_state as string;
+  appAssert(
+    state && storedState && state === storedState,
+    BAD_REQUEST,
+    "Invalid OAuth state parameter",
+  );
+  res.clearCookie("oauth_state", { path: "/api/v1/auth/google/callback" });
 
   const tokens = await getGoogleOAuthTokens(code);
   const id_token = tokens.id_token as string;

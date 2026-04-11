@@ -5,9 +5,9 @@ import {
   refreshHandler,
   registerHandler,
   verifyEmailHandler,
+  resendVerificationHandler,
   forgotPasswordHandler,
   resetPasswordHandler,
-  myProfileHandler,
   googleAuthHandler,
   googleAuthCallbackHandler,
 } from "../controller/auth.controller.js";
@@ -26,12 +26,12 @@ router.get(
 );
 router.post("/register", registerHandler);
 router.post("/login", loginHandler);
-router.get("/logout", logoutHandler);
+router.post("/logout", logoutHandler);
 router.get("/refresh", refreshHandler);
 router.get("/email/verify/:code", verifyEmailHandler);
+router.post("/email/verify/resend", authenticate, resendVerificationHandler);
 router.post("/password/forgot", forgotPasswordHandler);
 router.post("/password/reset", resetPasswordHandler);
-router.get("/me", authenticate, myProfileHandler);
 router.get("/google", googleAuthHandler);
 router.get("/google/callback", googleAuthCallbackHandler);
 

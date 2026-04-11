@@ -3,17 +3,16 @@ import "dotenv/config";
 import authRoute from "./routes/auth.js";
 import userRoute from "./routes/me.js";
 import cors from "cors";
-import { NODE_ENV, PORT } from "./constants/env.js";
+import { NODE_ENV, PORT, CLIENT_WEB_APP_URL } from "./constants/env.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import authenticate from "./middlewares/authenticate.js";
 import cookieParser from "cookie-parser";
-import { ZodError } from "zod";
-import { formatZodErrors } from "./controller/auth.schemas.js";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: CLIENT_WEB_APP_URL,
     credentials: true,
   }),
 );
@@ -22,18 +21,21 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
+// Rate limiting for sensitive auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // 20 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests, please try again later." },
+});
+
+app.use("/api/v1/auth/login", authLimiter);
+app.use("/api/v1/auth/register", authLimiter);
+app.use("/api/v1/auth/password/forgot", authLimiter);
+
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/user", authenticate, userRoute);
-
-// app.use((error: any, req: any, res: any, next: any) => {
-//   if (error instanceof ZodError) {
-//     const formattedErrors = formatZodErrors(error);
-//     return res.status(400).json({
-//       message: formattedErrors[0]?.message,
-//       errors: formattedErrors,
-//     });
-//   }
-// });
 
 app.use(errorHandler);
 

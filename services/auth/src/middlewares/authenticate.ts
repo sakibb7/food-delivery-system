@@ -4,6 +4,9 @@ import appAssert from "../utils/appAssert.js";
 import { UNAUTHORIZED } from "../constants/http.js";
 import AppErrorCode from "../constants/appErrorCode.js";
 import { verifyToken } from "../utils/jwt.js";
+import { db } from "../db/index.js";
+import { sessionsTable } from "../db/schema/sessionSchema.js";
+import { eq, and, gt } from "drizzle-orm";
 
 interface CustomJwtPayload extends JwtPayload {
   userId: number;
@@ -11,37 +14,51 @@ interface CustomJwtPayload extends JwtPayload {
 }
 
 const authenticate: RequestHandler = (req, res, next) => {
-  const accessToken = req.cookies.accessToken as string | undefined;
+  (async () => {
+    const accessToken = req.cookies.accessToken as string | undefined;
 
-  console.log(accessToken, "Access Token");
+    appAssert(
+      accessToken,
+      UNAUTHORIZED,
+      "Not Authorized",
+      AppErrorCode.InvalidAccessToken,
+    );
 
-  appAssert(
-    accessToken,
-    UNAUTHORIZED,
-    "Not Authorized",
-    AppErrorCode.InvalidAccessToken,
-  );
+    const { error, payload } = verifyToken(accessToken);
 
-  const { error, payload } = verifyToken(accessToken);
+    appAssert(
+      payload,
+      UNAUTHORIZED,
+      error === "jwt expired" ? "Token expired" : "Invalid token",
+      AppErrorCode.InvalidAccessToken,
+    );
 
-  appAssert(
-    payload,
-    UNAUTHORIZED,
-    error === "jwt expired" ? "Token expired" : "Invalid token",
-    AppErrorCode.InvalidAccessToken,
-  );
+    const decoded = payload as CustomJwtPayload;
 
-  const decoded = payload as CustomJwtPayload;
+    // Validate session still exists and is not expired in DB
+    const [session] = await db
+      .select({ id: sessionsTable.id })
+      .from(sessionsTable)
+      .where(
+        and(
+          eq(sessionsTable.id, decoded.sessionId),
+          gt(sessionsTable.expiresAt, new Date()),
+        ),
+      )
+      .limit(1);
 
-  const request = req as typeof req & {
-    userId: number;
-    sessionId: string;
-  };
+    appAssert(
+      session,
+      UNAUTHORIZED,
+      "Session expired or revoked",
+      AppErrorCode.InvalidAccessToken,
+    );
 
-  request.userId = decoded.userId;
-  request.sessionId = decoded.sessionId;
+    req.userId = decoded.userId;
+    req.sessionId = decoded.sessionId;
 
-  next();
+    next();
+  })().catch(next);
 };
 
 export default authenticate;

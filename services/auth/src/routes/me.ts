@@ -12,8 +12,6 @@ const router = express.Router();
 router.get(
   "/me",
   catchErrors(async (req, res, next) => {
-    const refreshToken = req.cookies;
-    console.log(refreshToken, "refresh from me");
     const userId = req.userId;
 
     const [user] = await db
@@ -24,15 +22,10 @@ router.get(
 
     appAssert(user, NOT_FOUND, "User not found");
 
-    console.log(userId);
     return res.status(OK).json({
       user: omitPassword(user),
     });
   }),
 );
-
-// router.get("/me", () => {
-//   console.log("I ran");
-// });
 
 export default router;

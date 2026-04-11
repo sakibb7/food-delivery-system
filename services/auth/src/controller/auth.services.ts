@@ -3,6 +3,7 @@ import {
   BAD_REQUEST,
   CONFLICT,
   FORBIDDEN,
+  GONE,
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
   UNAUTHORIZED,
@@ -10,6 +11,7 @@ import {
 import { db } from "../db/index.js";
 import { usersTable } from "../db/schema/userSchema.js";
 import appAssert from "../utils/appAssert.js";
+import AppErrorCode from "../constants/appErrorCode.js";
 import {
   RefreshTokenPayload,
   refreshTokenSignOptions,
@@ -44,88 +46,167 @@ export function omitPassword(user: User) {
 }
 
 export const createAccount = async (data: CreateAccountParams) => {
-  return await db.transaction(async (tx) => {
-    const existingUser = await tx
-      .select({ id: usersTable.id })
-      .from(usersTable)
-      .where(eq(usersTable.email, data.email))
-      .limit(1);
+  const { user, accessToken, refreshToken, verificationId } =
+    await db.transaction(async (tx) => {
+      const existingUser = await tx
+        .select({ id: usersTable.id })
+        .from(usersTable)
+        .where(eq(usersTable.email, data.email))
+        .limit(1);
 
-    appAssert(existingUser.length === 0, CONFLICT, "Email already in use");
+      appAssert(existingUser.length === 0, CONFLICT, "Email already in use");
 
-    appAssert(data.password, BAD_REQUEST, "Password is required");
+      appAssert(data.password, BAD_REQUEST, "Password is required");
 
-    const hashedPassword = await hashValue(data.password);
+      const hashedPassword = await hashValue(data.password);
 
-    const [user] = await tx
-      .insert(usersTable)
-      .values({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        avatar: data?.avatar,
-        passwordHash: hashedPassword,
-        email: data.email,
-        phone: data?.phone,
-        address: data?.address,
-        city: data?.city,
-        country: data?.country,
-        zipcode: data?.zipcode,
-        status: "active",
-        role: "user",
-      })
-      .returning();
+      const [user] = await tx
+        .insert(usersTable)
+        .values({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          avatar: data?.avatar,
+          passwordHash: hashedPassword,
+          email: data.email,
+          phone: data?.phone,
+          address: data?.address,
+          city: data?.city,
+          country: data?.country,
+          zipcode: data?.zipcode,
+          status: "active",
+          role: "user",
+        })
+        .returning();
 
-    if (!user) throw new Error("User creation failed");
+      if (!user) throw new Error("User creation failed");
 
-    const [session] = await tx
-      .insert(sessionsTable)
-      .values({
+      const [session] = await tx
+        .insert(sessionsTable)
+        .values({
+          userId: user.id,
+          userAgent: data.userAgent ?? "unknown",
+          expiresAt: thirtyDaysFromNow(),
+        })
+        .returning();
+
+      if (!session) throw new Error("Session creation failed");
+
+      const [verification] = await tx
+        .insert(verificationTable)
+        .values({
+          userId: user.id,
+          type: "email_verification",
+          expiresAt: oneHourFromNow(),
+        })
+        .returning();
+
+      const refreshToken = signToken(
+        { userId: user.id, sessionId: session.id },
+        refreshTokenSignOptions,
+      );
+
+      const accessToken = signToken({
         userId: user.id,
-        userAgent: data.userAgent ?? "unknown",
-        expiresAt: thirtyDaysFromNow(),
-      })
-      .returning();
+        sessionId: session.id,
+      });
 
-    if (!session) throw new Error("Session creation failed");
-
-    const [verification] = await tx
-      .insert(verificationTable)
-      .values({
-        userId: user.id,
-        type: "email_verification",
-        expiresAt: oneHourFromNow(),
-      })
-      .returning();
-
-    const refreshToken = signToken(
-      { userId: user.id, sessionId: session.id },
-      refreshTokenSignOptions,
-    );
-
-    const accessToken = signToken({
-      userId: user.id,
-      sessionId: session.id,
+      return {
+        user: omitPassword(user),
+        accessToken,
+        refreshToken,
+        verificationId: verification?.id,
+      };
     });
 
-    await transporter.sendMail({
+  // Send verification email outside the transaction (fire-and-forget)
+  transporter
+    .sendMail({
       from: "no-reply@yourapp.com",
       to: user.email,
       subject: "Verify your email",
-      html: `
-    <h2>Verify your email</h2>
-    <p>Click the link below:</p>
-    <a href="${APP_ORIGIN}/verify-email?token=${verification?.id}">
-      Verify Email
-    </a>
-  `,
-    });
+      html: ` <html>
+  <body style="margin:0; padding:0; background-color:#f4f4f4;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f4f4; padding:20px 0;">
+      <tr>
+        <td align="center">
+    
+      <table width="100%" max-width="600" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff; border-radius:8px; overflow:hidden;">
+        
+       
+        <tr>
+          <td align="center" style="padding:20px; background-color:#4f46e5; color:#ffffff; font-family:Arial, sans-serif; font-size:20px; font-weight:bold;">
+            Verify Your Email
+          </td>
+        </tr>
 
-    return {
-      user: omitPassword(user),
-      accessToken,
-      refreshToken,
-    };
-  });
+ 
+        <tr>
+          <td style="padding:30px; font-family:Arial, sans-serif; color:#333333; font-size:16px; line-height:1.5;">
+            
+            <p style="margin:0 0 15px;">
+              Hi,
+            </p>
+
+            <p style="margin:0 0 20px;">
+              Thanks for signing up! Please confirm your email address by clicking the button below.
+            </p>
+
+          
+            <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:20px auto;">
+              <tr>
+                <td align="center" bgcolor="#4f46e5" style="border-radius:6px;">
+                  <a href="${APP_ORIGIN}/verify-email?token=${verificationId}"
+                     style="display:inline-block; padding:12px 24px; font-size:16px; color:#ffffff; text-decoration:none; font-family:Arial, sans-serif;">
+                    Verify Email
+                  </a>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:20px 0 10px; font-size:14px; color:#555;">
+              If the button doesn’t work, copy and paste this link into your browser:
+            </p>
+
+            <p style="word-break:break-all; font-size:14px;">
+              <a href="${APP_ORIGIN}/verify-email?token=${verificationId}" style="color:#4f46e5;">
+                ${APP_ORIGIN}/verify-email?token=${verificationId}
+              </a>
+            </p>
+
+            <p style="margin-top:25px; font-size:14px; color:#777;">
+              If you didn’t create an account, you can safely ignore this email.
+            </p>
+
+          </td>
+        </tr>
+
+      
+        <tr>
+          <td align="center" style="padding:15px; font-family:Arial, sans-serif; font-size:12px; color:#aaaaaa;">
+            © ${new Date().getFullYear()} Your Company
+          </td>
+        </tr>
+
+      </table>
+
+    </td>
+  </tr>
+</table>
+
+  </body>
+</html>
+
+  `,
+    })
+    .catch((err: unknown) =>
+      console.error("Failed to send verification email:", err),
+    );
+
+  return {
+    user,
+    accessToken,
+    refreshToken,
+  };
 };
 
 export type LoginParams = {
@@ -182,43 +263,140 @@ export const loginUser = async ({
 };
 
 export const verifyEmail = async (code: string) => {
-  // const validCode = await VerificationCodeModel.findOne({
-  //   _id: code,
-  //   type: VerificationCodeType.EmailVerification,
-  //   expiresAt: { $gt: new Date() },
-  // });
-
-  const [validCode] = await db
+  // First, look up the code regardless of expiry to distinguish "not found" vs "expired"
+  const [codeRecord] = await db
     .select()
     .from(verificationTable)
     .where(
       and(
         eq(verificationTable.id, code),
         eq(verificationTable.type, "email_verification"),
-        gt(verificationTable.expiresAt, new Date()),
       ),
     )
     .limit(1);
 
-  appAssert(validCode, NOT_FOUND, "Invalid or expired verification code");
+  appAssert(codeRecord, NOT_FOUND, "Invalid verification code");
+
+  // Check if the code has expired
+  appAssert(
+    codeRecord.expiresAt.getTime() > Date.now(),
+    GONE,
+    "Verification code has expired. Please request a new one.",
+    AppErrorCode.VerificationCodeExpired,
+  );
 
   const [updatedUser] = await db
     .update(usersTable)
     .set({
       emailVerifiedAt: new Date(),
     })
-    .where(eq(usersTable.id, validCode.userId))
+    .where(eq(usersTable.id, codeRecord.userId))
     .returning();
 
   appAssert(updatedUser, INTERNAL_SERVER_ERROR, "Failed to verify email");
 
   await db
     .delete(verificationTable)
-    .where(eq(verificationTable.id, validCode.id));
+    .where(eq(verificationTable.id, codeRecord.id));
 
   return {
     user: omitPassword(updatedUser),
   };
+};
+
+export const resendVerificationEmail = async (userId: number) => {
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, userId))
+    .limit(1);
+
+  appAssert(user, NOT_FOUND, "User not found");
+
+  appAssert(
+    !user.emailVerifiedAt,
+    BAD_REQUEST,
+    "Email is already verified",
+  );
+
+  // Delete any existing email verification codes for this user
+  await db
+    .delete(verificationTable)
+    .where(
+      and(
+        eq(verificationTable.userId, userId),
+        eq(verificationTable.type, "email_verification"),
+      ),
+    );
+
+  const [verification] = await db
+    .insert(verificationTable)
+    .values({
+      userId: user.id,
+      type: "email_verification",
+      expiresAt: oneHourFromNow(),
+    })
+    .returning();
+
+  appAssert(
+    verification,
+    INTERNAL_SERVER_ERROR,
+    "Failed to create verification code",
+  );
+
+  // Send new verification email
+  await transporter.sendMail({
+    from: "no-reply@yourapp.com",
+    to: user.email,
+    subject: "Verify your email",
+    html: `<html>
+  <body style="margin:0; padding:0; background-color:#f4f4f4;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f4f4; padding:20px 0;">
+      <tr>
+        <td align="center">
+      <table width="100%" max-width="600" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff; border-radius:8px; overflow:hidden;">
+        <tr>
+          <td align="center" style="padding:20px; background-color:#4f46e5; color:#ffffff; font-family:Arial, sans-serif; font-size:20px; font-weight:bold;">
+            Verify Your Email
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:30px; font-family:Arial, sans-serif; color:#333333; font-size:16px; line-height:1.5;">
+            <p style="margin:0 0 15px;">Hi,</p>
+            <p style="margin:0 0 20px;">You requested a new verification link. Please confirm your email address by clicking the button below.</p>
+            <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:20px auto;">
+              <tr>
+                <td align="center" bgcolor="#4f46e5" style="border-radius:6px;">
+                  <a href="${APP_ORIGIN}/verify-email?token=${verification.id}"
+                     style="display:inline-block; padding:12px 24px; font-size:16px; color:#ffffff; text-decoration:none; font-family:Arial, sans-serif;">
+                    Verify Email
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:20px 0 10px; font-size:14px; color:#555;">If the button doesn't work, copy and paste this link into your browser:</p>
+            <p style="word-break:break-all; font-size:14px;">
+              <a href="${APP_ORIGIN}/verify-email?token=${verification.id}" style="color:#4f46e5;">
+                ${APP_ORIGIN}/verify-email?token=${verification.id}
+              </a>
+            </p>
+            <p style="margin-top:25px; font-size:14px; color:#777;">This link will expire in 1 hour. If you didn't create an account, you can safely ignore this email.</p>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:15px; font-family:Arial, sans-serif; font-size:12px; color:#aaaaaa;">
+            &copy; ${new Date().getFullYear()} Your Company
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+  </body>
+</html>`,
+  });
+
+  return { message: "Verification email sent" };
 };
 
 export const refreshUserAccessToken = async (refreshToken: string) => {
@@ -249,7 +427,7 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
     await db
       .update(sessionsTable)
       .set({
-        expiresAt: new Date(),
+        expiresAt: session.expiresAt,
       })
       .where(eq(sessionsTable.id, session.id));
   }
@@ -257,6 +435,7 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
   const newRefreshToken = sessionNeedsRefresh
     ? signToken(
         {
+          userId: session.userId,
           sessionId: session.id,
         },
         refreshTokenSignOptions,
@@ -284,6 +463,16 @@ export const forgotPassword = async (email: string) => {
   if (!user) {
     return;
   }
+
+  // Delete any existing password reset codes for this user
+  await db
+    .delete(verificationTable)
+    .where(
+      and(
+        eq(verificationTable.userId, user.id),
+        eq(verificationTable.type, "password_reset"),
+      ),
+    );
 
   const [verification] = await db
     .insert(verificationTable)
@@ -351,12 +540,20 @@ export const loginWithGoogle = async (
     family_name?: string | null;
     picture?: string | null;
     id?: string | null;
+    verified_email?: boolean | null;
   },
   userAgent?: string,
 ) => {
   if (!googleUser.email || !googleUser.id) {
     throw new Error("Invalid Google user profile");
   }
+
+  // Require Google email to be verified
+  appAssert(
+    googleUser.verified_email !== false,
+    BAD_REQUEST,
+    "Google email must be verified",
+  );
 
   const [existingUser] = await db
     .select()
@@ -367,6 +564,7 @@ export const loginWithGoogle = async (
   let user = existingUser;
 
   if (!user) {
+    // New user — create account via Google
     const [newUser] = await db
       .insert(usersTable)
       .values({
@@ -382,16 +580,25 @@ export const loginWithGoogle = async (
       })
       .returning();
     user = newUser;
-  } else if (user.provider !== "google" || user.providerId !== googleUser.id) {
-    const [updatedUser] = await db
-      .update(usersTable)
-      .set({
-        provider: "google",
-        providerId: googleUser.id,
-      })
-      .where(eq(usersTable.id, user.id))
-      .returning();
-    user = updatedUser;
+  } else {
+    // Existing user — only allow login if they are already a Google user
+    appAssert(
+      user.provider === "google",
+      CONFLICT,
+      "An account with this email already exists. Please login with your password.",
+    );
+
+    // Update providerId if it changed
+    if (user.providerId !== googleUser.id) {
+      const [updatedUser] = await db
+        .update(usersTable)
+        .set({
+          providerId: googleUser.id,
+        })
+        .where(eq(usersTable.id, user.id))
+        .returning();
+      user = updatedUser;
+    }
   }
 
   appAssert(user, INTERNAL_SERVER_ERROR, "Failed to authenticate user");
