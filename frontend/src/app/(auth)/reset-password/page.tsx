@@ -1,29 +1,23 @@
 "use client";
-import Link from "next/link";
-import { useState } from "react";
-import { Mail, ArrowRight, Check } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import InputField from "@/components/form/InputField";
+import { useRouter, useSearchParams } from "next/navigation";
 import PasswordField from "@/components/form/passwordField";
-
 import Button from "@/components/ui/button";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
 import { toast } from "sonner";
-import SocialLogin from "@/components/ui/SocialLogin";
 import AuthLayout from "@/components/layout/auth-layout";
-import { useAuthStore } from "@/store/auth";
 
 export interface ChangePasswordFormData {
   password: string;
   confirmPassword: string;
+  verificationCode: string;
 }
 
 export default function ChangePasswordPage() {
-  const login = useAuthStore((state) => state.login);
   const router = useRouter();
-  const [termsAccept, setTermsAccept] = useState(false);
-
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") || "";
   const {
     register,
     formState: { errors },
@@ -33,24 +27,20 @@ export default function ChangePasswordPage() {
 
   const { mutate, isLoading } = useQueryMutation({
     isPublic: true,
-    url: "/auth/login",
+    url: "/auth/password/reset",
   });
 
   const onSubmit = handleSubmit(async (data: ChangePasswordFormData) => {
-    mutate(data, {
-      onSuccess: (data) => {
-        const user = data?.data?.data?.user;
-        if (user) {
-          login(user);
-        } else {
-          toast.info("User data not found!");
-        }
+    mutate(
+      { verificationCode: token, password: data.password },
+      {
+        onSuccess: (data) => {
+          toast.success(data?.data?.message || "Password changed successfully");
 
-        toast.success("Login Success");
-
-        router.push("/profile");
+          router.push("/sign-in");
+        },
       },
-    });
+    );
   });
 
   return (

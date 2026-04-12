@@ -25,6 +25,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     set({
       isAuthenticated: true,
       user,
+      isLoading: false,
     });
   },
 
@@ -45,8 +46,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
     try {
       set({ isLoading: true });
 
-      const res = await privateInstance.get("/auth/me");
-      const user: UserType = res.data?.data;
+      const res = await privateInstance.get("/user/me");
+      const user: UserType = res.data?.user;
 
       set({
         user,

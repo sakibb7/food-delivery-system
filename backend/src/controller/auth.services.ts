@@ -32,7 +32,7 @@ import {
   VerificationCodeType,
   verificationTable,
 } from "../db/schema/verificationSchema.js";
-import { APP_ORIGIN } from "../constants/env.js";
+import { APP_ORIGIN, CLIENT_WEB_APP_URL } from "../constants/env.js";
 
 export type CreateAccountParams = z.infer<typeof registerSchema> & {
   userAgent?: string | undefined;
@@ -313,11 +313,7 @@ export const resendVerificationEmail = async (userId: number) => {
 
   appAssert(user, NOT_FOUND, "User not found");
 
-  appAssert(
-    !user.emailVerifiedAt,
-    BAD_REQUEST,
-    "Email is already verified",
-  );
+  appAssert(!user.emailVerifiedAt, BAD_REQUEST, "Email is already verified");
 
   // Delete any existing email verification codes for this user
   await db
@@ -490,7 +486,7 @@ export const forgotPassword = async (email: string) => {
     html: `
       <h2>Reset your password</h2>
       <p>Click the link below:</p>
-      <a href="${APP_ORIGIN}/reset-password?token=${verification?.id}">
+      <a href="${CLIENT_WEB_APP_URL}/reset-password?token=${verification?.id}">
         Reset Password
       </a>
     `,

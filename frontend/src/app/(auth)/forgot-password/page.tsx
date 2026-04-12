@@ -31,25 +31,16 @@ export default function ForgotPassword() {
 
   const { mutate, isLoading } = useQueryMutation({
     isPublic: true,
-    url: "/auth/login",
+    url: "/auth/password/forgot",
   });
 
   const onSubmit = handleSubmit(async (data: ForgotPasswordFormData) => {
-    // mutate(data, {
-    //   onSuccess: (data) => {
-    //     const user = data?.data?.data?.user;
-    //     if (user) {
-    //       login(user);
-    //     } else {
-    //       toast.info("User data not found!");
-    //     }
-
-    //     toast.success("Login Success");
-
-    //     router.push("/profile");
-    //   },
-    // });
-    router.push("/change-password");
+    mutate(data, {
+      onSuccess: (data) => {
+        console.log(data, "forgot password data");
+        toast.success(data?.data?.message || "Reset link sent to your email!");
+      },
+    });
   });
 
   return (

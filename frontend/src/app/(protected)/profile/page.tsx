@@ -3,11 +3,37 @@
 import React, { useState } from "react";
 import { User, Lock, Bell, Settings, Camera, Save, LogOut } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
+import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
+import { getQueryClient } from "@/configs/query-client";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
   const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState("profile");
-  console.log(user, "User data");
+  const router = useRouter();
+
+  const { mutate, isLoading, backendErrors } = useQueryMutation({
+    isPublic: true,
+    url: "/auth/logout",
+  });
+
+  const signOut = () => {
+    mutate(
+      {},
+      {
+        onSuccess: () => {
+          getQueryClient().invalidateQueries();
+          router.push("/sign-in");
+          toast.success("Logout Successfully!");
+        },
+        onError: (data) => {
+          console.log(data.error);
+          toast.error("Something went wrong!");
+        },
+      },
+    );
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full font-sans">
@@ -63,7 +89,10 @@ export default function ProfilePage() {
             </nav>
 
             <div className="p-3 mt-4 border-t border-gray-100">
-              <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-red-600 hover:bg-red-50 transition-colors">
+              <button
+                onClick={signOut}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-red-600 hover:bg-red-50 transition-colors"
+              >
                 <LogOut size={20} /> Sign out
               </button>
             </div>
@@ -72,7 +101,7 @@ export default function ProfilePage() {
 
         {/* Content Area */}
         <main className="flex-1">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 min-h-[500px]">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 min-h-125">
             {/* Profile Tab */}
             {activeTab === "profile" && (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">

@@ -19,6 +19,8 @@ export default function ProtectedLayout({
     }
   }, []);
 
+  console.log(isLoading);
+
   if (isLoading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
