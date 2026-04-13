@@ -121,6 +121,16 @@ export default function SignUpPage() {
           </Link>
         </div>
 
+        <div className="mt-4 text-center text-gray-500 font-medium text-sm">
+          Want to partner with us?{" "}
+          <Link
+            href="/owner-sign-up"
+            className="text-red-600 font-bold hover:text-red-700 hover:underline"
+          >
+            Register your restaurant
+          </Link>
+        </div>
+
         <div className="mt-12 flex items-center">
           <div className="h-px bg-gray-200 flex-1"></div>
           <span className="px-4 text-xs font-semibold text-gray-400 tracking-wider">

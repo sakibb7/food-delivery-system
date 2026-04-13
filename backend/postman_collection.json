@@ -46,6 +46,29 @@
       "name": "Registration & Login",
       "item": [
         {
+          "name": "Register — Restaurant Owner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Bob\",\n  \"lastName\": \"Burger\",\n  \"email\": \"owner@bobsburgers.com\",\n  \"password\": \"Password123!\",\n  \"confirmPassword\": \"Password123!\",\n  \"phone\": \"1234567890\",\n  \"address\": \"Ocean Avenue\",\n  \"city\": \"Seymour's Bay\",\n  \"country\": \"USA\",\n  \"zipcode\": \"12345\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register/restaurant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register", "restaurant"]
+            },
+            "description": "Register a restaurant owner account."
+          },
+          "response": []
+        },
+        {
           "name": "Register — New User",
           "event": [
             {
@@ -874,6 +897,20 @@
               "path": ["api", "v1", "restaurant"]
             },
             "description": "Create a new restaurant (Authenticated)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Restaurants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurant/my-restaurants",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurant", "my-restaurants"]
+            },
+            "description": "Get all restaurants owned by the current authenticated user."
           },
           "response": []
         },

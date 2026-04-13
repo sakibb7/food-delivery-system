@@ -1,15 +1,143 @@
+"use client";
 import React from "react";
 import Link from "next/link";
-import { Search, Clock, ChevronRight, Star, Heart } from "lucide-react";
 import Image from "next/image";
+import { useAuthStore } from "@/store/auth";
+import {
+  Search,
+  Clock,
+  ChevronRight,
+  Star,
+  Heart,
+  Plus,
+  Store,
+  TrendingUp,
+  Users,
+  DollarSign
+} from "lucide-react";
 
 export default function Dashboard() {
+  const { user } = useAuthStore();
+
+  const isOwner = user?.role === "restaurant";
+
+  if (isOwner) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full font-sans">
+        <div className="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+              Business Overview
+            </h1>
+            <p className="text-gray-500 mt-2 text-lg font-medium">
+              Manage your restaurants and track your performance.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/restaurants/new"
+            className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3.5 rounded-2xl font-bold transition-all shadow-lg shadow-red-600/20 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <Plus size={20} />
+            Add Restaurant
+          </Link>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {[
+            { label: "Total Restaurants", value: "3", icon: Store, color: "text-blue-600", bg: "bg-blue-50" },
+            { label: "Today's Orders", value: "24", icon: Clock, color: "text-orange-600", bg: "bg-orange-50" },
+            { label: "Total Revenue", value: "$4,250", icon: DollarSign, color: "text-green-600", bg: "bg-green-50" },
+            { label: "Total Customers", value: "850", icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
+          ].map((stat, i) => (
+            <div key={i} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+              <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-4`}>
+                <stat.icon size={24} />
+              </div>
+              <p className="text-gray-500 font-semibold text-sm mb-1">{stat.label}</p>
+              <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
+            </div>
+          ))}
+        </div>
+
+        {/* Quick Links / My Restaurants Area */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Active Restaurants</h2>
+              <Link href="/dashboard/restaurants" className="text-red-600 font-bold hover:underline text-sm">View all</Link>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                { name: "The Gourmet Burger", orders: 12, revenue: "$1,240", status: "Open" },
+                { name: "Pizza Palace", orders: 8, revenue: "$850", status: "Open" },
+                { name: "Sushi Central", orders: 4, revenue: "$560", status: "Closed" },
+              ].map((res, i) => (
+                <div key={i} className="bg-white p-5 rounded-3xl border border-gray-100 flex items-center justify-between group hover:border-red-100 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-red-600 font-bold text-xl border border-gray-100">
+                      {res.name.charAt(0)}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900 group-hover:text-red-600 transition-colors">{res.name}</h4>
+                      <p className="text-sm text-gray-500 font-medium">{res.orders} orders today</p>
+                    </div>
+                  </div>
+                  <div className="text-right flex items-center gap-6">
+                    <div className="hidden sm:block">
+                      <p className="text-sm font-semibold text-gray-400">Revenue</p>
+                      <p className="font-bold text-gray-900">{res.revenue}</p>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-xs font-bold ${res.status === 'Open' ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-500'}`}>
+                      {res.status}
+                    </div>
+                    <ChevronRight className="text-gray-300 group-hover:text-red-500 transition-colors" size={20} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-6">Recent Activity</h2>
+            <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+              <div className="space-y-6">
+                {[
+                  { title: "New Order", time: "2 min ago", desc: "Order #ORD-552 received at Sushi Central" },
+                  { title: "Payment Received", time: "15 min ago", desc: "$240.50 credited to your account" },
+                  { title: "Review Added", time: "1 hour ago", desc: "5 stars for The Gourmet Burger" },
+                  { title: "Menu Updated", time: "3 hours ago", desc: "Updated prices at Pizza Palace" },
+                ].map((activity, i) => (
+                  <div key={i} className="flex gap-4">
+                    <div className="mt-1.5 w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <h4 className="font-bold text-sm text-gray-900">{activity.title}</h4>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{activity.time}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 font-medium">{activity.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button className="w-full mt-8 py-3 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-2xl font-bold text-sm transition-colors">
+                View All Activity
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Customer Dashboard (Current functionality)
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full font-sans">
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-            Welcome back, User!
+            Welcome back, {user?.firstName || "User"}!
           </h1>
           <p className="text-gray-500 mt-1 font-medium">
             What are you craving today?

@@ -12,12 +12,12 @@ import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
 import SocialLogin from "@/components/ui/SocialLogin";
 import AuthLayout from "@/components/layout/auth-layout";
 
-export interface SignUpFormData {
+export interface OwnerSignUpFormData {
   firstName: string;
   lastName: string;
   email: string;
-  password: string; // Optional if you don't always want to pass the hash
-  confirmPassword?: string; // Usually only needed during registration/DTOs
+  password: string;
+  confirmPassword?: string;
   phone?: string;
   avatar?: string;
   address?: string;
@@ -27,7 +27,7 @@ export interface SignUpFormData {
   termsAccept: boolean;
 }
 
-export default function SignUpPage() {
+export default function OwnerSignUpPage() {
   const router = useRouter();
   const [termsAccept, setTermsAccept] = useState(false);
 
@@ -36,17 +36,21 @@ export default function SignUpPage() {
     formState: { errors },
     handleSubmit,
     watch,
-  } = useForm<SignUpFormData>();
+  } = useForm<OwnerSignUpFormData>();
 
   const { mutate, isLoading, backendErrors } = useQueryMutation({
     isPublic: true,
-    url: "/auth/register",
+    url: "/auth/register/restaurant",
   });
 
-  const onSubmit = handleSubmit(async (data: SignUpFormData) => {
+  const onSubmit = handleSubmit(async (data: OwnerSignUpFormData) => {
+    // if (!termsAccept) {
+    //   toast.error("Please accept the terms and conditions");
+    //   return;
+    // }
     mutate(data, {
       onSuccess: () => {
-        toast.success("Account Created Successfully!");
+        toast.success("Business Account Created Successfully!");
         router.push("/dashboard");
       },
       onError: (error) => {
@@ -60,10 +64,10 @@ export default function SignUpPage() {
     <AuthLayout>
       <div className="max-w-md w-full mx-auto sm:mx-0 mt-16 lg:mt-0">
         <h1 className="text-4xl font-extrabold text-gray-900 mb-2 tracking-tight">
-          Create an account
+          Partner with us
         </h1>
         <p className="text-gray-500 mb-10">
-          Sign up to start ordering the most delicious food near you.
+          Create a business account to manage your restaurant and orders.
         </p>
 
         <form onSubmit={onSubmit} className="space-y-6">
@@ -86,8 +90,8 @@ export default function SignUpPage() {
             required
           />
           <InputField
-            label="Email"
-            placeholder="johndoe@gmail.com"
+            label="Business Email"
+            placeholder="contact@restaurant.com"
             name="email"
             register={register}
             error={errors.email}
@@ -122,10 +126,10 @@ export default function SignUpPage() {
               <div className="size-5 rounded-sm border border-red-700 peer-checked:bg-red-700 text-sm flex justify-center items-center text-transparent peer-checked:text-white">
                 <Check />
               </div>
-              <p>I agree to Quizyon </p>
+              <p>I agree to the </p>
             </label>
             <Link href="" className="text-red-700 hover:underline font-medium">
-              Terms & Conditions
+              Business Terms & Conditions
             </Link>
           </div>
 
@@ -135,7 +139,7 @@ export default function SignUpPage() {
             rightIcon={<ArrowRight size={20} />}
             loading={isLoading}
           >
-            Sign Up
+            Create Business Account
           </Button>
         </form>
 
@@ -148,26 +152,6 @@ export default function SignUpPage() {
             Log in
           </Link>
         </div>
-
-        <div className="mt-4 text-center text-gray-500 font-medium text-sm">
-          Want to partner with us?{" "}
-          <Link
-            href="/owner-sign-up"
-            className="text-red-600 font-bold hover:text-red-700 hover:underline"
-          >
-            Register your restaurant
-          </Link>
-        </div>
-
-        <div className="mt-12 flex items-center">
-          <div className="h-px bg-gray-200 flex-1"></div>
-          <span className="px-4 text-xs font-semibold text-gray-400 tracking-wider">
-            OR CONTINUE WITH
-          </span>
-          <div className="h-px bg-gray-200 flex-1"></div>
-        </div>
-
-        <SocialLogin />
       </div>
     </AuthLayout>
   );
