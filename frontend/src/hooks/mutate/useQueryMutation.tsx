@@ -1,6 +1,6 @@
 "use client";
-import { publicInstance, privateInstance } from "@/configs/axiosConfig";
 
+import { publicInstance, privateInstance } from "@/configs/axiosConfig";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -9,74 +9,97 @@ interface MutateProps {
   isPublic?: boolean;
   url: string;
   config?: any;
-  isUpdateMethod?: boolean;
+  method?: "POST" | "PUT" | "PATCH" | "DELETE";
 }
 
 export const useQueryMutation = ({
   isPublic = false,
   url,
   config = {},
-  isUpdateMethod = false,
+  method = "POST",
 }: MutateProps) => {
   const [backendErrors, setBackendErrors] = useState<any>(null);
-  const postData = async (body: { [key: string]: any }) => {
-    if (isUpdateMethod) {
-      body = { ...body, _method: "PUT" };
-    }
+
+  const mutateRequest = async (body: { [key: string]: any }) => {
+    let finalUrl = url;
+
+    // allow dynamic URL override
     if (body?.updatedUrl) {
-      url = body.updatedUrl;
+      finalUrl = body.updatedUrl;
       delete body.updatedUrl;
     }
 
+    const instance = isPublic ? publicInstance : privateInstance;
+
     try {
-      const response = await (isPublic ? publicInstance : privateInstance).post(
-        url,
-        body,
-        config,
-      );
+      let response;
+
+      switch (method) {
+        case "PUT":
+          response = await instance.put(finalUrl, body, config);
+          break;
+        case "PATCH":
+          response = await instance.patch(finalUrl, body, config);
+          break;
+        case "DELETE":
+          response = await instance.delete(finalUrl, {
+            ...config,
+            data: body, // axios requires data inside config for DELETE
+          });
+          break;
+        default:
+          response = await instance.post(finalUrl, body, config);
+      }
+
       return response;
     } catch (err) {
       return Promise.reject(err);
     }
   };
 
-  // React Query mutation with enhanced error handling
-  const { mutate, isError, isPending } = useMutation({
-    mutationFn: postData,
+  const { mutate, isError, isPending, isSuccess, data } = useMutation({
+    mutationFn: mutateRequest,
+
     onSuccess: () => {
       setBackendErrors(null);
     },
+
     onError: (err: any) => {
       let message = "An error occurred";
       const status = err?.response?.status;
       const responseData = err?.response?.data;
 
-      // Handle different status codes
       switch (status) {
         case 422:
           const validationErrors = responseData?.errors;
 
-          setBackendErrors({
-            ...backendErrors,
+          setBackendErrors((prev: any) => ({
+            ...prev,
             ...validationErrors,
-          });
+          }));
+
           message = responseData?.message || message;
           break;
+
+        case 401:
+          message = "Unauthorized. Please login again.";
+          break;
+
+        case 403:
+          message = "Forbidden access.";
+          break;
+
         case 404:
-          message = responseData?.message || message;
-          break;
         case 417:
-          message = responseData?.message || message;
-          break;
         case 500:
           message = responseData?.message || message;
           break;
+
         default:
           message = responseData?.message || message;
           break;
       }
 
-      // Display error message
       if (message) {
         toast.error(message, {
           position: "top-right",
@@ -89,6 +112,8 @@ export const useQueryMutation = ({
     mutate,
     isError,
     isLoading: isPending,
+    isSuccess,
+    data,
     backendErrors,
   };
 };

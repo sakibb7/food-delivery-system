@@ -1,11 +1,9 @@
 "use client";
-
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   User,
-  Settings,
   LogOut,
   ChevronDown,
   Menu,
@@ -17,6 +15,8 @@ import {
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
 import { toast } from "sonner";
 import { getQueryClient } from "@/configs/query-client";
+import { useAuthStore } from "@/store/auth";
+import Logo from "./ui/Logo";
 
 export default function ProtectedHeader() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -24,6 +24,7 @@ export default function ProtectedHeader() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
+  const { user } = useAuthStore();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -45,7 +46,7 @@ export default function ProtectedHeader() {
     { name: "Favorites", href: "/favorites" },
   ];
 
-  const { mutate, isLoading, backendErrors } = useQueryMutation({
+  const { mutate } = useQueryMutation({
     isPublic: true,
     url: "/auth/logout",
   });
@@ -74,14 +75,7 @@ export default function ProtectedHeader() {
         <div className="flex justify-between h-16">
           {/* Logo & Desktop Nav */}
           <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="flex items-center gap-2 group">
-              <div className="bg-red-600 text-white p-1.5 rounded-lg font-bold text-lg tracking-tight group-hover:bg-red-700 transition-colors">
-                T
-              </div>
-              <span className="font-extrabold text-xl tracking-tight text-gray-900 group-hover:text-red-600 transition-colors">
-                Tomato.
-              </span>
-            </Link>
+            <Logo />
 
             <nav className="hidden md:flex space-x-6">
               {navLinks.map((link) => (
@@ -118,11 +112,14 @@ export default function ProtectedHeader() {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-2 focus:outline-none bg-gray-50 hover:bg-gray-100 pl-2 pr-3 py-1.5 rounded-full border border-gray-200 transition-colors"
               >
-                <div className="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm">
-                  JD
-                </div>
+                {user && (
+                  <div className="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm">
+                    {user.firstName?.charAt(0) + user.lastName?.charAt(0) ||
+                      "JD"}
+                  </div>
+                )}
                 <span className="font-semibold text-gray-700 text-sm">
-                  John Doe
+                  {user?.firstName + " " + user?.lastName || "John Doe"}
                 </span>
                 <ChevronDown
                   size={16}
@@ -141,7 +138,7 @@ export default function ProtectedHeader() {
                       className="text-sm font-bold text-gray-500 truncate"
                       title="john.doe@example.com"
                     >
-                      john.doe@example.com
+                      {user?.email}
                     </p>
                   </div>
                   <div className="py-2">

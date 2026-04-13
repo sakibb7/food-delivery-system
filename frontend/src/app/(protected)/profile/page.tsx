@@ -7,15 +7,66 @@ import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
 import { getQueryClient } from "@/configs/query-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Image from "next/image";
+import { useForm } from "react-hook-form";
+import InputField from "@/components/form/InputField";
+import PasswordField from "@/components/form/passwordField";
+
+export interface ProfileFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+
+type changePasswordData = {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+};
 
 export default function ProfilePage() {
   const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState("profile");
   const router = useRouter();
 
-  const { mutate, isLoading, backendErrors } = useQueryMutation({
-    isPublic: true,
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm<ProfileFormData>({
+    defaultValues: {
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
+      email: user?.email || "",
+      phone: user?.phone || "",
+    },
+  });
+
+  const {
+    register: registerChangePassword,
+    handleSubmit: handlePasswordSubmit,
+    watch,
+    formState: { errors: changePasswordErrors },
+  } = useForm<changePasswordData>();
+
+  const { mutate: changePassword } = useQueryMutation({
+    url: "/user/password",
+    method: "PUT",
+  });
+
+  const { mutate } = useQueryMutation({
     url: "/auth/logout",
+  });
+
+  const {
+    mutate: updateProfile,
+    isLoading,
+    backendErrors,
+  } = useQueryMutation({
+    isPublic: false,
+    url: "/user/profile",
+    method: "PUT",
   });
 
   const signOut = () => {
@@ -35,6 +86,36 @@ export default function ProfilePage() {
     );
   };
 
+  const onSubmit = handleSubmit(async (data: ProfileFormData) => {
+    updateProfile(data, {
+      onSuccess: () => {
+        toast.success("Account Updated Successfully!");
+      },
+      onError: (error) => {
+        console.log(backendErrors, "Backend Error");
+        console.log(error, "Error");
+        toast.error("Failed to update profile!");
+      },
+    });
+  });
+
+  const onChangePasswordSubmit = handlePasswordSubmit((data) => {
+    if (data.newPassword !== data.confirmNewPassword) {
+      toast.error("New password and confirm password do not match!");
+      return;
+    }
+
+    changePassword(data, {
+      onSuccess: () => {
+        toast.success("Password Updated Successfully!");
+      },
+      onError: (error) => {
+        console.log(error, "Change Password Error");
+        toast.error("Failed to update password!");
+      },
+    });
+  });
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full font-sans">
       <div className="mb-8">
@@ -52,13 +133,24 @@ export default function ProfilePage() {
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex flex-col items-center text-center">
               <div className="w-24 h-24 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-4 relative group cursor-pointer border-4 border-white shadow-sm">
-                <span className="text-3xl font-bold">JD</span>
+                <span className="text-3xl font-bold"></span>
+                {user?.avatar ? (
+                  <Image src={user.avatar} alt="Avatar" />
+                ) : (
+                  <span className="text-3xl font-bold">
+                    {user
+                      ? user?.firstName?.charAt(0) + user?.lastName?.charAt(0)
+                      : "JD"}
+                  </span>
+                )}
                 <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <Camera size={24} className="text-white" />
                 </div>
               </div>
-              <h2 className="font-bold text-gray-900 text-lg">John Doe</h2>
-              <p className="text-gray-500 text-sm">john.doe@example.com</p>
+              <h2 className="font-bold text-gray-900 text-lg">
+                {user?.firstName + " " + user?.lastName || "John Doe"}
+              </h2>
+              <p className="text-gray-500 text-sm">{user?.email}</p>
             </div>
 
             <nav className="p-3 space-y-1">
@@ -108,58 +200,49 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-bold text-gray-900 mb-6">
                   Personal Information
                 </h2>
-                <div className="space-y-6">
+                <form onSubmit={onSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        First Name
-                      </label>
-                      <input
-                        type="text"
-                        defaultValue="John"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-gray-50 focus:bg-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Last Name
-                      </label>
-                      <input
-                        type="text"
-                        defaultValue="Doe"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-gray-50 focus:bg-white"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      defaultValue="john.doe@example.com"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-gray-50 focus:bg-white"
+                    <InputField
+                      label="First Name"
+                      placeholder="John"
+                      name="firstName"
+                      register={register}
+                      error={errors.firstName}
+                      required
+                    />
+                    <InputField
+                      label="Last Name"
+                      placeholder="Doe"
+                      name="lastName"
+                      register={register}
+                      error={errors.lastName}
+                      required
                     />
                   </div>
+                  <InputField
+                    label="Email"
+                    placeholder="johndoe@gmail.com"
+                    name="email"
+                    register={register}
+                    error={errors.email}
+                    required
+                  />
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      defaultValue="+880 1712 345678"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-gray-50 focus:bg-white"
-                    />
-                  </div>
+                  <InputField
+                    label="Phone Number"
+                    placeholder="+880 1712 345678"
+                    name="phone"
+                    register={register}
+                    error={errors.phone}
+                    required
+                  />
 
                   <div className="pt-6 border-t border-gray-100 flex justify-end">
                     <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-red-600/30">
                       <Save size={18} /> Save Changes
                     </button>
                   </div>
-                </div>
+                </form>
               </div>
             )}
 
@@ -169,39 +252,32 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-bold text-gray-900 mb-6">
                   Security & Password
                 </h2>
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Current Password
-                    </label>
-                    <input
-                      type="password"
-                      placeholder="••••••••"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-gray-50 focus:bg-white"
-                    />
-                  </div>
+                <form onSubmit={onChangePasswordSubmit} className="space-y-6">
+                  <PasswordField
+                    label=" Current Password"
+                    name="currentPassword"
+                    register={registerChangePassword}
+                    error={changePasswordErrors.currentPassword}
+                    required
+                  />
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        New Password
-                      </label>
-                      <input
-                        type="password"
-                        placeholder="••••••••"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-gray-50 focus:bg-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Confirm New Password
-                      </label>
-                      <input
-                        type="password"
-                        placeholder="••••••••"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-gray-50 focus:bg-white"
-                      />
-                    </div>
+                    <PasswordField
+                      label="New Password"
+                      name="newPassword"
+                      register={registerChangePassword}
+                      error={changePasswordErrors.newPassword}
+                      required
+                    />
+                    <PasswordField
+                      label="Confirm New Password"
+                      name="confirmNewPassword"
+                      register={registerChangePassword}
+                      watch={watch}
+                      compareWith="newPassword"
+                      error={changePasswordErrors.confirmNewPassword}
+                      required
+                    />
                   </div>
 
                   <div className="pt-6 border-t border-gray-100 flex justify-end">
@@ -220,7 +296,7 @@ export default function ProfilePage() {
                       Delete My Account
                     </button>
                   </div>
-                </div>
+                </form>
               </div>
             )}
 
@@ -245,7 +321,7 @@ export default function ProfilePage() {
                         className="sr-only peer"
                         defaultChecked
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
                     </label>
                   </div>
 
@@ -265,7 +341,7 @@ export default function ProfilePage() {
                         className="sr-only peer"
                         defaultChecked
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
                     </label>
                   </div>
 
@@ -284,7 +360,7 @@ export default function ProfilePage() {
                         value=""
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
                     </label>
                   </div>
                 </div>

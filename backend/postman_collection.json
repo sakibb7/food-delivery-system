@@ -331,6 +331,20 @@
           "response": []
         },
         {
+          "name": "Resend Verification Email",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/email/verify/resend",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "email", "verify", "resend"]
+            },
+            "description": "Resend the email verification link to the authenticated user."
+          },
+          "response": []
+        },
+        {
           "name": "Verify Email — Invalid Code (should fail)",
           "request": {
             "method": "GET",
@@ -524,6 +538,52 @@
               "path": ["api", "v1", "user", "me"]
             },
             "description": "Get the authenticated user's profile.\n\n**Requires:** Valid `accessToken` cookie.\n\n**Note:** The `passwordHash` field is never included in the response."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Updated\",\n  \"lastName\": \"Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "profile"]
+            },
+            "description": "Update the authenticated user's profile."
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"OldPassword123!\",\n  \"newPassword\": \"NewPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "password"]
+            },
+            "description": "Change the authenticated user's password."
           },
           "response": []
         },
@@ -752,6 +812,117 @@
               "path": ["api", "v1", "auth", "email", "verify", ""]
             },
             "description": "Attempt to verify with empty code. Should return 404 (route not matched)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Restaurant Management",
+      "item": [
+        {
+          "name": "Get All Restaurants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurant"]
+            },
+            "description": "Retrieve a list of all restaurants (Public)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Restaurant by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurant/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurant", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "RESTAURANT_ID"
+                }
+              ]
+            },
+            "description": "Retrieve a specific restaurant by its ID (Public)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Restaurant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tomato Pasta Place\",\n  \"description\": \"Best pasta in town\",\n  \"deliveryTime\": 30,\n  \"deliveryFee\": 5.00,\n  \"minOrder\": 15.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurant"]
+            },
+            "description": "Create a new restaurant (Authenticated)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Restaurant",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tomato Pasta Place (Updated)\",\n  \"deliveryFee\": 3.50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurant/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurant", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "RESTAURANT_ID"
+                }
+              ]
+            },
+            "description": "Update an existing restaurant by its ID (Authenticated)."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Restaurant",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurant/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurant", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "RESTAURANT_ID"
+                }
+              ]
+            },
+            "description": "Delete an existing restaurant by its ID (Authenticated)."
           },
           "response": []
         }

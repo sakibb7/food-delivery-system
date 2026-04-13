@@ -11,15 +11,12 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   const { getUser, user, isLoading } = useAuthStore();
-  const router = useRouter();
 
   useEffect(() => {
     if (!user) {
       getUser();
     }
   }, []);
-
-  console.log(isLoading);
 
   if (isLoading) {
     return (
@@ -29,10 +26,9 @@ export default function ProtectedLayout({
     );
   }
 
-  // if (!user) {
-  //   router.replace("/sign-in");
-  //   return null;
-  // }
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">

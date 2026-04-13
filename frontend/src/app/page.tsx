@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -9,8 +10,10 @@ import {
   User,
   Menu,
 } from "lucide-react";
+import { useAuthStore } from "@/store/auth";
 
 export default function Home() {
+  const { user } = useAuthStore();
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       {/* Navbar */}
@@ -39,24 +42,41 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-4">
-          <Link
-            href="/sign-in"
-            className="hidden sm:flex items-center gap-2 font-medium hover:text-red-400 transition-colors"
-          >
-            <User size={20} />
-            Sign in
-          </Link>
-          <Link
-            href="/sign-up"
-            className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-full font-medium transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-red-600/30"
-          >
-            Sign up
-          </Link>
-          <button className="md:hidden">
-            <Menu size={24} />
-          </button>
-        </div>
+        {!user ? (
+          <div className="flex items-center gap-4">
+            <Link
+              href="/sign-in"
+              className="hidden sm:flex items-center gap-2 font-medium hover:text-red-400 transition-colors"
+            >
+              <User size={20} />
+              Sign in
+            </Link>
+            <Link
+              href="/sign-up"
+              className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-full font-medium transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-red-600/30"
+            >
+              Sign up
+            </Link>
+            <button className="md:hidden">
+              <Menu size={24} />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4">
+            <span className="hidden sm:inline-flex font-medium">
+              Hello, {user.firstName.split(" ")[0]}
+            </span>
+            <Link
+              href="/profile"
+              className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-full font-medium transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-red-600/30"
+            >
+              Profile
+            </Link>
+            <button className="md:hidden">
+              <Menu size={24} />
+            </button>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
