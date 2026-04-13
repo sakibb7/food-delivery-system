@@ -36,6 +36,7 @@ import { APP_ORIGIN, CLIENT_WEB_APP_URL } from "../constants/env.js";
 
 export type CreateAccountParams = z.infer<typeof registerSchema> & {
   userAgent?: string | undefined;
+  role?: "user" | "restaurant" | "admin" | "rider";
 };
 
 type User = InferSelectModel<typeof usersTable>;
@@ -74,7 +75,7 @@ export const createAccount = async (data: CreateAccountParams) => {
           country: data?.country,
           zipcode: data?.zipcode,
           status: "active",
-          role: "user",
+          role: data.role ?? "user",
         })
         .returning();
 

@@ -13,6 +13,7 @@ import {
   deleteRestaurant,
   getRestaurantById,
   getAllRestaurants,
+  getMyRestaurants,
 } from "./restaurant.services.js";
 
 export const createRestaurantHandler: RequestHandler = catchErrors(
@@ -45,6 +46,17 @@ export const getRestaurantHandler: RequestHandler = catchErrors(
 export const getAllRestaurantsHandler: RequestHandler = catchErrors(
   async (req, res) => {
     const restaurants = await getAllRestaurants();
+
+    return res.status(OK).json({
+      restaurants,
+    });
+  }
+);
+
+export const getMyRestaurantsHandler: RequestHandler = catchErrors(
+  async (req, res) => {
+    const userId = req.userId as number;
+    const restaurants = await getMyRestaurants(userId);
 
     return res.status(OK).json({
       restaurants,

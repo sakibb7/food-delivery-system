@@ -54,7 +54,22 @@ export const registerHandler = catchErrors(async (req, res) => {
   });
 
   //call service
-  const { user, accessToken, refreshToken } = await createAccount(request);
+  const { user, accessToken, refreshToken } = await createAccount({ ...request, role: "user" });
+
+  return setAuthCookies({ res, accessToken, refreshToken })
+    .status(CREATED)
+    .json(user);
+});
+
+export const registerRestaurantHandler = catchErrors(async (req, res) => {
+  //validate request
+  const request = registerSchema.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+
+  //call service
+  const { user, accessToken, refreshToken } = await createAccount({ ...request, role: "restaurant" });
 
   return setAuthCookies({ res, accessToken, refreshToken })
     .status(CREATED)

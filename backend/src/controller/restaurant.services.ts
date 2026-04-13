@@ -80,3 +80,12 @@ export const getAllRestaurants = async () => {
 
   return restaurants;
 };
+
+export const getMyRestaurants = async (ownerId: number) => {
+  const restaurants = await db
+    .select()
+    .from(restaurantsTable)
+    .where(eq(restaurantsTable.ownerId, ownerId));
+
+  return restaurants;
+};

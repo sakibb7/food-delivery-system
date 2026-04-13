@@ -4,6 +4,7 @@ import {
   logoutHandler,
   refreshHandler,
   registerHandler,
+  registerRestaurantHandler,
   verifyEmailHandler,
   resendVerificationHandler,
   forgotPasswordHandler,
@@ -25,6 +26,7 @@ router.get(
   }),
 );
 router.post("/register", registerHandler);
+router.post("/register/restaurant", registerRestaurantHandler);
 router.post("/login", loginHandler);
 router.post("/logout", logoutHandler);
 router.get("/refresh", refreshHandler);
