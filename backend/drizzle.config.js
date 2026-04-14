@@ -6,6 +6,7 @@ export default defineConfig({
     "./src/db/schema/userSchema.ts",
     "./src/db/schema/sessionSchema.ts",
     "./src/db/schema/verificationSchema.ts",
+    "./src/db/schema/restaurantSchema.ts",
   ],
   dialect: "postgresql",
   dbCredentials: {

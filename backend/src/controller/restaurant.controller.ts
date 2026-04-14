@@ -21,7 +21,7 @@ export const createRestaurantHandler: RequestHandler = catchErrors(
     const data = createRestaurantSchema.parse(req.body);
     const userId = req.userId as number;
 
-    const restaurant = await createRestaurant(userId, data as any);
+    const restaurant = await createRestaurant(userId, data);
 
     return res.status(CREATED).json({
       message: "Restaurant created successfully",

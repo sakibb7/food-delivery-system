@@ -2,14 +2,14 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { 
-  ArrowLeft, 
-  Store, 
-  MapPin, 
-  Clock, 
-  DollarSign, 
-  FileText, 
-  Tag, 
+import {
+  ArrowLeft,
+  Store,
+  MapPin,
+  Clock,
+  DollarSign,
+  FileText,
+  Tag,
   Image as ImageIcon,
   CheckCircle2
 } from "lucide-react";
@@ -42,7 +42,7 @@ export default function NewRestaurantPage() {
   } = useForm<RestaurantFormData>();
 
   const { mutate, isLoading } = useQueryMutation({
-    url: "/restaurants",
+    url: "/restaurant",
     isPublic: false,
   });
 
@@ -112,13 +112,13 @@ export default function NewRestaurantPage() {
               />
               <div className="md:col-span-2">
                 <InputField
-                    label="Description"
-                    name="description"
-                    placeholder="Tell customers about your awesome food..."
-                    register={register}
-                    error={errors.description}
-                    required
-                    icon={FileText}
+                  label="Description"
+                  name="description"
+                  placeholder="Tell customers about your awesome food..."
+                  register={register}
+                  error={errors.description}
+                  required
+                  icon={FileText}
                 />
               </div>
             </div>
@@ -128,7 +128,7 @@ export default function NewRestaurantPage() {
 
           {/* Location Details */}
           <section>
-             <div className="flex items-center gap-2 mb-6 text-gray-900">
+            <div className="flex items-center gap-2 mb-6 text-gray-900">
               <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
                 <MapPin size={18} />
               </div>
@@ -169,7 +169,7 @@ export default function NewRestaurantPage() {
 
           {/* Operational Details */}
           <section>
-             <div className="flex items-center gap-2 mb-6 text-gray-900">
+            <div className="flex items-center gap-2 mb-6 text-gray-900">
               <div className="w-8 h-8 bg-green-50 text-green-600 rounded-lg flex items-center justify-center">
                 <Clock size={18} />
               </div>
@@ -208,23 +208,23 @@ export default function NewRestaurantPage() {
 
           <hr className="border-gray-100" />
 
-           {/* Media */}
-           <section>
-             <div className="flex items-center gap-2 mb-6 text-gray-900">
+          {/* Media */}
+          <section>
+            <div className="flex items-center gap-2 mb-6 text-gray-900">
               <div className="w-8 h-8 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
                 <ImageIcon size={18} />
               </div>
               <h2 className="text-xl font-bold">Restaurant Banner</h2>
             </div>
             <InputField
-                label="Banner Image URL"
-                name="bannerUrl"
-                placeholder="https://images.unsplash.com/photo..."
-                register={register}
-                error={errors.bannerUrl}
-                icon={ImageIcon}
-              />
-              <p className="mt-2 text-xs text-gray-400 font-medium">Use a high-quality landscape image for better visibility.</p>
+              label="Banner Image URL"
+              name="bannerUrl"
+              placeholder="https://images.unsplash.com/photo..."
+              register={register}
+              error={errors.bannerUrl}
+              icon={ImageIcon}
+            />
+            <p className="mt-2 text-xs text-gray-400 font-medium">Use a high-quality landscape image for better visibility.</p>
           </section>
 
           <div className="pt-6">

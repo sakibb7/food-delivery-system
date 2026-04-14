@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+const numericString = z.union([z.number(), z.string()]).transform((val) => {
+  if (typeof val === "number") return val.toString();
+  return val.replace(/[^0-9.]/g, "");
+});
+
 export const createRestaurantSchema = z.object({
   name: z.string().min(1).max(255),
   description: z.string().optional(),
@@ -9,11 +14,15 @@ export const createRestaurantSchema = z.object({
   email: z.string().email().max(255).optional().or(z.literal("")),
   address: z.string().min(1),
   city: z.string().min(1).max(100),
+  country: z.string().max(100).optional(),
+  zipcode: z.string().max(20).optional(),
   area: z.string().max(100).optional(),
-  latitude: z.union([z.number(), z.string()]).transform(String).optional(),
-  longitude: z.union([z.number(), z.string()]).transform(String).optional(),
-  deliveryFee: z.union([z.number(), z.string()]).transform(String).optional(),
-  minOrderAmount: z.union([z.number(), z.string()]).transform(String).optional(),
+  cuisine: z.string().max(255).optional(),
+  deliveryTime: z.string().max(100).optional(),
+  latitude: numericString.optional(),
+  longitude: numericString.optional(),
+  deliveryFee: numericString.optional(),
+  minOrderAmount: numericString.optional(),
 });
 
 export const updateRestaurantSchema = createRestaurantSchema.partial();

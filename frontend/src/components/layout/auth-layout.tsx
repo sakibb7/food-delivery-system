@@ -1,15 +1,25 @@
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import burger from "@/../public/burger.png";
 import pizza from "@/../public/pizza.png";
 import sushi from "@/../public/sushi.png";
 import heroBg from "@/../public/hero-bg.png";
 import Logo from "@/components/ui/Logo";
 
+interface AuthLayoutProps {
+  children: React.ReactNode;
+  title?: string;
+  description?: string;
+  image?: StaticImageData;
+  statsText?: string;
+}
+
 export default function AuthLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  title = "Join thousands of foodies today.",
+  description = "Get exclusive access to the best restaurants in town, track your orders in real-time, and earn rewards points with every meal.",
+  image = heroBg,
+  statsText = "Join 10,000+ others",
+}: AuthLayoutProps) {
   return (
     <main className="">
       <section className="container min-h-screen">
@@ -26,19 +36,17 @@ export default function AuthLayout({
               <div className="absolute inset-0 m-4 rounded-[2.5rem] overflow-hidden">
                 <div className=" bg-linear-to-t from-gray-900/80 via-gray-900/20 to-transparent" />
                 <Image
-                  src={heroBg}
+                  src={image}
                   alt="Sign up delicious background"
                   className="object-cover object-center w-full h-full"
                   priority
                 />
                 <div className="absolute bottom-16 left-16 right-16 z-20 text-white bg-black/70 rounded-2xl p-6">
                   <h2 className="text-4xl font-extrabold mb-4 leading-tight">
-                    Join thousands of foodies today.
+                    {title}
                   </h2>
                   <p className="text-lg text-gray-300 font-medium">
-                    Get exclusive access to the best restaurants in town, track
-                    your orders in real-time, and earn rewards points with every
-                    meal.
+                    {description}
                   </p>
 
                   <div className="flex items-center gap-4 mt-8">
@@ -71,7 +79,7 @@ export default function AuthLayout({
                         />
                       </div>
                     </div>
-                    <p className="font-semibold text-sm">Join 10,000+ others</p>
+                    <p className="font-semibold text-sm">{statsText}</p>
                   </div>
                 </div>
               </div>

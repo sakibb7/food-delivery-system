@@ -34,11 +34,16 @@ export const restaurantsTable = pgTable("restaurants", {
   // Address
   address: text("address").notNull(),
   city: varchar("city", { length: 100 }).notNull(),
+  state: varchar("state", { length: 100 }),
+  country: varchar("country", { length: 100 }),
+  zipcode: varchar("zipcode", { length: 20 }),
   area: varchar("area", { length: 100 }), // optional (like Dhanmondi, Gulshan)
   latitude: decimal("latitude", { precision: 10, scale: 7 }),
   longitude: decimal("longitude", { precision: 10, scale: 7 }),
 
   // Business Info
+  cuisine: varchar("cuisine", { length: 255 }),
+  deliveryTime: varchar("delivery_time", { length: 100 }),
   isOpen: boolean("is_open").default(true),
   isActive: boolean("is_active").default(true), // admin approval
 
