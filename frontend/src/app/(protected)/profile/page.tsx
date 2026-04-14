@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { User, Lock, Bell, Settings, Camera, Save, LogOut } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
@@ -69,6 +69,58 @@ export default function ProfilePage() {
     method: "PUT",
   });
 
+  const { mutate: uploadImage, isLoading: isUploading } = useQueryMutation({
+    url: "/cloudinary/upload",
+    method: "POST",
+  });
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size should be less than 5MB");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        uploadImage(
+          { buffer: base64 },
+          {
+            onSuccess: (data: any) => {
+              console.log(data?.data?.url)
+
+              updateProfile(
+                { avatar: data?.data?.url },
+                {
+                  onSuccess: () => {
+                    toast.success("Avatar Updated Successfully!");
+                    getQueryClient().invalidateQueries();
+                  },
+                  onError: () => {
+                    toast.error("Failed to update profile with new avatar!");
+                  },
+                },
+              );
+            },
+            onError: (error: any) => {
+              console.error(error);
+              toast.error("Failed to upload image!");
+            },
+          },
+        );
+      };
+    }
+  };
+
   const signOut = () => {
     mutate(
       {},
@@ -132,10 +184,21 @@ export default function ProfilePage() {
         <aside className="w-full md:w-64 shrink-0">
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex flex-col items-center text-center">
-              <div className="w-24 h-24 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-4 relative group cursor-pointer border-4 border-white shadow-sm">
-                <span className="text-3xl font-bold"></span>
-                {user?.avatar ? (
-                  <Image src={user.avatar} alt="Avatar" />
+              <div
+                onClick={handleAvatarClick}
+                className="w-24 h-24 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-4 relative group cursor-pointer border-4 border-white shadow-sm overflow-hidden"
+              >
+                {isUploading ? (
+                  <div className="flex items-center justify-center w-full h-full bg-black/10">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+                  </div>
+                ) : user?.avatar ? (
+                  <Image
+                    src={user.avatar}
+                    alt="Avatar"
+                    fill
+                    className="object-cover"
+                  />
                 ) : (
                   <span className="text-3xl font-bold">
                     {user
@@ -147,6 +210,13 @@ export default function ProfilePage() {
                   <Camera size={24} className="text-white" />
                 </div>
               </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/*"
+                className="hidden"
+              />
               <h2 className="font-bold text-gray-900 text-lg">
                 {user?.firstName + " " + user?.lastName || "John Doe"}
               </h2>

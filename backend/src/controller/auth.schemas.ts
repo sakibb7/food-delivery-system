@@ -3,7 +3,7 @@ import { z, ZodError } from "zod";
 export const userStatusEnum = z.enum(["active", "inactive", "banned"]);
 export const roles = z.enum(["admin", "restaurant", "rider", "user"]);
 
-export const emailSchema = z.email().min(1).max(255);
+export const emailSchema = z.string().email().min(1).max(255);
 export const passwordSchema = z.string().min(6).max(255);
 
 export const loginSchema = z.object({
