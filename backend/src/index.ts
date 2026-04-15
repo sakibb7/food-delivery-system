@@ -3,6 +3,9 @@ import "dotenv/config";
 import authRoute from "./routes/auth.js";
 import userRoute from "./routes/user.js";
 import restaurantRoute from "./routes/restaurant.js";
+import menuRoute from "./routes/menu.js";
+import orderRoute from "./routes/order.js";
+import addressRoute from "./routes/address.js";
 import cors from "cors";
 import { NODE_ENV, PORT, CLIENT_WEB_APP_URL } from "./constants/env.js";
 import errorHandler from "./middlewares/errorHandler.js";
@@ -57,7 +60,26 @@ app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/user", authenticate, userRoute);
 app.use("/api/v1/restaurant", authenticate, restaurantRoute);
 app.use("/api/v1/cloudinary", authenticate, uploadRoutes);
+app.use("/api/v1/menu", menuRoute);
+app.use("/api/v1/order", authenticate, orderRoute);
+app.use("/api/v1/address", authenticate, addressRoute);
 
+// Add this AFTER all your app.use() route registrations
+app.get("/debug-routes", (req, res) => {
+  const routes: string[] = [];
+  app._router.stack.forEach((middleware: any) => {
+    if (middleware.route) {
+      routes.push(middleware.route.path);
+    } else if (middleware.name === "router") {
+      middleware.handle.stack.forEach((handler: any) => {
+        if (handler.route) {
+          routes.push(handler.route.path);
+        }
+      });
+    }
+  });
+  res.json(routes);
+});
 app.use(errorHandler);
 
 app.listen(PORT, async () => {

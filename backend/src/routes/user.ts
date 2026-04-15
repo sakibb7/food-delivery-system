@@ -4,6 +4,7 @@ import {
   updateProfileHandler,
   changePasswordHandler,
 } from "../controller/user.controller.js";
+import { getAddressesHandler } from "../controller/address.controller.js";
 
 const router = express.Router();
 

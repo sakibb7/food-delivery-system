@@ -70,7 +70,7 @@ export default function MyRestaurantsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {restaurants.map((restaurant: Restaurant) => (
-            <div key={restaurant.id} className="group bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-500 flex flex-col h-full border-b-4 border-b-red-500">
+            <Link key={restaurant.id} href={`/dashboard/restaurants/${restaurant.id}`} className="group bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-500 flex flex-col h-full border-b-4 border-b-red-500">
               <div className="relative h-64 overflow-hidden">
                 <Image
                   src={restaurant.coverImage || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=60"}
@@ -84,9 +84,9 @@ export default function MyRestaurantsPage() {
                   </div>
                 </div>
                 <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-lg cursor-pointer hover:bg-white transition-colors">
+                  <span className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-lg cursor-pointer hover:bg-white transition-colors inline-flex">
                     <ExternalLink size={18} className="text-gray-700" />
-                  </div>
+                  </span>
                 </div>
               </div>
 
@@ -124,17 +124,17 @@ export default function MyRestaurantsPage() {
                 </div>
 
                 <div className="mt-auto grid grid-cols-2 gap-4 pt-6 border-t border-gray-100">
-                  <Button variant="outline" className="rounded-xl border-2 border-gray-100 hover:border-red-100 hover:bg-red-50 text-gray-600 hover:text-red-600 font-bold transition-all">
-                    <Edit2 size={18} className="mr-2" />
-                    Edit
-                  </Button>
-                  <Button variant="outline" className="rounded-xl border-2 border-gray-100 hover:border-red-100 hover:bg-red-50 text-gray-600 hover:text-red-600 font-bold transition-all">
-                    <Trash2 size={18} className="mr-2" />
+                  <span className="inline-flex items-center justify-center gap-2 rounded-xl font-bold border-2 border-gray-100 hover:border-red-100 hover:bg-red-50 text-gray-600 hover:text-red-600 transition-all px-5 py-3 text-base">
+                    <Edit2 size={18} />
+                    Manage
+                  </span>
+                  <span onClick={(e) => e.preventDefault()} className="inline-flex items-center justify-center gap-2 rounded-xl font-bold border-2 border-gray-100 hover:border-red-100 hover:bg-red-50 text-gray-600 hover:text-red-600 transition-all px-5 py-3 text-base cursor-pointer">
+                    <Trash2 size={18} />
                     Delete
-                  </Button>
+                  </span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

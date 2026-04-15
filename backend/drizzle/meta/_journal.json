@@ -43,6 +43,13 @@
       "when": 1776161876363,
       "tag": "0005_last_katie_power",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1776224002653,
+      "tag": "0006_broad_oracle",
+      "breakpoints": true
     }
   ]
 }

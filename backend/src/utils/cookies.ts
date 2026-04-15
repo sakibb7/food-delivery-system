@@ -7,9 +7,10 @@ const secure = process.env.NODE_ENV !== "development";
 export const REFRESH_PATH = "/api/v1/auth/refresh";
 
 const defaults: CookieOptions = {
-  sameSite: "strict",
+  sameSite: "lax",
   httpOnly: true,
   secure,
+  path: "/",
 };
 
 export const getAccessTokenCookieOptions = (): CookieOptions => ({

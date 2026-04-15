@@ -1,16 +1,29 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { User, Lock, Bell, Settings, Camera, Save, LogOut } from "lucide-react";
+import { User, Lock, Bell, Settings, Camera, Save, LogOut, MapPin, Plus, Home, Briefcase, Building2, ChevronRight, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
+import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import { getQueryClient } from "@/configs/query-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Image from "next/image";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import InputField from "@/components/form/InputField";
 import PasswordField from "@/components/form/passwordField";
+
+interface SavedAddress {
+  id: number;
+  label: string;
+  address: string;
+  city: string;
+  state: string | null;
+  country: string;
+  zipcode: string | null;
+  isDefault: boolean;
+}
 
 export interface ProfileFormData {
   firstName: string;
@@ -29,6 +42,13 @@ export default function ProfilePage() {
   const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState("profile");
   const router = useRouter();
+
+  // Fetch saved addresses for the addresses tab
+  const { data: addressesData, isLoading: addressesLoading } = useGetQuery<{ addresses: SavedAddress[] }>({
+    url: "/address",
+    queryKey: "addresses",
+  });
+  const savedAddresses = addressesData?.addresses || [];
 
   const {
     register,
@@ -243,6 +263,12 @@ export default function ProfilePage() {
                 <Bell size={20} /> Notifications
               </button>
               <button
+                onClick={() => setActiveTab("addresses")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === "addresses" ? "bg-red-50 text-red-600" : "text-gray-600 hover:bg-gray-50"}`}
+              >
+                <MapPin size={20} /> Delivery Addresses
+              </button>
+              <button
                 onClick={() => setActiveTab("settings")}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === "settings" ? "bg-red-50 text-red-600" : "text-gray-600 hover:bg-gray-50"}`}
               >
@@ -434,6 +460,97 @@ export default function ProfilePage() {
                     </label>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Addresses Tab */}
+            {activeTab === "addresses" && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Delivery Addresses
+                  </h2>
+                  <Link
+                    href="/addresses"
+                    className="flex items-center gap-1.5 text-red-600 font-semibold text-sm hover:text-red-700 transition-colors"
+                  >
+                    Manage All <ChevronRight size={16} />
+                  </Link>
+                </div>
+
+                {addressesLoading ? (
+                  <div className="space-y-4">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="p-4 border border-gray-100 rounded-2xl bg-gray-50/50 animate-pulse">
+                        <div className="flex gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-gray-200" />
+                          <div className="flex-1">
+                            <div className="h-4 bg-gray-200 rounded w-20 mb-2" />
+                            <div className="h-3 bg-gray-100 rounded w-48" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : savedAddresses.length === 0 ? (
+                  <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-2xl">
+                    <MapPin size={40} className="mx-auto text-gray-300 mb-4" />
+                    <h3 className="font-bold text-gray-900 mb-2">No saved addresses</h3>
+                    <p className="text-gray-500 text-sm mb-6">Add your delivery locations for faster checkout.</p>
+                    <Link
+                      href="/addresses"
+                      className="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-200"
+                    >
+                      <Plus size={16} /> Add Address
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {savedAddresses.map((addr) => {
+                      const iconMap: Record<string, React.ElementType> = { Home, Work: Briefcase, Other: Building2 };
+                      const AddrIcon = iconMap[addr.label] || Building2;
+
+                      return (
+                        <div
+                          key={addr.id}
+                          className={`flex items-start gap-4 p-4 border rounded-2xl transition-all ${
+                            addr.isDefault
+                              ? "border-red-200 bg-red-50/50"
+                              : "border-gray-100 bg-gray-50/50 hover:border-gray-200"
+                          }`}
+                        >
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                            addr.isDefault ? "bg-red-100 text-red-600" : "bg-gray-200 text-gray-600"
+                          }`}>
+                            <AddrIcon size={20} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-bold text-gray-900 text-sm">{addr.label}</h3>
+                              {addr.isDefault && (
+                                <span className="bg-red-600 text-white text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-gray-600 text-sm truncate">{addr.address}</p>
+                            <p className="text-gray-400 text-xs mt-0.5">
+                              {addr.city}{addr.country ? `, ${addr.country}` : ""}
+                              {addr.zipcode ? ` - ${addr.zipcode}` : ""}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    <Link
+                      href="/addresses"
+                      className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-200 rounded-2xl text-gray-500 hover:text-red-600 hover:border-red-300 hover:bg-red-50/50 transition-all font-semibold text-sm"
+                    >
+                      <Plus size={16} /> Add New Address
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
 

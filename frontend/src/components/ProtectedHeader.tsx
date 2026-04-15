@@ -16,6 +16,7 @@ import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
 import { toast } from "sonner";
 import { getQueryClient } from "@/configs/query-client";
 import { useAuthStore } from "@/store/auth";
+import { useCartStore } from "@/store/cart";
 import Logo from "./ui/Logo";
 import Image from "next/image";
 
@@ -26,6 +27,10 @@ export default function ProtectedHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuthStore();
+  const totalItems = useCartStore((s) => s.items).reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -46,9 +51,9 @@ export default function ProtectedHeader() {
     ...(user?.role === "restaurant"
       ? [{ name: "My Restaurants", href: "/dashboard/restaurants" }]
       : [
-        { name: "Orders", href: "/orders" },
-        { name: "Favorites", href: "/favorites" },
-      ]),
+          { name: "Orders", href: "/orders" },
+          { name: "Favorites", href: "/favorites" },
+        ]),
   ];
 
   const { mutate } = useQueryMutation({
@@ -87,10 +92,11 @@ export default function ProtectedHeader() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-semibold transition-colors ${pathname === link.href
-                    ? "border-red-500 text-gray-900"
-                    : "border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300"
-                    }`}
+                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-semibold transition-colors ${
+                    pathname === link.href
+                      ? "border-red-500 text-gray-900"
+                      : "border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300"
+                  }`}
                 >
                   {link.name}
                 </Link>
@@ -105,9 +111,11 @@ export default function ProtectedHeader() {
               className="text-gray-500 hover:text-red-500 transition-colors relative"
             >
               <Package size={22} />
-              <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                2
-              </span>
+              {totalItems > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
             </Link>
 
             {/* User Dropdown */}
@@ -211,9 +219,11 @@ export default function ProtectedHeader() {
           <div className="flex items-center md:hidden gap-4">
             <Link href="/checkout" className="text-gray-500 relative">
               <Package size={22} />
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                2
-              </span>
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
             </Link>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -239,10 +249,11 @@ export default function ProtectedHeader() {
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${pathname === link.href
-                  ? "border-red-500 text-red-700 bg-red-50"
-                  : "border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
-                  }`}
+                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                  pathname === link.href
+                    ? "border-red-500 text-red-700 bg-red-50"
+                    : "border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
+                }`}
               >
                 {link.name}
               </Link>
@@ -252,15 +263,17 @@ export default function ProtectedHeader() {
             <div className="flex items-center px-4">
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">
-                  JD
+                  {user
+                    ? user.firstName?.charAt(0) + user.lastName?.charAt(0)
+                    : "JD"}
                 </div>
               </div>
               <div className="ml-3">
                 <div className="text-base font-semibold text-gray-800">
-                  John Doe
+                  {user ? `${user.firstName} ${user.lastName}` : "John Doe"}
                 </div>
                 <div className="text-sm font-medium text-gray-500">
-                  john.doe@example.com
+                  {user?.email || "john.doe@example.com"}
                 </div>
               </div>
             </div>
@@ -287,7 +300,10 @@ export default function ProtectedHeader() {
                 Favorites
               </Link>
               <button
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  signOut();
+                }}
                 className="block w-full text-left px-4 py-2 text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50"
               >
                 Sign out
