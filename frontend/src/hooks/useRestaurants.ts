@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { publicInstance } from '@/configs/axiosConfig';
 
 export interface Restaurant {
   id: string;
@@ -33,12 +34,24 @@ export const useRestaurants = () => {
     const fetchRestaurants = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/restaurants');
-        if (!response.ok) throw new Error('Failed to fetch restaurants');
-        const data = await response.json();
-        setRestaurants(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        const response = await publicInstance.get('/restaurant');
+        const data = response.data?.restaurants || [];
+        
+        // Map backend format to frontend format
+        const mappedData: Restaurant[] = data.map((r: any) => ({
+          id: String(r.id),
+          name: r.name || 'Unknown Restaurant',
+          tags: r.cuisine ? r.cuisine.split(',').map((c: string) => c.trim()) : [],
+          rating: Number(r.rating) || 0,
+          time: r.deliveryTime || '30-45 min',
+          price: '$$', // Default or generate from minOrderAmount
+          img: r.coverImage || r.logo || '/default-restaurant.png', // Fallback to a default image
+          cuisine: r.cuisine ? r.cuisine.split(',')[0].trim() : 'General',
+        }));
+        
+        setRestaurants(mappedData);
+      } catch (err: any) {
+        setError(err?.response?.data?.message || err.message || 'An error occurred');
       } finally {
         setLoading(false);
       }

@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { X, UtensilsCrossed, DollarSign, Tag, FileText, Image as ImageIcon } from "lucide-react";
+import { X, UtensilsCrossed, DollarSign, Tag, FileText, Image as ImageIcon, Camera } from "lucide-react";
+import Image from "next/image";
 import Button from "@/components/ui/button";
 import InputField from "@/components/form/InputField";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
@@ -58,6 +59,8 @@ export default function AddMenuItemModal({
   editItem,
 }: AddMenuItemModalProps) {
   const isEditMode = !!editItem;
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -87,9 +90,47 @@ export default function AddMenuItemModal({
     method: "PUT",
   });
 
+  const { mutate: uploadImage } = useQueryMutation({
+    url: "/cloudinary/upload",
+    method: "POST",
+  });
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size should be less than 5MB");
+        return;
+      }
+
+      setUploadingImage(true);
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        uploadImage(
+          { buffer: base64 },
+          {
+            onSuccess: (data: any) => {
+              setValue("image", data?.data?.url);
+              setUploadingImage(false);
+            },
+            onError: (error: any) => {
+              console.error(error);
+              toast.error("Failed to upload image!");
+              setUploadingImage(false);
+            },
+          }
+        );
+      };
+    }
+  };
+
   const isLoading = isCreating || isUpdating;
   const watchCategory = watch("category");
   const watchIsAvailable = watch("isAvailable");
+  const imageUrl = watch("image");
 
   // Populate form when editing
   useEffect(() => {
@@ -268,15 +309,45 @@ export default function AddMenuItemModal({
             </div>
           )}
 
-          {/* Image URL */}
-          <InputField
-            label="Image URL"
-            name="image"
-            placeholder="https://images.unsplash.com/photo..."
-            register={register}
-            error={errors.image}
-            icon={ImageIcon}
-          />
+          {/* Image Upload */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Item Image</label>
+            <div 
+              onClick={() => imageInputRef.current?.click()}
+              className={`w-full h-40 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors relative overflow-hidden ${
+                imageUrl ? "border-gray-200" : "border-gray-300 hover:border-red-500 hover:bg-red-50"
+              }`}
+            >
+              {uploadingImage ? (
+                 <div className="flex flex-col items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mb-2"></div>
+                    <span className="text-sm text-gray-500">Uploading...</span>
+                 </div>
+              ) : imageUrl ? (
+                <>
+                  <Image src={imageUrl} alt="Item Preview" fill className="object-cover" />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <div className="bg-white text-gray-900 p-2 rounded-lg flex items-center gap-2 text-sm font-medium">
+                      <Camera size={16} /> Change Image
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center text-gray-500 p-4 text-center">
+                  <Camera size={28} className="mb-2 text-gray-400" />
+                  <span className="font-medium text-sm">Click to upload image</span>
+                  <span className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</span>
+                </div>
+              )}
+              <input
+                type="file"
+                ref={imageInputRef}
+                onChange={handleFileUpload}
+                accept="image/*"
+                className="hidden"
+              />
+            </div>
+          </div>
 
           {/* Availability Toggle */}
           <div className="flex items-center justify-between bg-gray-50 rounded-xl p-4 border border-gray-200">

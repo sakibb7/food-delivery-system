@@ -30,3 +30,19 @@ export const updateRestaurantSchema = createRestaurantSchema.partial();
 export const restaurantIdSchema = z.object({
   id: z.string().regex(/^\d+$/, "Invalid restaurant ID"),
 });
+
+export const orderStatusSchema = z.object({
+  status: z.enum([
+    "pending",
+    "confirmed",
+    "preparing",
+    "out_for_delivery",
+    "delivered",
+    "cancelled",
+  ]),
+});
+
+export const orderIdSchema = z.object({
+  orderId: z.string().regex(/^\d+$/, "Invalid order ID"),
+});
+

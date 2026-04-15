@@ -8,6 +8,8 @@ import {
   getRestaurantHandler,
   getAllRestaurantsHandler,
   getMyRestaurantsHandler,
+  getRestaurantOrdersHandler,
+  updateRestaurantOrderStatusHandler,
 } from "../controller/restaurant.controller.js";
 
 const router = express.Router();
@@ -25,5 +27,7 @@ router.use(authenticate);
 router.post("/", authorize(["restaurant", "admin"]), createRestaurantHandler);
 router.put("/:id", authorize(["restaurant", "admin"]), updateRestaurantHandler);
 router.delete("/:id", authorize(["restaurant", "admin"]), deleteRestaurantHandler);
+router.get("/:id/orders", authorize(["restaurant", "admin"]), getRestaurantOrdersHandler);
+router.patch("/:id/orders/:orderId/status", authorize(["restaurant", "admin"]), updateRestaurantOrderStatusHandler);
 
 export default router;

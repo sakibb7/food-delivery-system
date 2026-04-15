@@ -1,7 +1,8 @@
 "use client";
-import React from "react";
+import React, { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   ArrowLeft,
   Store,
@@ -11,7 +12,9 @@ import {
   FileText,
   Tag,
   Image as ImageIcon,
-  CheckCircle2
+  CheckCircle2,
+  Camera,
+  Upload
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -28,9 +31,10 @@ export interface RestaurantFormData {
   country: string;
   zipcode: string;
   deliveryTime: string;
-  minOrder: string;
+  minOrderAmount: string;
   deliveryFee: string;
-  bannerUrl?: string;
+  logo?: string;
+  coverImage?: string;
 }
 
 export default function NewRestaurantPage() {
@@ -38,8 +42,62 @@ export default function NewRestaurantPage() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<RestaurantFormData>();
+
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const { mutate: uploadImage } = useQueryMutation({
+    url: "/cloudinary/upload",
+    method: "POST",
+  });
+
+  const handleFileUpload = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "logo" | "coverImage"
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size should be less than 5MB");
+        return;
+      }
+
+      if (type === "logo") setUploadingLogo(true);
+      else setUploadingCover(true);
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        uploadImage(
+          { buffer: base64 },
+          {
+            onSuccess: (data: any) => {
+              setValue(type, data?.data?.url);
+              if (type === "logo") setUploadingLogo(false);
+              else setUploadingCover(false);
+            },
+            onError: (error: any) => {
+              console.error(error);
+              toast.error("Failed to upload image!");
+              if (type === "logo") setUploadingLogo(false);
+              else setUploadingCover(false);
+            },
+          }
+        );
+      };
+    }
+  };
+
+  const logoUrl = watch("logo");
+  const coverImageUrl = watch("coverImage");
 
   const { mutate, isLoading } = useQueryMutation({
     url: "/restaurant",
@@ -187,10 +245,10 @@ export default function NewRestaurantPage() {
               />
               <InputField
                 label="Min Order Amount"
-                name="minOrder"
+                name="minOrderAmount"
                 placeholder="e.g. $10"
                 register={register}
-                error={errors.minOrder}
+                error={errors.minOrderAmount}
                 required
                 icon={DollarSign}
               />
@@ -214,17 +272,90 @@ export default function NewRestaurantPage() {
               <div className="w-8 h-8 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
                 <ImageIcon size={18} />
               </div>
-              <h2 className="text-xl font-bold">Restaurant Banner</h2>
+              <h2 className="text-xl font-bold">Restaurant Images</h2>
             </div>
-            <InputField
-              label="Banner Image URL"
-              name="bannerUrl"
-              placeholder="https://images.unsplash.com/photo..."
-              register={register}
-              error={errors.bannerUrl}
-              icon={ImageIcon}
-            />
-            <p className="mt-2 text-xs text-gray-400 font-medium">Use a high-quality landscape image for better visibility.</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Logo Upload */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Restaurant Logo</label>
+                <div 
+                  onClick={() => logoInputRef.current?.click()}
+                  className={`w-full h-48 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-colors relative overflow-hidden ${
+                    logoUrl ? "border-gray-200" : "border-gray-300 hover:border-red-500 hover:bg-red-50"
+                  }`}
+                >
+                  {uploadingLogo ? (
+                     <div className="flex flex-col items-center justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mb-2"></div>
+                        <span className="text-sm text-gray-500">Uploading...</span>
+                     </div>
+                  ) : logoUrl ? (
+                    <>
+                      <Image src={logoUrl} alt="Logo Preview" fill className="object-contain p-4" />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <div className="bg-white text-gray-900 p-2 rounded-lg flex items-center gap-2 text-sm font-medium">
+                          <Camera size={16} /> Change Logo
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center text-gray-500 p-4 text-center">
+                      <Camera size={32} className="mb-2 text-gray-400" />
+                      <span className="font-medium">Click to upload logo</span>
+                      <span className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    ref={logoInputRef}
+                    onChange={(e) => handleFileUpload(e, "logo")}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                </div>
+              </div>
+
+              {/* Cover Image Upload */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Cover Image (Banner)</label>
+                <div 
+                  onClick={() => coverInputRef.current?.click()}
+                  className={`w-full h-48 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-colors relative overflow-hidden ${
+                    coverImageUrl ? "border-gray-200" : "border-gray-300 hover:border-red-500 hover:bg-red-50"
+                  }`}
+                >
+                  {uploadingCover ? (
+                     <div className="flex flex-col items-center justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mb-2"></div>
+                        <span className="text-sm text-gray-500">Uploading...</span>
+                     </div>
+                  ) : coverImageUrl ? (
+                    <>
+                      <Image src={coverImageUrl} alt="Cover Preview" fill className="object-cover" />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <div className="bg-white text-gray-900 p-2 rounded-lg flex items-center gap-2 text-sm font-medium">
+                          <Upload size={16} /> Change Cover
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center text-gray-500 p-4 text-center">
+                      <Upload size={32} className="mb-2 text-gray-400" />
+                      <span className="font-medium">Click to upload cover</span>
+                      <span className="text-xs text-gray-400 mt-1">Wide image, PNG, JPG up to 5MB</span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    ref={coverInputRef}
+                    onChange={(e) => handleFileUpload(e, "coverImage")}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                </div>
+              </div>
+            </div>
           </section>
 
           <div className="pt-6">

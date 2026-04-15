@@ -58,7 +58,7 @@ app.use("/api/v1/auth/password/forgot", authLimiter);
 
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/user", authenticate, userRoute);
-app.use("/api/v1/restaurant", authenticate, restaurantRoute);
+app.use("/api/v1/restaurant", restaurantRoute);
 app.use("/api/v1/cloudinary", authenticate, uploadRoutes);
 app.use("/api/v1/menu", menuRoute);
 app.use("/api/v1/order", authenticate, orderRoute);

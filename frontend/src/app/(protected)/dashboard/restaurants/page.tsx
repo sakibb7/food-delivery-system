@@ -123,13 +123,17 @@ export default function MyRestaurantsPage() {
                   </div>
                 </div>
 
-                <div className="mt-auto grid grid-cols-2 gap-4 pt-6 border-t border-gray-100">
-                  <span className="inline-flex items-center justify-center gap-2 rounded-xl font-bold border-2 border-gray-100 hover:border-red-100 hover:bg-red-50 text-gray-600 hover:text-red-600 transition-all px-5 py-3 text-base">
-                    <Edit2 size={18} />
+                <div className="mt-auto grid grid-cols-3 gap-2 pt-6 border-t border-gray-100">
+                  <Link href={`/dashboard/restaurants/${restaurant.id}/orders`} onClick={(e) => e.stopPropagation()} className="inline-flex flex-col items-center justify-center gap-1 rounded-xl font-bold border-2 border-green-100 hover:border-green-200 hover:bg-green-50 text-green-600 transition-all p-2 text-sm text-center">
+                    <Clock size={16} />
+                    Orders
+                  </Link>
+                  <span className="inline-flex flex-col items-center justify-center gap-1 rounded-xl font-bold border-2 border-gray-100 hover:border-red-100 hover:bg-red-50 text-gray-600 hover:text-red-600 transition-all p-2 text-sm text-center">
+                    <Edit2 size={16} />
                     Manage
                   </span>
-                  <span onClick={(e) => e.preventDefault()} className="inline-flex items-center justify-center gap-2 rounded-xl font-bold border-2 border-gray-100 hover:border-red-100 hover:bg-red-50 text-gray-600 hover:text-red-600 transition-all px-5 py-3 text-base cursor-pointer">
-                    <Trash2 size={18} />
+                  <span onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} className="inline-flex flex-col items-center justify-center gap-1 rounded-xl font-bold border-2 border-gray-100 hover:border-red-100 hover:bg-red-50 text-gray-600 hover:text-red-600 transition-all p-2 text-sm cursor-pointer text-center">
+                    <Trash2 size={16} />
                     Delete
                   </span>
                 </div>

@@ -6,6 +6,8 @@ import {
   createRestaurantSchema,
   updateRestaurantSchema,
   restaurantIdSchema,
+  orderStatusSchema,
+  orderIdSchema,
 } from "./restaurant.schemas.js";
 import {
   createRestaurant,
@@ -14,6 +16,8 @@ import {
   getRestaurantById,
   getAllRestaurants,
   getMyRestaurants,
+  getRestaurantOrders,
+  updateRestaurantOrderStatus,
 } from "./restaurant.services.js";
 
 export const createRestaurantHandler: RequestHandler = catchErrors(
@@ -101,3 +105,37 @@ export const deleteRestaurantHandler: RequestHandler = catchErrors(
     });
   }
 );
+
+export const getRestaurantOrdersHandler: RequestHandler = catchErrors(
+  async (req, res) => {
+    const { id } = restaurantIdSchema.parse(req.params);
+    const userId = req.userId as number;
+
+    const orders = await getRestaurantOrders(Number(id), userId);
+    appAssert(orders, NOT_FOUND, "Restaurant not found or unauthorized");
+
+    return res.status(OK).json({ orders });
+  }
+);
+
+export const updateRestaurantOrderStatusHandler: RequestHandler = catchErrors(
+  async (req, res) => {
+    const { id } = restaurantIdSchema.parse(req.params);
+    const { orderId } = orderIdSchema.parse(req.params);
+    const { status } = orderStatusSchema.parse(req.body);
+    const userId = req.userId as number;
+
+    const updatedOrder = await updateRestaurantOrderStatus(
+      Number(id),
+      Number(orderId),
+      userId,
+      status as any
+    );
+
+    return res.status(OK).json({
+      message: "Order status updated successfully",
+      order: updatedOrder,
+    });
+  }
+);
+
