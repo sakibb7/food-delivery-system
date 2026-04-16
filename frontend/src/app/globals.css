@@ -50,3 +50,20 @@ body {
 button {
   cursor: pointer;
 }
+
+
+@keyframes pulseSlow {
+
+  0%,
+  100% {
+    transform: scale(1.05);
+  }
+
+  50% {
+    transform: scale(1);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 20s ease-in-out infinite alternate;
+}

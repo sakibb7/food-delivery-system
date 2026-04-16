@@ -19,7 +19,7 @@ const app = express();
 app.use(
   cors({
     // origin: CLIENT_WEB_APP_URL,
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", CLIENT_WEB_APP_URL],
     credentials: true,
   }),
 );

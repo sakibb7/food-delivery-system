@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { getQueryClient } from "@/configs/query-client";
+import { AppProvider } from "@/context/app-provider";
 
 interface Types {
   children: React.ReactNode;
@@ -11,7 +12,9 @@ export default function GlobalProvider({ children }: Types) {
   return (
     <>
       <QueryClientProvider client={getQueryClient()}>
-        {children}
+        <AppProvider>
+          {children}
+        </AppProvider>
         {process.env.NODE_ENV === "development" && (
           <ReactQueryDevtools initialIsOpen={false} />
         )}

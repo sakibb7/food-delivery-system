@@ -1,6 +1,4 @@
 "use client";
-
-import React from "react";
 import {
   Control,
   Controller,
@@ -28,7 +26,7 @@ const PhoneInputField = <T extends FieldValues>({
   required,
   placeholder = "Enter phone number",
 }: PhoneInputFieldProps<T>) => {
-  // Get default country from browser locale
+
   const defaultCountry = typeof window !== 'undefined'
     ? (window.navigator.language.split('-')[1] as any || 'US')
     : 'US';

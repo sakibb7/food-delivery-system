@@ -19,3 +19,17 @@ export interface UserType {
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
 }
+
+export interface LocationData {
+  latitude: number;
+  longitude: number;
+  formattedAddress: string;
+}
+
+export interface AppContextType {
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  location: LocationData | null;
+  loadingLocation: boolean;
+  city: string;
+}

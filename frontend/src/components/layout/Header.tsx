@@ -3,6 +3,7 @@ import { useAuthStore } from "@/store/auth";
 import { Menu, User, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
+import Logo from "../ui/Logo";
 
 export default function Header() {
   const { user, getUser, isLoading } = useAuthStore();
@@ -17,19 +18,13 @@ export default function Header() {
 
   return (
     <nav className="absolute top-0 w-full z-50 flex items-center justify-between px-6 py-4 lg:px-12 bg-black/20 backdrop-blur-sm shadow-sm transition-all text-white">
-      <div className="flex items-center gap-2">
-        <div className="bg-red-600 text-white p-2 rounded-xl font-bold text-xl tracking-tight">
-          T
-        </div>
-        <span className="font-extrabold text-2xl tracking-tight">Tomato.</span>
-      </div>
-
+      <Logo />
       <div className="hidden md:flex gap-8 font-medium">
         <Link href="/" className="hover:text-red-400 transition-colors">
           Home
         </Link>
-        <Link href="#" className="hover:text-red-400 transition-colors">
-          Order
+        <Link href="/restaurants" className="hover:text-red-400 transition-colors">
+          Restaurants
         </Link>
         <Link href="#" className="hover:text-red-400 transition-colors">
           Dining Out

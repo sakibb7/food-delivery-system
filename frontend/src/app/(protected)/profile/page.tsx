@@ -61,7 +61,7 @@ export default function ProfilePage() {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
       email: user?.email || "",
-      phone: user?.phone || "",
+      phone: user?.phone || "1736675508",
     },
   });
 
@@ -514,15 +514,13 @@ export default function ProfilePage() {
                       return (
                         <div
                           key={addr.id}
-                          className={`flex items-start gap-4 p-4 border rounded-2xl transition-all ${
-                            addr.isDefault
+                          className={`flex items-start gap-4 p-4 border rounded-2xl transition-all ${addr.isDefault
                               ? "border-red-200 bg-red-50/50"
                               : "border-gray-100 bg-gray-50/50 hover:border-gray-200"
-                          }`}
+                            }`}
                         >
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                            addr.isDefault ? "bg-red-100 text-red-600" : "bg-gray-200 text-gray-600"
-                          }`}>
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${addr.isDefault ? "bg-red-100 text-red-600" : "bg-gray-200 text-gray-600"
+                            }`}>
                             <AddrIcon size={20} />
                           </div>
                           <div className="flex-1 min-w-0">
