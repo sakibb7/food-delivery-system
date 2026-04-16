@@ -1,6 +1,82 @@
+CREATE TYPE "public"."auth_provider" AS ENUM('local', 'google');--> statement-breakpoint
+CREATE TYPE "public"."user_role" AS ENUM('admin', 'restaurant', 'rider', 'user');--> statement-breakpoint
+CREATE TYPE "public"."user_status" AS ENUM('active', 'inactive', 'banned');--> statement-breakpoint
+CREATE TYPE "public"."verification_code" AS ENUM('email_verification', 'password_reset');--> statement-breakpoint
 CREATE TYPE "public"."order_status" AS ENUM('pending', 'confirmed', 'preparing', 'out_for_delivery', 'delivered', 'cancelled');--> statement-breakpoint
 CREATE TYPE "public"."payment_method" AS ENUM('cod', 'card', 'mobile_banking');--> statement-breakpoint
 CREATE TYPE "public"."payment_status" AS ENUM('pending', 'paid', 'failed', 'refunded');--> statement-breakpoint
+CREATE TABLE "users" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "users_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"firstName" varchar(255) NOT NULL,
+	"lastName" varchar(255) NOT NULL,
+	"avatar" varchar(1024),
+	"passwordHash" varchar(255),
+	"email" varchar(255) NOT NULL,
+	"phone" varchar(255),
+	"emailVerifiedAt" timestamp,
+	"phoneVerifiedAt" timestamp,
+	"address" varchar(255),
+	"city" varchar(255),
+	"country" varchar(255),
+	"zipcode" varchar(20),
+	"fcmToken" varchar(255),
+	"provider" "auth_provider" DEFAULT 'local',
+	"provider_id" varchar(255),
+	"status" "user_status" DEFAULT 'active',
+	"role" "user_role" DEFAULT 'user',
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "users_email_unique" UNIQUE("email"),
+	CONSTRAINT "users_phone_unique" UNIQUE("phone")
+);
+--> statement-breakpoint
+CREATE TABLE "sessions" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"userId" integer NOT NULL,
+	"user_agent" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"expires_at" timestamp NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "verifications" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"userId" integer NOT NULL,
+	"type" "verification_code" NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"expires_at" timestamp NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "restaurants" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"owner_id" integer NOT NULL,
+	"name" varchar(255) NOT NULL,
+	"slug" varchar(255) NOT NULL,
+	"description" text,
+	"logo" varchar(255),
+	"cover_image" varchar(255),
+	"phone" varchar(20),
+	"email" varchar(255),
+	"address" text NOT NULL,
+	"city" varchar(100) NOT NULL,
+	"state" varchar(100),
+	"country" varchar(100),
+	"zipcode" varchar(20),
+	"area" varchar(100),
+	"latitude" numeric(10, 7),
+	"longitude" numeric(10, 7),
+	"cuisine" varchar(255),
+	"delivery_time" varchar(100),
+	"is_open" boolean DEFAULT true,
+	"is_active" boolean DEFAULT true,
+	"delivery_fee" numeric(10, 2) DEFAULT '0',
+	"min_order_amount" numeric(10, 2) DEFAULT '0',
+	"rating" numeric(3, 2) DEFAULT '0',
+	"total_reviews" integer DEFAULT 0,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now(),
+	CONSTRAINT "restaurants_slug_unique" UNIQUE("slug")
+);
+--> statement-breakpoint
 CREATE TABLE "menu_items" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"restaurant_id" integer NOT NULL,
@@ -60,7 +136,7 @@ CREATE TABLE "addresses" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "users" ALTER COLUMN "avatar" SET DATA TYPE varchar(1024);--> statement-breakpoint
+ALTER TABLE "restaurants" ADD CONSTRAINT "restaurants_owner_id_users_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "menu_items" ADD CONSTRAINT "menu_items_restaurant_id_restaurants_id_fk" FOREIGN KEY ("restaurant_id") REFERENCES "public"."restaurants"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_menu_item_id_menu_items_id_fk" FOREIGN KEY ("menu_item_id") REFERENCES "public"."menu_items"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

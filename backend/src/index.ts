@@ -18,7 +18,8 @@ import uploadRoutes from "./routes/cloudinary.js";
 const app = express();
 app.use(
   cors({
-    origin: CLIENT_WEB_APP_URL,
+    // origin: CLIENT_WEB_APP_URL,
+    origin: "http://localhost:5173",
     credentials: true,
   }),
 );

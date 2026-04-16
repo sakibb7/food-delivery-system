@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import InputField from "@/components/form/InputField";
 import PasswordField from "@/components/form/passwordField";
+import PhoneInputField from "@/components/form/PhoneInputField";
 
 interface SavedAddress {
   id: number;
@@ -52,6 +53,7 @@ export default function ProfilePage() {
 
   const {
     register,
+    control,
     formState: { errors },
     handleSubmit,
   } = useForm<ProfileFormData>({
@@ -324,11 +326,10 @@ export default function ProfilePage() {
                     required
                   />
 
-                  <InputField
+                  <PhoneInputField
                     label="Phone Number"
-                    placeholder="+880 1712 345678"
                     name="phone"
-                    register={register}
+                    control={control}
                     error={errors.phone}
                     required
                   />

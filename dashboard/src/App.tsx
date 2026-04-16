@@ -1,38 +1,40 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
 import { Toaster } from "react-hot-toast";
-import ProtectedRoute from "./components/protectedRoutes";
-import PublicRoute from "./components/publicRoutes";
-import SelectRole from "./pages/SelectRole";
-import Navbar from "./components/navbar";
-import Account from "./pages/Account";
-import { useAppData } from "./context/useAppData";
-import Restaurant from "./pages/Restaurant";
+import { AppProvider } from "./context/AppContext";
 
-export const authService = "http://localhost:5000";
-export const restaurantServices = "http://localhost:5001";
+import Login from "./pages/Login";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AdminLayout } from "./layouts/AdminLayout";
+
+import Home from "./pages/Home";
+import Users from "./pages/Users";
+import Restaurants from "./pages/Restaurants";
+import Orders from "./pages/Orders";
+import Riders from "./pages/Riders";
+import Payments from "./pages/Payments";
+import Settings from "./pages/Settings";
 
 export default function App() {
-  const { user } = useAppData();
-
-  if (user && user.role === "seller") {
-    return <Restaurant />;
-  }
   return (
-    <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route element={<PublicRoute />}>
+    <AppProvider>
+      <BrowserRouter>
+        <Routes>
           <Route path="/login" element={<Login />} />
-        </Route>
-        <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/select-role" element={<SelectRole />} />
-          <Route path="/account" element={<Account />} />
-        </Route>
-      </Routes>
-      <Toaster />
-    </BrowserRouter>
+          
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AdminLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/users" element={<Users />} />
+              <Route path="/restaurants" element={<Restaurants />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/riders" element={<Riders />} />
+              <Route path="/payments" element={<Payments />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
+          </Route>
+        </Routes>
+        <Toaster />
+      </BrowserRouter>
+    </AppProvider>
   );
 }

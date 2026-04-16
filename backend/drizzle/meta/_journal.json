@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1775605685807,
-      "tag": "0000_blushing_sersi",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1775606459258,
-      "tag": "0001_adorable_thundra",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1775637874579,
-      "tag": "0002_ambitious_orphan",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1775662932222,
-      "tag": "0003_demonic_gambit",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1775907803854,
-      "tag": "0004_wonderful_daredevil",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1776161876363,
-      "tag": "0005_last_katie_power",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1776224002653,
-      "tag": "0006_broad_oracle",
+      "when": 1776257701245,
+      "tag": "0000_quiet_loners",
       "breakpoints": true
     }
   ]
