@@ -18,6 +18,11 @@ import {
   getMyRestaurants,
   getRestaurantOrders,
   updateRestaurantOrderStatus,
+  getAllRestaurantsAdmin,
+  approveRestaurant,
+  suspendRestaurant,
+  rejectRestaurant,
+  adminDeleteRestaurant,
 } from "./restaurant.services.js";
 
 export const createRestaurantHandler: RequestHandler = catchErrors(
@@ -135,6 +140,81 @@ export const updateRestaurantOrderStatusHandler: RequestHandler = catchErrors(
     return res.status(OK).json({
       message: "Order status updated successfully",
       order: updatedOrder,
+    });
+  }
+);
+
+// ── Admin-only handlers ───────────────────────────────────────────────────────
+
+export const adminGetAllRestaurantsHandler: RequestHandler = catchErrors(
+  async (_req, res) => {
+    const restaurants = await getAllRestaurantsAdmin();
+
+    return res.status(OK).json({
+      restaurants,
+    });
+  }
+);
+
+export const adminApproveRestaurantHandler: RequestHandler = catchErrors(
+  async (req, res) => {
+    const { id } = restaurantIdSchema.parse(req.params);
+
+    const existing = await getRestaurantById(Number(id));
+    appAssert(existing, NOT_FOUND, "Restaurant not found");
+
+    const restaurant = await approveRestaurant(Number(id));
+
+    return res.status(OK).json({
+      message: "Restaurant approved successfully",
+      restaurant,
+    });
+  }
+);
+
+export const adminSuspendRestaurantHandler: RequestHandler = catchErrors(
+  async (req, res) => {
+    const { id } = restaurantIdSchema.parse(req.params);
+
+    const existing = await getRestaurantById(Number(id));
+    appAssert(existing, NOT_FOUND, "Restaurant not found");
+
+    const restaurant = await suspendRestaurant(Number(id));
+
+    return res.status(OK).json({
+      message: "Restaurant suspended successfully",
+      restaurant,
+    });
+  }
+);
+
+export const adminRejectRestaurantHandler: RequestHandler = catchErrors(
+  async (req, res) => {
+    const { id } = restaurantIdSchema.parse(req.params);
+
+    const existing = await getRestaurantById(Number(id));
+    appAssert(existing, NOT_FOUND, "Restaurant not found");
+
+    const restaurant = await rejectRestaurant(Number(id));
+
+    return res.status(OK).json({
+      message: "Restaurant application rejected",
+      restaurant,
+    });
+  }
+);
+
+export const adminDeleteRestaurantHandler: RequestHandler = catchErrors(
+  async (req, res) => {
+    const { id } = restaurantIdSchema.parse(req.params);
+
+    const existing = await getRestaurantById(Number(id));
+    appAssert(existing, NOT_FOUND, "Restaurant not found");
+
+    await adminDeleteRestaurant(Number(id));
+
+    return res.status(OK).json({
+      message: "Restaurant deleted successfully",
     });
   }
 );

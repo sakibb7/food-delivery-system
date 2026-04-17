@@ -2,15 +2,16 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AppProvider } from "./context/AppContext.tsx";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { getQueryClient } from "./configs/query-client.ts";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <GoogleOAuthProvider clientId="408652626730-09o52nvequqie3c1sh9fr96mkai98jlh.apps.googleusercontent.com">
+    <QueryClientProvider client={getQueryClient()}>
       <AppProvider>
         <App />
       </AppProvider>
-    </GoogleOAuthProvider>
+    </QueryClientProvider>
   </StrictMode>,
 );

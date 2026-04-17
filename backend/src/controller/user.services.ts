@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, ne } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { usersTable } from "../db/schema/userSchema.js";
 import {
@@ -8,6 +8,7 @@ import {
 import z from "zod";
 import appAssert from "../utils/appAssert.js";
 import {
+  BAD_REQUEST,
   NOT_FOUND,
   UNAUTHORIZED,
   INTERNAL_SERVER_ERROR,
@@ -66,6 +67,54 @@ export const changePassword = async (
     .returning();
 
   appAssert(updatedUser, INTERNAL_SERVER_ERROR, "Failed to update password");
+
+  return omitPassword(updatedUser);
+};
+
+// ── Admin services ───────────────────────────────────────────────────────────
+
+export const getAllUsers = async () => {
+  const users = await db
+    .select({
+      id: usersTable.id,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      avatar: usersTable.avatar,
+      email: usersTable.email,
+      phone: usersTable.phone,
+      role: usersTable.role,
+      status: usersTable.status,
+      provider: usersTable.provider,
+      emailVerifiedAt: usersTable.emailVerifiedAt,
+      createdAt: usersTable.createdAt,
+      updatedAt: usersTable.updatedAt,
+    })
+    .from(usersTable)
+    .orderBy(usersTable.createdAt);
+
+  return users;
+};
+
+export const toggleBanUser = async (userId: number, adminUserId: number) => {
+  appAssert(userId !== adminUserId, BAD_REQUEST, "You cannot ban yourself");
+
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, userId))
+    .limit(1);
+
+  appAssert(user, NOT_FOUND, "User not found");
+
+  const newStatus = user.status === "banned" ? "active" : "banned";
+
+  const [updatedUser] = await db
+    .update(usersTable)
+    .set({ status: newStatus })
+    .where(eq(usersTable.id, userId))
+    .returning();
+
+  appAssert(updatedUser, INTERNAL_SERVER_ERROR, "Failed to update user status");
 
   return omitPassword(updatedUser);
 };

@@ -124,7 +124,7 @@ export default function SignUpPage() {
         <div className="mt-4 text-center text-gray-500 font-medium text-sm">
           Want to partner with us?{" "}
           <Link
-            href="/owner-sign-up"
+            href="/restaurant-sign-up"
             className="text-red-600 font-bold hover:text-red-700 hover:underline"
           >
             Register your restaurant

@@ -83,6 +83,82 @@ export const getAllRestaurants = async () => {
   return restaurants;
 };
 
+// ── Admin-specific services ────────────────────────────────────────────────────
+
+export const getAllRestaurantsAdmin = async () => {
+  const restaurants = await db
+    .select({
+      id: restaurantsTable.id,
+      name: restaurantsTable.name,
+      slug: restaurantsTable.slug,
+      description: restaurantsTable.description,
+      logo: restaurantsTable.logo,
+      coverImage: restaurantsTable.coverImage,
+      phone: restaurantsTable.phone,
+      email: restaurantsTable.email,
+      address: restaurantsTable.address,
+      city: restaurantsTable.city,
+      area: restaurantsTable.area,
+      cuisine: restaurantsTable.cuisine,
+      deliveryTime: restaurantsTable.deliveryTime,
+      isOpen: restaurantsTable.isOpen,
+      isActive: restaurantsTable.isActive,
+      isVerified: restaurantsTable.isVerified,
+      status: restaurantsTable.status,
+      rating: restaurantsTable.rating,
+      totalReviews: restaurantsTable.totalReviews,
+      createdAt: restaurantsTable.createdAt,
+      ownerId: restaurantsTable.ownerId,
+      ownerFirstName: usersTable.firstName,
+      ownerLastName: usersTable.lastName,
+      ownerEmail: usersTable.email,
+    })
+    .from(restaurantsTable)
+    .leftJoin(usersTable, eq(restaurantsTable.ownerId, usersTable.id))
+    .orderBy(desc(restaurantsTable.createdAt));
+
+  return restaurants;
+};
+
+export const approveRestaurant = async (id: number) => {
+  const [restaurant] = await db
+    .update(restaurantsTable)
+    .set({ status: "approved", isActive: true, isVerified: true, updatedAt: new Date() })
+    .where(eq(restaurantsTable.id, id))
+    .returning();
+
+  return restaurant;
+};
+
+export const suspendRestaurant = async (id: number) => {
+  const [restaurant] = await db
+    .update(restaurantsTable)
+    .set({ status: "suspended", isActive: false, updatedAt: new Date() })
+    .where(eq(restaurantsTable.id, id))
+    .returning();
+
+  return restaurant;
+};
+
+export const rejectRestaurant = async (id: number) => {
+  const [restaurant] = await db
+    .update(restaurantsTable)
+    .set({ status: "rejected", isActive: false, isVerified: false, updatedAt: new Date() })
+    .where(eq(restaurantsTable.id, id))
+    .returning();
+
+  return restaurant;
+};
+
+export const adminDeleteRestaurant = async (id: number) => {
+  const [deletedRestaurant] = await db
+    .delete(restaurantsTable)
+    .where(eq(restaurantsTable.id, id))
+    .returning();
+
+  return deletedRestaurant;
+};
+
 export const getMyRestaurants = async (ownerId: number) => {
   const restaurants = await db
     .select()
@@ -125,14 +201,13 @@ export const getRestaurantOrders = async (restaurantId: number, ownerId: number)
       userLastName: usersTable.lastName,
     })
     .from(ordersTable)
-    // Here we need to import usersTable and ordersTable at the top
     .leftJoin(usersTable, eq(ordersTable.userId, usersTable.id))
     .where(eq(ordersTable.restaurantId, restaurantId))
     .orderBy(desc(ordersTable.createdAt));
 
   // Fetch items for these orders
   const orderIds = orders.map(o => o.id);
-  
+
   if (orderIds.length === 0) return [];
 
   const items = await db
@@ -141,15 +216,21 @@ export const getRestaurantOrders = async (restaurantId: number, ownerId: number)
     .where(inArray(orderItemsTable.orderId, orderIds));
 
   // Group items by orderId
-  const itemsByOrderId = items.reduce((acc, item) => {
-    if (!acc[item.orderId]) acc[item.orderId] = [];
-    acc[item.orderId].push(item);
-    return acc;
-  }, {} as Record<number, typeof items>);
+  const itemsByOrderId: Record<number, (typeof items)> = {};
+  items.forEach((item) => {
+    const orderId = item.orderId;
+    if (!itemsByOrderId[orderId]) {
+      itemsByOrderId[orderId] = [];
+    }
+    const list = itemsByOrderId[orderId];
+    if (list) {
+      list.push(item);
+    }
+  });
 
-  return orders.map(order => ({
+  return orders.map((order) => ({
     ...order,
-    items: itemsByOrderId[order.id] || []
+    items: itemsByOrderId[order.id] || [],
   }));
 };
 

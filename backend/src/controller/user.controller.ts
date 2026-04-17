@@ -1,7 +1,7 @@
 import { OK, UNAUTHORIZED } from "../constants/http.js";
 import catchErrors from "../utils/catchErrors.js";
 import { updateProfileSchema, updatePasswordSchema } from "./user.schemas.js";
-import { updateProfile, changePassword } from "./user.services.js";
+import { updateProfile, changePassword, getAllUsers, toggleBanUser } from "./user.services.js";
 import { getMyProfile } from "./auth.services.js";
 import appAssert from "../utils/appAssert.js";
 
@@ -36,5 +36,27 @@ export const changePasswordHandler = catchErrors(async (req, res) => {
 
   return res.status(OK).json({
     message: "Password changed successfully",
+  });
+});
+
+// ── Admin-only handlers ───────────────────────────────────────────────────────
+
+export const adminGetAllUsersHandler = catchErrors(async (_req, res) => {
+  const users = await getAllUsers();
+
+  return res.status(OK).json({ users });
+});
+
+export const adminToggleBanUserHandler = catchErrors(async (req, res) => {
+  const userId = Number(req.params.id);
+  const adminUserId = req.userId as number;
+
+  appAssert(userId, 400, "User ID is required");
+
+  const user = await toggleBanUser(userId, adminUserId);
+
+  return res.status(OK).json({
+    message: user.status === "banned" ? "User has been banned" : "User has been unbanned",
+    user,
   });
 });

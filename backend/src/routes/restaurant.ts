@@ -10,6 +10,11 @@ import {
   getMyRestaurantsHandler,
   getRestaurantOrdersHandler,
   updateRestaurantOrderStatusHandler,
+  adminGetAllRestaurantsHandler,
+  adminApproveRestaurantHandler,
+  adminSuspendRestaurantHandler,
+  adminRejectRestaurantHandler,
+  adminDeleteRestaurantHandler,
 } from "../controller/restaurant.controller.js";
 
 const router = express.Router();
@@ -18,6 +23,9 @@ router.get("/", getAllRestaurantsHandler);
 
 // Protected routes that need to be matched before /:id
 router.get("/my-restaurants", authenticate, authorize(["restaurant", "admin"]), getMyRestaurantsHandler);
+
+// Admin-only: get all restaurants (must be BEFORE /:id to avoid matching "admin" as id)
+router.get("/admin/all", authenticate, authorize(["admin"]), adminGetAllRestaurantsHandler);
 
 router.get("/:id", getRestaurantHandler);
 
@@ -30,4 +38,11 @@ router.delete("/:id", authorize(["restaurant", "admin"]), deleteRestaurantHandle
 router.get("/:id/orders", authorize(["restaurant", "admin"]), getRestaurantOrdersHandler);
 router.patch("/:id/orders/:orderId/status", authorize(["restaurant", "admin"]), updateRestaurantOrderStatusHandler);
 
+// Admin-only mutation routes
+router.patch("/:id/approve", authorize(["admin"]), adminApproveRestaurantHandler);
+router.patch("/:id/suspend", authorize(["admin"]), adminSuspendRestaurantHandler);
+router.patch("/:id/reject", authorize(["admin"]), adminRejectRestaurantHandler);
+router.delete("/:id/admin", authorize(["admin"]), adminDeleteRestaurantHandler);
+
 export default router;
+

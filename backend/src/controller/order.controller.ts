@@ -8,6 +8,7 @@ import {
   getOrdersByUserId,
   getOrderById,
   updateOrderStatus,
+  getAllOrders,
 } from "./order.services.js";
 
 export const createOrderHandler: RequestHandler = catchErrors(
@@ -68,6 +69,16 @@ export const cancelOrderHandler: RequestHandler = catchErrors(
     return res.status(OK).json({
       message: "Order cancelled successfully",
       order: updatedOrder,
+    });
+  }
+);
+
+export const getAllOrdersHandler: RequestHandler = catchErrors(
+  async (req, res) => {
+    const orders = await getAllOrders();
+
+    return res.status(OK).json({
+      orders,
     });
   }
 );

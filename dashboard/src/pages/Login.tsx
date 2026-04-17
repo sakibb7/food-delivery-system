@@ -5,8 +5,10 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { AppContext } from "../context/app-context";
 import type { AppContextType } from "../types";
+import { useQueryMutation } from "../hooks/mutate/useQueryMutation";
 
 export default function Login() {
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -17,46 +19,65 @@ export default function Login() {
   const setIsAuth = context?.setIsAuth;
   const setUser = context?.setUser;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const { mutate, isLoading: isMutationLoading } = useQueryMutation({
+    isPublic: true,
+    url: "/auth/login",
+  });
+
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast.error("Please enter email and password");
       return;
     }
 
-    setIsLoading(true);
-    try {
-      // Assuming a backend endpoint for admin login exists, otherwise 
-      // replace this with the appropriate authentication logic.
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_VERSION_PATH}/auth/login`,
-        { email, password },
-        { withCredentials: true }
-      );
+    mutate({ email, password }, {
+      onSuccess: (data) => {
+        const user = data?.data?.data?.user;
 
-      const user = response.data?.data?.user;
+        if (setIsAuth) setIsAuth(true);
+        if (setUser) setUser(user);
 
-      if (!user) {
-        toast.error("Failed to fetch user data.");
-        return;
-      }
+        toast.success("Login successful!");
+        navigate("/");
+      },
+      onError: (error) => {
+        console.log(error, "Error");
+      },
+    })
 
-      if (user.role !== 'admin' && user.role !== 'Admin') {
-        toast.error("Access denied. Admin only.");
-        return;
-      }
+    // try {
+    //   // Assuming a backend endpoint for admin login exists, otherwise 
+    //   // replace this with the appropriate authentication logic.
+    //   const response = await axios.post(
+    //     `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_VERSION_PATH}/auth/login`,
+    //     { email, password },
+    //     { withCredentials: true }
+    //   );
 
-      if (setIsAuth) setIsAuth(true);
-      if (setUser) setUser(user);
+    //   const user = response.data?.data?.user;
 
-      toast.success("Login successful!");
-      navigate("/");
-    } catch (error: any) {
-      console.error("Login failed", error);
-      toast.error(error.response?.data?.message || "Invalid credentials");
-    } finally {
-      setIsLoading(false);
-    }
+    //   if (!user) {
+    //     toast.error("Failed to fetch user data.");
+    //     return;
+    //   }
+
+    //   if (user.role !== 'admin' && user.role !== 'Admin') {
+    //     toast.error("Access denied. Admin only.");
+    //     return;
+    //   }
+
+    //   if (setIsAuth) setIsAuth(true);
+    //   if (setUser) setUser(user);
+
+    //   toast.success("Login successful!");
+    //   navigate("/");
+    // } catch (error: any) {
+    //   console.error("Login failed", error);
+    //   toast.error(error.response?.data?.message || "Invalid credentials");
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   return (

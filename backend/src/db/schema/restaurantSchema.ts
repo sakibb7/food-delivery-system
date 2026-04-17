@@ -45,7 +45,10 @@ export const restaurantsTable = pgTable("restaurants", {
   cuisine: varchar("cuisine", { length: 255 }),
   deliveryTime: varchar("delivery_time", { length: 100 }),
   isOpen: boolean("is_open").default(true),
-  isActive: boolean("is_active").default(true), // admin approval
+  isActive: boolean("is_active").default(false),
+  isVerified: boolean("is_verified").default(false),
+  isFeatured: boolean("is_featured").default(false),
+  status: varchar("status", { length: 20 }).default("pending"),
 
   // Delivery Info
   deliveryFee: decimal("delivery_fee", { precision: 10, scale: 2 }).default(

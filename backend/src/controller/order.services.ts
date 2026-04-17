@@ -1,4 +1,4 @@
-import { eq, and, desc, inArray } from "drizzle-orm";
+import { eq, and, desc, inArray, sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import {
   ordersTable,
@@ -6,6 +6,7 @@ import {
 } from "../db/schema/orderSchema.js";
 import { menuItemsTable } from "../db/schema/menuItemSchema.js";
 import { restaurantsTable } from "../db/schema/restaurantSchema.js";
+import { usersTable } from "../db/schema/userSchema.js";
 
 const TAX_RATE = 0.05; // 5%
 
@@ -181,4 +182,31 @@ export const updateOrderStatus = async (
     .returning();
 
   return updatedOrder;
+};
+
+export const getAllOrders = async () => {
+  const orders = await db
+    .select({
+      id: ordersTable.id,
+      status: ordersTable.status,
+      paymentMethod: ordersTable.paymentMethod,
+      paymentStatus: ordersTable.paymentStatus,
+      total: ordersTable.total,
+      subtotal: ordersTable.subtotal,
+      deliveryFee: ordersTable.deliveryFee,
+      tax: ordersTable.tax,
+      createdAt: ordersTable.createdAt,
+      estimatedDeliveryTime: ordersTable.estimatedDeliveryTime,
+      restaurantId: ordersTable.restaurantId,
+      restaurantName: restaurantsTable.name,
+      userId: ordersTable.userId,
+      customerName: sql<string>`concat(${usersTable.firstName}, ' ', ${usersTable.lastName})`,
+      customerEmail: usersTable.email,
+    })
+    .from(ordersTable)
+    .leftJoin(restaurantsTable, eq(ordersTable.restaurantId, restaurantsTable.id))
+    .leftJoin(usersTable, eq(ordersTable.userId, usersTable.id))
+    .orderBy(desc(ordersTable.createdAt));
+
+  return orders;
 };
