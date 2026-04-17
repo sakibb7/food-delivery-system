@@ -19,9 +19,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         withCredentials: true
       });
 
-      console.log(data, "data");
-
-      setUser(data);
+      setUser(data?.user);
       setIsAuth(true);
     } catch (error) {
       console.log(error);

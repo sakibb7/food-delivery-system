@@ -18,6 +18,8 @@ export const ProtectedRoute = () => {
   // If `role` is not defined yet, we'll just check `isAuth` for now.
   const isAdmin = user && (user.role === 'admin' || user.role === 'Admin');
 
+  console.log("is admin", isAdmin, isAuth, user?.role)
+
   if (!isAuth || !isAdmin) {
     return <Navigate to="/login" replace />;
   }
