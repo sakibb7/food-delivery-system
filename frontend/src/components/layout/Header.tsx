@@ -20,18 +20,11 @@ export default function Header() {
     <nav className="absolute top-0 w-full z-50 flex items-center justify-between px-6 py-4 lg:px-12 bg-black/20 backdrop-blur-sm shadow-sm transition-all text-white">
       <Logo />
       <div className="hidden md:flex gap-8 font-medium">
-        <Link href="/" className="hover:text-red-400 transition-colors">
-          Home
-        </Link>
+
         <Link href="/restaurants" className="hover:text-red-400 transition-colors">
           Restaurants
         </Link>
-        <Link href="#" className="hover:text-red-400 transition-colors">
-          Dining Out
-        </Link>
-        <Link href="#" className="hover:text-red-400 transition-colors">
-          Pro
-        </Link>
+
       </div>
 
       {/* ✅ LOADING STATE */}

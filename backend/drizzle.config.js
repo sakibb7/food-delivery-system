@@ -10,6 +10,7 @@ export default defineConfig({
     "./src/db/schema/menuItemSchema.ts",
     "./src/db/schema/orderSchema.ts",
     "./src/db/schema/addressSchema.ts",
+    "./src/db/schema/riderProfileSchema.ts",
   ],
   dialect: "postgresql",
   dbCredentials: {

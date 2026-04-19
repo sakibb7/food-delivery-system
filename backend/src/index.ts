@@ -6,6 +6,7 @@ import restaurantRoute from "./routes/restaurant.js";
 import menuRoute from "./routes/menu.js";
 import orderRoute from "./routes/order.js";
 import addressRoute from "./routes/address.js";
+import riderRoute from "./routes/rider.js";
 import cors from "cors";
 import { NODE_ENV, PORT, CLIENT_WEB_APP_URL } from "./constants/env.js";
 import errorHandler from "./middlewares/errorHandler.js";
@@ -64,6 +65,7 @@ app.use("/api/v1/cloudinary", authenticate, uploadRoutes);
 app.use("/api/v1/menu", menuRoute);
 app.use("/api/v1/order", authenticate, orderRoute);
 app.use("/api/v1/address", authenticate, addressRoute);
+app.use("/api/v1/rider", authenticate, riderRoute);
 
 // Add this AFTER all your app.use() route registrations
 app.get("/debug-routes", (req, res) => {

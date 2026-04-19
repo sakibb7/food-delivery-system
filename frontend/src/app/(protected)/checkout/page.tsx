@@ -70,6 +70,7 @@ export default function CheckoutPage() {
   const tax = Math.round(subtotal * taxRate * 100) / 100;
   const total = Math.round((subtotal + deliveryFee + tax) * 100) / 100;
 
+  console.log("cart", isSubmitting, !deliveryAddress, !user?.phone, user)
   const handlePlaceOrder = async () => {
     if (!cart.items.length || !cart.restaurantId) return;
 
@@ -200,18 +201,16 @@ export default function CheckoutPage() {
                       key={addr.id}
                       type="button"
                       onClick={() => setSelectedAddressId(addr.id)}
-                      className={`w-full flex gap-4 p-4 rounded-2xl border-2 transition-all text-left relative overflow-hidden ${
-                        isSelected
-                          ? "border-red-500 bg-red-50"
-                          : "border-gray-200 bg-white hover:border-gray-300"
-                      }`}
+                      className={`w-full flex gap-4 p-4 rounded-2xl border-2 transition-all text-left relative overflow-hidden ${isSelected
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-200 bg-white hover:border-gray-300"
+                        }`}
                     >
                       {isSelected && (
                         <div className="absolute top-0 right-0 w-16 h-16 bg-red-100 rounded-bl-full mix-blend-multiply opacity-50" />
                       )}
-                      <div className={`w-10 h-10 rounded-full flex justify-center items-center flex-shrink-0 ${
-                        isSelected ? "bg-red-100 text-red-600" : "bg-gray-100 text-gray-500"
-                      }`}>
+                      <div className={`w-10 h-10 rounded-full flex justify-center items-center flex-shrink-0 ${isSelected ? "bg-red-100 text-red-600" : "bg-gray-100 text-gray-500"
+                        }`}>
                         <AddrIcon size={20} />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -231,9 +230,8 @@ export default function CheckoutPage() {
                         </p>
                       </div>
                       {/* Selection indicator */}
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1 ${
-                        isSelected ? "border-red-500 bg-red-500" : "border-gray-300"
-                      }`}>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1 ${isSelected ? "border-red-500 bg-red-500" : "border-gray-300"
+                        }`}>
                         {isSelected && <CheckCircle2 size={14} className="text-white" />}
                       </div>
                     </button>

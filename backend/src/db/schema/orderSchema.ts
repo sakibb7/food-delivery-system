@@ -16,6 +16,7 @@ export const orderStatusEnum = pgEnum("order_status", [
   "pending",
   "confirmed",
   "preparing",
+  "ready_for_pickup",
   "out_for_delivery",
   "delivered",
   "cancelled",
@@ -44,6 +45,8 @@ export const ordersTable = pgTable("orders", {
   restaurantId: integer("restaurant_id")
     .notNull()
     .references(() => restaurantsTable.id, { onDelete: "cascade" }),
+  riderId: integer("rider_id")
+    .references(() => usersTable.id, { onDelete: "set null" }),
 
   // Status
   status: orderStatusEnum().default("pending").notNull(),
@@ -65,6 +68,9 @@ export const ordersTable = pgTable("orders", {
     .notNull(),
   tax: decimal("tax", { precision: 10, scale: 2 }).default("0").notNull(),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
+  riderEarnings: decimal("rider_earnings", { precision: 10, scale: 2 })
+    .default("0")
+    .notNull(),
 
   // Extra
   notes: text("notes"),
@@ -73,6 +79,8 @@ export const ordersTable = pgTable("orders", {
   // Timestamps
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  pickedUpAt: timestamp("picked_up_at"),
+  deliveredAt: timestamp("delivered_at"),
 });
 
 export const orderItemsTable = pgTable("order_items", {

@@ -24,7 +24,7 @@ export default function RestaurantOrdersPage() {
   const orders = data?.orders || [];
 
   const activeOrders = orders.filter((o: any) =>
-    ["pending", "confirmed", "preparing", "out_for_delivery"].includes(o.status)
+    ["pending", "confirmed", "preparing", "ready_for_pickup", "out_for_delivery"].includes(o.status)
   );
 
   const pastOrders = orders.filter((o: any) =>
@@ -49,6 +49,7 @@ export default function RestaurantOrdersPage() {
       case "pending": return "bg-yellow-100 text-yellow-800 border-yellow-200";
       case "confirmed": return "bg-blue-100 text-blue-800 border-blue-200";
       case "preparing": return "bg-orange-100 text-orange-800 border-orange-200";
+      case "ready_for_pickup": return "bg-indigo-100 text-indigo-800 border-indigo-200";
       case "out_for_delivery": return "bg-purple-100 text-purple-800 border-purple-200";
       case "delivered": return "bg-green-100 text-green-800 border-green-200";
       case "cancelled": return "bg-red-100 text-red-800 border-red-200";
@@ -63,7 +64,14 @@ export default function RestaurantOrdersPage() {
       case "confirmed":
         return <button disabled={isLoadingMutation} onClick={() => handleStatusUpdate(order.id, "preparing")} className="px-4 py-2 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition">Start Preparing</button>;
       case "preparing":
-        return <button disabled={isLoadingMutation} onClick={() => handleStatusUpdate(order.id, "out_for_delivery")} className="px-4 py-2 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition">Out for Delivery</button>;
+        return <button disabled={isLoadingMutation} onClick={() => handleStatusUpdate(order.id, "ready_for_pickup")} className="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition">Mark Ready for Pickup</button>;
+      case "ready_for_pickup":
+        return (
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-500 italic">Waiting for Rider...</span>
+            <button disabled={isLoadingMutation} onClick={() => handleStatusUpdate(order.id, "out_for_delivery")} className="px-4 py-2 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition">Self Delivery</button>
+          </div>
+        );
       case "out_for_delivery":
         return <button disabled={isLoadingMutation} onClick={() => handleStatusUpdate(order.id, "delivered")} className="px-4 py-2 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition">Mark Delivered</button>;
       default: return null;

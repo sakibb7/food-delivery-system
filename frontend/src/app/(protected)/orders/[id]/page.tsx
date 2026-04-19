@@ -57,6 +57,7 @@ const statusSteps = [
   { key: "pending", label: "Order Placed" },
   { key: "confirmed", label: "Order Confirmed" },
   { key: "preparing", label: "Preparing" },
+  { key: "ready_for_pickup", label: "Ready for Pickup" },
   { key: "out_for_delivery", label: "Out for Delivery" },
   { key: "delivered", label: "Delivered" },
 ];
@@ -218,18 +219,16 @@ export default function OrderDetailsPage() {
                   return (
                     <div
                       key={step.key}
-                      className={`relative flex items-start gap-4 ${
-                        index < statusSteps.length - 1 ? "mb-8" : ""
-                      }`}
+                      className={`relative flex items-start gap-4 ${index < statusSteps.length - 1 ? "mb-8" : ""
+                        }`}
                     >
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center z-10 ${
-                          stepStatus === "completed"
-                            ? "bg-green-500 text-white shadow-sm shadow-green-200"
-                            : stepStatus === "current"
-                              ? "bg-blue-500 text-white shadow-sm shadow-blue-200 animate-pulse"
-                              : "bg-gray-200 text-gray-400"
-                        }`}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center z-10 ${stepStatus === "completed"
+                          ? "bg-green-500 text-white shadow-sm shadow-green-200"
+                          : stepStatus === "current" && step.key !== "delivered"
+                            ? "bg-blue-500 text-white shadow-sm shadow-blue-200 animate-pulse"
+                            : "bg-gray-200 text-gray-400"
+                          } ${step.key === "delivered" ? "bg-green-500 text-white shadow-sm shadow-green-200" : ""}`}
                       >
                         {stepStatus === "completed" ? (
                           <CheckCircle2 size={16} />
@@ -241,17 +240,16 @@ export default function OrderDetailsPage() {
                       </div>
                       <div>
                         <h3
-                          className={`font-bold ${
-                            stepStatus === "upcoming"
-                              ? "text-gray-400"
-                              : stepStatus === "current"
-                                ? "text-blue-600"
-                                : "text-gray-900"
-                          }`}
+                          className={`font-bold ${stepStatus === "upcoming"
+                            ? "text-gray-400"
+                            : stepStatus === "current"
+                              ? "text-blue-600"
+                              : "text-gray-900"
+                            }`}
                         >
                           {step.label}
                         </h3>
-                        {stepStatus === "current" && (
+                        {stepStatus === "current" && step.key !== "delivered" && (
                           <p className="text-sm text-blue-500">In progress</p>
                         )}
                       </div>
