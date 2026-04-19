@@ -36,6 +36,7 @@ export const orderStatusSchema = z.object({
     "pending",
     "confirmed",
     "preparing",
+    "ready_for_pickup",
     "out_for_delivery",
     "delivered",
     "cancelled",

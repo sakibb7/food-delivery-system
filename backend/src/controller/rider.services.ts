@@ -61,6 +61,8 @@ export const getAvailableOrders = async () => {
       restaurantId: ordersTable.restaurantId,
       restaurantName: restaurantsTable.name,
       restaurantLogo: restaurantsTable.logo,
+      restaurantLat: restaurantsTable.latitude,
+      restaurantLng: restaurantsTable.longitude,
     })
     .from(ordersTable)
     .leftJoin(restaurantsTable, eq(ordersTable.restaurantId, restaurantsTable.id))
@@ -141,6 +143,8 @@ export const getOrderDetail = async (orderId: number) => {
       restaurantId: ordersTable.restaurantId,
       restaurantName: restaurantsTable.name,
       restaurantLogo: restaurantsTable.logo,
+      restaurantLat: restaurantsTable.latitude,
+      restaurantLng: restaurantsTable.longitude,
     })
     .from(ordersTable)
     .leftJoin(restaurantsTable, eq(ordersTable.restaurantId, restaurantsTable.id))

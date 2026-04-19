@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Switch, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, Switch, ActivityIndicator, ScrollView } from "react-native";
 import { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,6 +8,7 @@ import { useOrderStore } from "@/stores/useOrderStore";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import { privateInstance } from "@/configs/axiosConfig";
 import { showToast } from "@/app/utils/toast";
+import DeliveryMap from "@/components/DeliveryMap";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -67,6 +68,15 @@ export default function HomeScreen() {
   const totalEarnings = earningsData?.totalEarnings ?? 0;
   const totalDeliveries = earningsData?.deliveries ?? 0;
 
+  // Build restaurant markers from available orders
+  const restaurantMarkers = (availableOrders || [])
+    .filter((o: any) => o.restaurantLat && o.restaurantLng)
+    .map((o: any) => ({
+      latitude: parseFloat(o.restaurantLat),
+      longitude: parseFloat(o.restaurantLng),
+      name: o.restaurantName || "Restaurant",
+    }));
+
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Header / Status Toggle */}
@@ -92,10 +102,10 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Map Placeholder / Available Orders Area */}
-      <View className="flex-1 bg-gray-100 relative">
+      {/* Main Content Area */}
+      <View className="flex-1 relative">
         {!isOnline ? (
-          <View className="flex-1 items-center justify-center p-6">
+          <View className="flex-1 items-center justify-center p-6 bg-gray-100">
             <View className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 items-center">
               <Ionicons name="moon-outline" size={48} color="#9ca3af" />
               <Text className="text-xl font-bold text-gray-900 mb-2 mt-4">You are Offline</Text>
@@ -105,45 +115,65 @@ export default function HomeScreen() {
             </View>
           </View>
         ) : (
-          <View className="flex-1 p-6">
-            <Text className="text-lg font-bold text-gray-900 mb-4">
-              Available Orders ({availableOrders?.length ?? 0})
-            </Text>
+          <View className="flex-1">
+            {/* Full-screen Map */}
+            <DeliveryMap
+              showRestaurant={false}
+              showCustomer={false}
+              showRider={true}
+              enableLocationTracking={true}
+            />
 
-            {(!availableOrders || availableOrders.length === 0) ? (
-              <View className="flex-1 items-center justify-center">
-                <Ionicons name="search-outline" size={48} color="#9ca3af" />
-                <Text className="text-gray-500 mt-4 font-medium text-center">
-                  No orders available right now.{"\n"}We'll notify you when one comes in.
+            {/* Floating Available Orders Overlay */}
+            <View className="absolute bottom-0 left-0 right-0 max-h-[55%]">
+              <View className="bg-white rounded-t-3xl shadow-lg border-t border-gray-100 px-5 pt-4 pb-2">
+                <View className="w-10 h-1 bg-gray-300 rounded-full self-center mb-3" />
+                <Text className="text-lg font-bold text-gray-900 mb-3">
+                  Available Orders ({availableOrders?.length ?? 0})
                 </Text>
               </View>
-            ) : (
-              availableOrders.map((order: any) => (
-                <TouchableOpacity
-                  key={order.id}
-                  className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-3"
-                  onPress={() => handleAcceptOrder(order)}
-                >
-                  <View className="flex-row justify-between mb-2">
-                    <Text className="text-lg font-bold text-gray-900">
-                      {order.restaurantName || "Restaurant"}
-                    </Text>
-                    <Text className="text-emerald-600 font-bold text-lg">
-                      ${Number(order.deliveryFee || 5).toFixed(2)}
+              <ScrollView
+                className="bg-white px-5 pb-4"
+                showsVerticalScrollIndicator={false}
+                bounces={false}
+              >
+                {(!availableOrders || availableOrders.length === 0) ? (
+                  <View className="items-center py-8">
+                    <Ionicons name="search-outline" size={40} color="#9ca3af" />
+                    <Text className="text-gray-500 mt-3 font-medium text-center">
+                      No orders available right now.{"\n"}We'll notify you when one comes in.
                     </Text>
                   </View>
-                  <Text className="text-gray-500 text-sm mb-2" numberOfLines={1}>
-                    {order.deliveryAddress}
-                  </Text>
-                  <View className="flex-row items-center">
-                    <Ionicons name="restaurant-outline" size={14} color="#6b7280" />
-                    <Text className="text-gray-500 text-sm ml-1">Ready for pickup</Text>
-                    <View className="w-1 h-1 bg-gray-300 rounded-full mx-2" />
-                    <Text className="text-emerald-600 font-medium text-sm">Tap to view</Text>
-                  </View>
-                </TouchableOpacity>
-              ))
-            )}
+                ) : (
+                  availableOrders.map((order: any) => (
+                    <TouchableOpacity
+                      key={order.id}
+                      className="bg-gray-50 p-4 rounded-2xl border border-gray-100 mb-3"
+                      onPress={() => handleAcceptOrder(order)}
+                      activeOpacity={0.7}
+                    >
+                      <View className="flex-row justify-between mb-2">
+                        <Text className="text-lg font-bold text-gray-900">
+                          {order.restaurantName || "Restaurant"}
+                        </Text>
+                        <Text className="text-emerald-600 font-bold text-lg">
+                          ${Number(order.deliveryFee || 5).toFixed(2)}
+                        </Text>
+                      </View>
+                      <Text className="text-gray-500 text-sm mb-2" numberOfLines={1}>
+                        {order.deliveryAddress}
+                      </Text>
+                      <View className="flex-row items-center">
+                        <Ionicons name="restaurant-outline" size={14} color="#6b7280" />
+                        <Text className="text-gray-500 text-sm ml-1">Ready for pickup</Text>
+                        <View className="w-1 h-1 bg-gray-300 rounded-full mx-2" />
+                        <Text className="text-emerald-600 font-medium text-sm">Tap to view</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))
+                )}
+              </ScrollView>
+            </View>
           </View>
         )}
       </View>

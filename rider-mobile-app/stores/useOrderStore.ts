@@ -22,6 +22,8 @@ interface ActiveOrder {
   restaurantId: number;
   restaurantName: string;
   restaurantLogo?: string;
+  restaurantLat?: string;
+  restaurantLng?: string;
   createdAt: string;
   pickedUpAt?: string;
   deliveredAt?: string;

@@ -7,6 +7,7 @@ import { useOrderStore } from "@/stores/useOrderStore";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import { privateInstance } from "@/configs/axiosConfig";
 import { showToast } from "@/app/utils/toast";
+import DeliveryMap from "@/components/DeliveryMap";
 
 export default function DropoffScreen() {
   const router = useRouter();
@@ -22,6 +23,19 @@ export default function DropoffScreen() {
   });
 
   const order = activeOrder?.id === Number(id) ? activeOrder : orderData;
+
+  // For customer location, use an offset from the restaurant coords as a simulation
+  // since there's no lat/lng on the order's delivery address yet
+  const restaurantLat = order?.restaurantLat ? parseFloat(order.restaurantLat) : null;
+  const restaurantLng = order?.restaurantLng ? parseFloat(order.restaurantLng) : null;
+
+  const customerCoords =
+    restaurantLat && restaurantLng
+      ? {
+          latitude: restaurantLat + 0.008 + Math.random() * 0.005,
+          longitude: restaurantLng + 0.006 + Math.random() * 0.005,
+        }
+      : undefined;
 
   const handleDeliver = async () => {
     setDelivering(true);
@@ -54,11 +68,15 @@ export default function DropoffScreen() {
         </View>
       </View>
 
-      {/* Map Placeholder */}
-      <View className="flex-1 bg-gray-100 items-center justify-center">
-        <Ionicons name="map" size={64} color="#9ca3af" />
-        <Text className="text-gray-500 mt-2">Map Navigation to Customer</Text>
-      </View>
+      {/* Map — Rider to Customer */}
+      <DeliveryMap
+        customerCoords={customerCoords}
+        showRestaurant={false}
+        showCustomer={true}
+        showRider={true}
+        customerLabel="Customer"
+        enableLocationTracking={true}
+      />
 
       {/* Bottom Sheet Details */}
       <View className="bg-white rounded-t-3xl shadow-lg border-t border-gray-100 p-6">

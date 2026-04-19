@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useOrderStore } from "@/stores/useOrderStore";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
+import DeliveryMap from "@/components/DeliveryMap";
 
 export default function PickupScreen() {
   const router = useRouter();
@@ -18,6 +19,15 @@ export default function PickupScreen() {
   });
 
   const order = activeOrder?.id === Number(id) ? activeOrder : orderData;
+
+  // Parse restaurant coordinates
+  const restaurantCoords =
+    order?.restaurantLat && order?.restaurantLng
+      ? {
+          latitude: parseFloat(order.restaurantLat),
+          longitude: parseFloat(order.restaurantLng),
+        }
+      : undefined;
 
   if (isLoading && !order) {
     return (
@@ -38,14 +48,15 @@ export default function PickupScreen() {
         <View className="w-10" />
       </View>
 
-      {/* Map Placeholder */}
-      <View className="flex-1 bg-gray-100 items-center justify-center">
-        <Ionicons name="map" size={64} color="#9ca3af" />
-        <Text className="text-gray-500 mt-2">Map Navigation Placeholder</Text>
-
-        {/* Route Line Mock */}
-        <View className="absolute w-3/4 h-32 border-l-4 border-b-4 border-blue-500 rounded-bl-3xl opacity-50" />
-      </View>
+      {/* Map — Rider to Restaurant */}
+      <DeliveryMap
+        restaurantCoords={restaurantCoords}
+        showRestaurant={true}
+        showCustomer={false}
+        showRider={true}
+        restaurantName={order?.restaurantName || "Restaurant"}
+        enableLocationTracking={true}
+      />
 
       {/* Bottom Sheet Details */}
       <View className="bg-white rounded-t-3xl shadow-lg border-t border-gray-100 p-6">
