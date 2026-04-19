@@ -136,6 +136,7 @@ export const getOrderById = async (orderId: number, userId: number) => {
       id: ordersTable.id,
       userId: ordersTable.userId,
       restaurantId: ordersTable.restaurantId,
+      riderId: ordersTable.riderId,
       status: ordersTable.status,
       paymentMethod: ordersTable.paymentMethod,
       paymentStatus: ordersTable.paymentStatus,

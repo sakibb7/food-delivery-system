@@ -12,6 +12,7 @@ import {
   Menu,
   Bell,
   Search,
+  Star,
 } from "lucide-react";
 import { useContext } from "react";
 import { AppContext } from "../context/app-context";
@@ -22,6 +23,7 @@ const NAVIGATION = [
   { name: "Users", href: "/users", icon: Users },
   { name: "Restaurants", href: "/restaurants", icon: Store },
   { name: "Orders", href: "/orders", icon: FileText },
+  { name: "Reviews", href: "/reviews", icon: Star },
   { name: "Riders", href: "/riders", icon: Bike },
   { name: "Payments", href: "/payments", icon: CreditCard },
   { name: "Settings", href: "/settings", icon: Settings },

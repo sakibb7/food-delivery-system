@@ -13,6 +13,7 @@ import Orders from "./pages/Orders";
 import Riders from "./pages/Riders";
 import Payments from "./pages/Payments";
 import Settings from "./pages/Settings";
+import Reviews from "./pages/Reviews";
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
               <Route path="/users" element={<Users />} />
               <Route path="/restaurants" element={<Restaurants />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/reviews" element={<Reviews />} />
               <Route path="/riders" element={<Riders />} />
               <Route path="/payments" element={<Payments />} />
               <Route path="/settings" element={<Settings />} />

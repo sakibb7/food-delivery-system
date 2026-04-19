@@ -65,10 +65,16 @@ export default function ProfileScreen() {
               <Ionicons name="person" size={48} color="#9ca3af" />
             </View>
             <Text className="text-xl font-bold text-gray-900 mb-1">{displayName}</Text>
-            <Text className="text-gray-500">
+            <Text className="text-gray-500 mb-3">
               {displayEmail}
               {displayPhone ? ` • ${displayPhone}` : ""}
             </Text>
+
+            <View className="flex-row items-center gap-1 bg-yellow-50 px-3 py-1.5 rounded-full border border-yellow-100">
+              <Ionicons name="star" size={16} color="#fbbf24" />
+              <Text className="text-yellow-700 font-bold">{profile?.rating ? parseFloat(profile.rating).toFixed(1) : "0.0"}</Text>
+              <Text className="text-yellow-600/70 text-sm">({profile?.totalReviews || 0} reviews)</Text>
+            </View>
 
             <View className="flex-row mt-4">
               {profile?.approvalStatus === "approved" && (
@@ -106,6 +112,15 @@ export default function ProfileScreen() {
               onPress={() => router.push("/profile/vehicle")}
             />
             <MenuItem icon="card-outline" title="Bank Details" subtitle="Manage payouts" />
+          </View>
+
+          <View className="bg-white border-y border-gray-100 mb-4">
+            <MenuItem
+              icon="star-outline"
+              title="My Reviews"
+              subtitle="See what customers are saying"
+              onPress={() => router.push("/profile/reviews")}
+            />
           </View>
 
           <View className="bg-white border-y border-gray-100 mb-8">

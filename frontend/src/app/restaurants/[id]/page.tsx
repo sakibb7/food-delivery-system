@@ -50,6 +50,15 @@ interface MenuItem {
   isAvailable: boolean | null;
 }
 
+interface Review {
+  id: number;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  userName: string;
+  userAvatar: string | null;
+}
+
 export default function RestaurantDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -57,6 +66,7 @@ export default function RestaurantDetailPage() {
 
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>("");
@@ -68,13 +78,15 @@ export default function RestaurantDetailPage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [restaurantRes, menuRes] = await Promise.all([
+        const [restaurantRes, menuRes, reviewsRes] = await Promise.all([
           publicInstance.get(`/restaurant/${id}`),
           publicInstance.get(`/menu/${id}`),
+          publicInstance.get(`/review/restaurant/${id}`).catch(() => ({ data: { reviews: [] } })),
         ]);
 
         setRestaurant(restaurantRes.data.restaurant);
         setMenuItems(menuRes.data.menuItems || []);
+        setReviews(reviewsRes.data.reviews || []);
 
         // Set initial active category
         const items = menuRes.data.menuItems || [];
@@ -423,6 +435,42 @@ export default function RestaurantDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Reviews Section */}
+      {reviews.length > 0 && (
+        <div className="max-w-5xl mx-auto px-4 md:px-8 py-8 mb-20 border-t border-gray-100">
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-6 flex items-center gap-3">
+            <Star className="text-yellow-400 fill-yellow-400" size={28} />
+            Customer Reviews
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {reviews.map((review) => (
+              <div key={review.id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col h-full">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+                    {review.userAvatar ? (
+                      <Image src={review.userAvatar} alt={review.userName} width={48} height={48} className="object-cover" />
+                    ) : (
+                      <span className="font-bold text-gray-400">{review.userName.charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900">{review.userName}</h4>
+                    <p className="text-xs text-gray-500">
+                      {new Date(review.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </p>
+                  </div>
+                  <div className="ml-auto flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-lg">
+                    <Star size={14} className="fill-yellow-400 text-yellow-400" />
+                    <span className="font-bold text-yellow-700 text-sm">{review.rating.toFixed(1)}</span>
+                  </div>
+                </div>
+                {review.comment && <p className="text-gray-600 italic leading-relaxed flex-1">"{review.comment}"</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Floating Cart Bar */}
       {totalItems > 0 && cart.restaurantId === restaurant.id && (

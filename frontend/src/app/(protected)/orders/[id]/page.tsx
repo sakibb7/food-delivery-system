@@ -15,9 +15,11 @@ import {
   UtensilsCrossed,
   Banknote,
   AlertCircle,
+  Star,
 } from "lucide-react";
 import { privateInstance } from "@/configs/axiosConfig";
 import { toast } from "sonner";
+import { ReviewModal } from "@/components/ReviewModal";
 
 interface OrderItem {
   id: number;
@@ -33,6 +35,7 @@ interface OrderDetail {
   id: number;
   userId: number;
   restaurantId: number;
+  riderId: number | null;
   status: string;
   paymentMethod: string;
   paymentStatus: string;
@@ -95,20 +98,26 @@ export default function OrderDetailsPage() {
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewStatus, setReviewStatus] = useState({ hasRestaurantReview: false, hasRiderReview: false });
 
   useEffect(() => {
-    const fetchOrder = async () => {
+    const fetchOrderAndReviewStatus = async () => {
       try {
         setLoading(true);
-        const res = await privateInstance.get(`/order/${id}`);
-        setOrder(res.data.order);
+        const [orderRes, reviewRes] = await Promise.all([
+          privateInstance.get(`/order/${id}`),
+          privateInstance.get(`/review/order/${id}/status`).catch(() => ({ data: { hasRestaurantReview: false, hasRiderReview: false } })),
+        ]);
+        setOrder(orderRes.data.order);
+        setReviewStatus(reviewRes.data);
       } catch (err) {
         console.error("Failed to fetch order:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchOrder();
+    fetchOrderAndReviewStatus();
   }, [id]);
 
   const handleCancel = async () => {
@@ -458,17 +467,41 @@ export default function OrderDetailsPage() {
             </button>
           )}
 
-          {/* Reorder Button */}
+          {/* Actions for Delivered Order */}
           {order.status === "delivered" && (
-            <Link
-              href={`/restaurants/${order.restaurantId}`}
-              className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-red-600/30 text-center block"
-            >
-              Order Again
-            </Link>
+            <div className="space-y-4">
+              {(!reviewStatus.hasRestaurantReview || (order.riderId && !reviewStatus.hasRiderReview)) && (
+                <button
+                  onClick={() => setIsReviewModalOpen(true)}
+                  className="w-full py-4 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-2xl transition-all shadow-lg shadow-yellow-500/30 flex items-center justify-center gap-2"
+                >
+                  <Star fill="currentColor" size={20} />
+                  Leave a Review
+                </button>
+              )}
+              <Link
+                href={`/restaurants/${order.restaurantId}`}
+                className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-red-600/30 text-center block"
+              >
+                Order Again
+              </Link>
+            </div>
           )}
         </div>
       </div>
+
+      {order && (
+        <ReviewModal
+          isOpen={isReviewModalOpen}
+          onClose={() => setIsReviewModalOpen(false)}
+          orderId={order.id}
+          restaurantId={order.restaurantId}
+          riderId={order.riderId}
+          onSuccess={() => {
+            setReviewStatus({ hasRestaurantReview: true, hasRiderReview: !!order.riderId });
+          }}
+        />
+      )}
     </div>
   );
 }
