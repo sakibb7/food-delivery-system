@@ -1,6 +1,6 @@
 "use client"
 import Image from "next/image";
-import heroImg from "@/../public/hero-bg.png"
+import heroImg from "../../../../public/hero-bg.png"
 import { MapPin, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAppData } from "@/context/useAppData";

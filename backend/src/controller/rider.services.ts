@@ -1,6 +1,6 @@
 import { db } from "../db/index.js";
 import { riderProfilesTable } from "../db/schema/riderProfileSchema.js";
-import { ordersTable } from "../db/schema/orderSchema.js";
+import { ordersTable, orderItemsTable } from "../db/schema/orderSchema.js";
 import { usersTable } from "../db/schema/userSchema.js";
 import { restaurantsTable } from "../db/schema/restaurantSchema.js";
 import { eq, and, isNull } from "drizzle-orm";
@@ -117,4 +117,41 @@ export const getRiderHistory = async (userId: number) => {
       eq(ordersTable.riderId, userId),
       eq(ordersTable.status, "delivered")
     ));
+};
+
+export const getOrderDetail = async (orderId: number) => {
+  const [order] = await db.select({
+      id: ordersTable.id,
+      status: ordersTable.status,
+      paymentMethod: ordersTable.paymentMethod,
+      paymentStatus: ordersTable.paymentStatus,
+      deliveryAddress: ordersTable.deliveryAddress,
+      deliveryPhone: ordersTable.deliveryPhone,
+      subtotal: ordersTable.subtotal,
+      deliveryFee: ordersTable.deliveryFee,
+      tax: ordersTable.tax,
+      total: ordersTable.total,
+      notes: ordersTable.notes,
+      estimatedDeliveryTime: ordersTable.estimatedDeliveryTime,
+      riderEarnings: ordersTable.riderEarnings,
+      createdAt: ordersTable.createdAt,
+      pickedUpAt: ordersTable.pickedUpAt,
+      deliveredAt: ordersTable.deliveredAt,
+      riderId: ordersTable.riderId,
+      restaurantId: ordersTable.restaurantId,
+      restaurantName: restaurantsTable.name,
+      restaurantLogo: restaurantsTable.logo,
+    })
+    .from(ordersTable)
+    .leftJoin(restaurantsTable, eq(ordersTable.restaurantId, restaurantsTable.id))
+    .where(eq(ordersTable.id, orderId))
+    .limit(1);
+
+  if (!order) return null;
+
+  const items = await db.select()
+    .from(orderItemsTable)
+    .where(eq(orderItemsTable.orderId, orderId));
+
+  return { ...order, items };
 };

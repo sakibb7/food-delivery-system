@@ -1,8 +1,8 @@
 import Image, { StaticImageData } from "next/image";
-import burger from "@/../public/burger.png";
-import pizza from "@/../public/pizza.png";
-import sushi from "@/../public/sushi.png";
-import heroBg from "@/../public/hero-bg.png";
+import burger from "../../../public/burger.png";
+import pizza from "../../../public/pizza.png";
+import sushi from "../../../public/sushi.png";
+import heroBg from "../../../public/hero-bg.png";
 import Logo from "@/components/ui/Logo";
 
 interface AuthLayoutProps {

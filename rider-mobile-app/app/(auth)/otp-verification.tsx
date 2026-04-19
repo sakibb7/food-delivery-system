@@ -1,10 +1,34 @@
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
+import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
+import { showToast } from "@/app/utils/toast";
 
-export default function OTPVerificationScreen() {
+export default function EmailVerificationScreen() {
   const router = useRouter();
+  const [resent, setResent] = useState(false);
+
+  const { mutate, isLoading } = useQueryMutation({
+    url: "/auth/email/verify/resend",
+  });
+
+  const handleResend = () => {
+    mutate(
+      {},
+      {
+        onSuccess: () => {
+          setResent(true);
+          showToast({ text: "Verification email sent!", type: "success" });
+        },
+        onError: (err: any) => {
+          const message = err?.response?.data?.message || "Failed to resend";
+          showToast({ text: message, type: "error" });
+        },
+      }
+    );
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -15,34 +39,35 @@ export default function OTPVerificationScreen() {
         <Text className="text-lg font-bold ml-2">Verification</Text>
       </View>
 
-      <View className="flex-1 px-6 pt-8">
-        <Text className="text-3xl font-bold text-gray-900 mb-2">Enter OTP</Text>
-        <Text className="text-gray-500 mb-8">
-          We've sent a 4-digit code to +1 234 567 8900
-        </Text>
-
-        <View className="flex-row justify-between mb-8">
-          {[1, 2, 3, 4].map((i) => (
-            <TextInput
-              key={i}
-              className="w-16 h-16 bg-gray-50 border border-gray-200 rounded-2xl text-center text-2xl font-bold text-gray-900"
-              maxLength={1}
-              keyboardType="number-pad"
-            />
-          ))}
+      <View className="flex-1 px-6 pt-8 items-center">
+        <View className="w-24 h-24 bg-emerald-100 rounded-full items-center justify-center mb-6">
+          <Ionicons name="mail-outline" size={48} color="#059669" />
         </View>
 
-        <TouchableOpacity className="mb-8">
-          <Text className="text-emerald-600 font-medium text-center">
-            Resend Code (00:45)
-          </Text>
+        <Text className="text-3xl font-bold text-gray-900 mb-2 text-center">Check Your Email</Text>
+        <Text className="text-gray-500 mb-8 text-center text-base px-4">
+          We've sent a verification link to your email address. Please click the link to verify your account.
+        </Text>
+
+        <TouchableOpacity
+          className={`w-full py-4 rounded-xl items-center mb-4 ${isLoading ? "bg-emerald-400" : "bg-emerald-500"}`}
+          onPress={handleResend}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text className="text-white font-bold text-lg">
+              {resent ? "Resend Again" : "Resend Verification Email"}
+            </Text>
+          )}
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          className="bg-emerald-500 py-4 rounded-xl items-center"
-          onPress={() => router.push('/(onboarding)/documents')}
+        <TouchableOpacity
+          className="w-full bg-gray-100 py-4 rounded-xl items-center"
+          onPress={() => router.replace("/(onboarding)/documents")}
         >
-          <Text className="text-white font-bold text-lg">Verify</Text>
+          <Text className="text-gray-700 font-bold text-lg">Continue to Setup</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

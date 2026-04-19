@@ -1,10 +1,17 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function AccountRejectedScreen() {
   const router = useRouter();
+  const { logout } = useAuthStore();
+
+  const handleLogout = () => {
+    logout();
+    router.replace("/(auth)");
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white items-center justify-center p-6">
@@ -20,16 +27,16 @@ export default function AccountRejectedScreen() {
         </Text>
       </View>
 
-      <TouchableOpacity 
+      <TouchableOpacity
         className="w-full bg-emerald-500 py-4 rounded-xl items-center"
-        onPress={() => router.push('/(onboarding)/documents')}
+        onPress={() => router.replace("/(onboarding)/documents")}
       >
         <Text className="text-white font-bold text-lg">Update Documents</Text>
       </TouchableOpacity>
-      
-      <TouchableOpacity 
+
+      <TouchableOpacity
         className="w-full bg-gray-100 py-4 rounded-xl items-center mt-4"
-        onPress={() => router.push('/(auth)')}
+        onPress={handleLogout}
       >
         <Text className="text-gray-700 font-bold text-lg">Log Out</Text>
       </TouchableOpacity>

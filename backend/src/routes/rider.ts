@@ -10,7 +10,8 @@ import {
   pickupOrder,
   deliverOrder,
   getHistory,
-  getEarnings
+  getEarnings,
+  getOrderDetail
 } from "../controller/rider.controller.js";
 
 const router = Router();
@@ -29,6 +30,7 @@ router.patch("/location", updateLocation);
 
 // Orders
 router.get("/orders/available", getAvailableOrders);
+router.get("/orders/:id", getOrderDetail);
 router.patch("/orders/:id/accept", acceptOrder);
 router.patch("/orders/:id/pickup", pickupOrder);
 router.patch("/orders/:id/deliver", deliverOrder);

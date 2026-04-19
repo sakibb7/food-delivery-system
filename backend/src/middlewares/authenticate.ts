@@ -15,7 +15,15 @@ interface CustomJwtPayload extends JwtPayload {
 
 const authenticate: RequestHandler = (req, res, next) => {
   (async () => {
-    const accessToken = req.cookies.accessToken as string | undefined;
+    // Support both cookie-based auth (web) and Bearer token auth (mobile)
+    let accessToken = req.cookies.accessToken as string | undefined;
+
+    if (!accessToken) {
+      const authHeader = req.headers.authorization;
+      if (authHeader?.startsWith("Bearer ")) {
+        accessToken = authHeader.slice(7);
+      }
+    }
 
     appAssert(
       accessToken,

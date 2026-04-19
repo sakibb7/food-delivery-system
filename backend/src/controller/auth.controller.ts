@@ -76,6 +76,19 @@ export const registerRestaurantHandler = catchErrors(async (req, res) => {
     .json(user);
 });
 
+export const registerRiderHandler = catchErrors(async (req, res) => {
+  const request = registerSchema.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const { user, accessToken, refreshToken } = await createAccount({ ...request, role: "rider" });
+
+  return setAuthCookies({ res, accessToken, refreshToken })
+    .status(CREATED)
+    .json({ data: { user, accessToken, refreshToken } });
+});
+
 export const loginHandler = catchErrors(async (req, res) => {
   const request = loginSchema.parse({
     ...req.body,
@@ -86,7 +99,7 @@ export const loginHandler = catchErrors(async (req, res) => {
 
   return setAuthCookies({ res, accessToken, refreshToken })
     .status(OK)
-    .json({ message: "Login Successfull", data: { user } });
+    .json({ message: "Login Successfull", data: { user, accessToken, refreshToken } });
 });
 
 export const logoutHandler = catchErrors(async (req, res) => {

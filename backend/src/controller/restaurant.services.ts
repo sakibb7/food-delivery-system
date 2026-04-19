@@ -238,7 +238,7 @@ export const updateRestaurantOrderStatus = async (
   restaurantId: number,
   orderId: number,
   ownerId: number,
-  status: "pending" | "confirmed" | "preparing" | "out_for_delivery" | "delivered" | "cancelled"
+  status: "pending" | "confirmed" | "preparing" | "out_for_delivery" | "delivered" | "cancelled" | "ready_for_pickup"
 ) => {
   // First, verify the user owns the restaurant
   const [restaurant] = await db
