@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { Star, MessageSquare } from "lucide-react";
 import { privateInstance } from "../configs/axiosConfig";
 import { AppContext } from "../context/app-context";
-import { AppContextType } from "../types";
+import type { AppContextType } from "../types";
 
 interface Review {
   id: number;
@@ -29,7 +29,7 @@ export default function Reviews() {
         // Step 1: Get the owner's restaurant(s)
         const myRestaurantsRes = await privateInstance.get("/restaurant/owner/my-restaurants");
         const restaurants = myRestaurantsRes.data.restaurants || [];
-        
+
         if (restaurants.length > 0) {
           const mainRestaurant = restaurants[0];
           setRestaurantStats({
@@ -79,7 +79,7 @@ export default function Reviews() {
           </div>
           <p className="text-sm text-gray-500 font-medium">Average Rating</p>
         </div>
-        
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center">
           <div className="text-4xl font-extrabold text-gray-900 mb-2">
             {restaurantStats.totalReviews}
@@ -95,7 +95,7 @@ export default function Reviews() {
         <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
           <h2 className="text-lg font-bold text-gray-800">Recent Feedback</h2>
         </div>
-        
+
         {reviews.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             No reviews yet. Keep providing great service!
