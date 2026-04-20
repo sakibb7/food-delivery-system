@@ -23,6 +23,7 @@ import {
   suspendRestaurant,
   rejectRestaurant,
   adminDeleteRestaurant,
+  getOwnerDashboardAnalytics,
 } from "./restaurant.services.js";
 
 export const createRestaurantHandler: RequestHandler = catchErrors(
@@ -141,6 +142,15 @@ export const updateRestaurantOrderStatusHandler: RequestHandler = catchErrors(
       message: "Order status updated successfully",
       order: updatedOrder,
     });
+  }
+);
+
+export const getOwnerDashboardAnalyticsHandler: RequestHandler = catchErrors(
+  async (req, res) => {
+    const userId = req.userId as number;
+    const analytics = await getOwnerDashboardAnalytics(userId);
+
+    return res.status(OK).json(analytics);
   }
 );
 

@@ -15,6 +15,7 @@ import {
   adminSuspendRestaurantHandler,
   adminRejectRestaurantHandler,
   adminDeleteRestaurantHandler,
+  getOwnerDashboardAnalyticsHandler,
 } from "../controller/restaurant.controller.js";
 
 const router = express.Router();
@@ -22,6 +23,7 @@ const router = express.Router();
 router.get("/", getAllRestaurantsHandler);
 
 // Protected routes that need to be matched before /:id
+router.get("/my-restaurants/analytics", authenticate, authorize(["restaurant", "admin"]), getOwnerDashboardAnalyticsHandler);
 router.get("/my-restaurants", authenticate, authorize(["restaurant", "admin"]), getMyRestaurantsHandler);
 
 // Admin-only: get all restaurants (must be BEFORE /:id to avoid matching "admin" as id)

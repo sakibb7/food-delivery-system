@@ -260,3 +260,102 @@ export const updateRestaurantOrderStatus = async (
   return updatedOrder;
 };
 
+export const getOwnerDashboardAnalytics = async (ownerId: number) => {
+  const restaurants = await db
+    .select()
+    .from(restaurantsTable)
+    .where(eq(restaurantsTable.ownerId, ownerId));
+
+  const totalRestaurants = restaurants.length;
+  if (totalRestaurants === 0) {
+    return {
+      stats: { totalRestaurants: 0, todaysOrders: 0, totalRevenue: 0, totalCustomers: 0 },
+      activeRestaurants: [],
+      recentActivity: []
+    };
+  }
+
+  const restaurantIds = restaurants.map(r => r.id);
+
+  const allOrders = await db
+    .select({
+      id: ordersTable.id,
+      restaurantId: ordersTable.restaurantId,
+      status: ordersTable.status,
+      total: ordersTable.total,
+      createdAt: ordersTable.createdAt,
+      userId: ordersTable.userId,
+      userFirstName: usersTable.firstName,
+      userLastName: usersTable.lastName,
+      restaurantName: restaurantsTable.name
+    })
+    .from(ordersTable)
+    .leftJoin(usersTable, eq(ordersTable.userId, usersTable.id))
+    .leftJoin(restaurantsTable, eq(ordersTable.restaurantId, restaurantsTable.id))
+    .where(inArray(ordersTable.restaurantId, restaurantIds))
+    .orderBy(desc(ordersTable.createdAt));
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  let todaysOrdersCount = 0;
+  let totalRevenue = 0;
+  const uniqueCustomers = new Set<number>();
+
+  const activeRestaurantsMap = new Map<number, { id: number, name: string, status: string, ordersToday: number, revenue: number }>();
+  restaurants.forEach(r => {
+    activeRestaurantsMap.set(r.id, {
+      id: r.id,
+      name: r.name,
+      status: r.isOpen ? "Open" : "Closed",
+      ordersToday: 0,
+      revenue: 0
+    });
+  });
+
+  allOrders.forEach(order => {
+    if (order.createdAt && new Date(order.createdAt) >= startOfToday) {
+      todaysOrdersCount++;
+      const rest = activeRestaurantsMap.get(order.restaurantId!);
+      if (rest) rest.ordersToday++;
+    }
+
+    if (order.status === "delivered") {
+      const rev = Number(order.total) || 0;
+      totalRevenue += rev;
+      const rest = activeRestaurantsMap.get(order.restaurantId!);
+      if (rest) rest.revenue += rev;
+    }
+
+    if (order.userId) {
+      uniqueCustomers.add(order.userId);
+    }
+  });
+
+  const recentActivity = allOrders.slice(0, 5).map(order => {
+    const timeDiff = new Date().getTime() - new Date(order.createdAt!).getTime();
+    const minutes = Math.floor(timeDiff / 60000);
+    const hours = Math.floor(minutes / 60);
+    let timeStr = `${minutes} min ago`;
+    if (hours > 0) timeStr = `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    if (hours > 24) timeStr = `${Math.floor(hours / 24)} day${Math.floor(hours / 24) > 1 ? 's' : ''} ago`;
+
+    return {
+      title: "New Order",
+      time: timeStr,
+      desc: `Order #ORD-${order.id} received at ${order.restaurantName}`,
+    };
+  });
+
+  return {
+    stats: {
+      totalRestaurants,
+      todaysOrders: todaysOrdersCount,
+      totalRevenue: totalRevenue,
+      totalCustomers: uniqueCustomers.size
+    },
+    activeRestaurants: Array.from(activeRestaurantsMap.values()),
+    recentActivity
+  };
+};
+
