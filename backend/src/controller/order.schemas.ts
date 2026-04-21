@@ -12,6 +12,9 @@ export const createOrderSchema = z.object({
     .min(1, "At least one item is required"),
   deliveryAddress: z.string().min(5, "Delivery address is required"),
   deliveryPhone: z.string().min(5, "Phone number is required"),
+  deliveryLat: z.number().optional(),
+  deliveryLng: z.number().optional(),
+  addressId: z.number().int().positive().optional(),
   notes: z.string().optional(),
 });
 

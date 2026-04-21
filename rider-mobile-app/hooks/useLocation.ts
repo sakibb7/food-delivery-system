@@ -21,6 +21,7 @@ export function useLocation(enabled: boolean = true) {
 
     (async () => {
       try {
+        setError(null);
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
           setError("Location permission denied");
@@ -31,16 +32,38 @@ export function useLocation(enabled: boolean = true) {
         if (cancelled) return;
         setPermissionGranted(true);
 
-        // Get initial location
-        const currentLocation = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
+        // Check if GPS is enabled
+        const servicesEnabled = await Location.hasServicesEnabledAsync();
+        if (!servicesEnabled) {
+          setError("Location services (GPS) are disabled. Please enable them in settings.");
+        }
+
+        // Get initial location with fallback
+        try {
+          const currentLocation = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+          });
+
+          if (!cancelled) {
+            setLocation({
+              latitude: currentLocation.coords.latitude,
+              longitude: currentLocation.coords.longitude,
+            });
+          }
+        } catch (initialErr: any) {
+          console.warn("Failed to get initial location:", initialErr.message);
+          try {
+            const lastLocation = await Location.getLastKnownPositionAsync();
+            if (lastLocation && !cancelled) {
+              setLocation({
+                latitude: lastLocation.coords.latitude,
+                longitude: lastLocation.coords.longitude,
+              });
+            }
+          } catch (e) { }
+        }
 
         if (cancelled) return;
-        setLocation({
-          latitude: currentLocation.coords.latitude,
-          longitude: currentLocation.coords.longitude,
-        });
 
         // Watch position updates
         const subscription = await Location.watchPositionAsync(
@@ -55,6 +78,7 @@ export function useLocation(enabled: boolean = true) {
               longitude: loc.coords.longitude,
             };
             setLocation(newLocation);
+            setError(null); // Clear errors if we successfully get location
 
             // Report to backend every 30 seconds
             const now = Date.now();
@@ -79,6 +103,8 @@ export function useLocation(enabled: boolean = true) {
         }
       }
     })();
+
+    console.log("location", location, error, permissionGranted);
 
     return () => {
       cancelled = true;

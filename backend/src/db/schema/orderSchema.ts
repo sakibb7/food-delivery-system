@@ -60,6 +60,8 @@ export const ordersTable = pgTable("orders", {
   // Delivery Info (snapshot at order time)
   deliveryAddress: text("delivery_address").notNull(),
   deliveryPhone: varchar("delivery_phone", { length: 20 }).notNull(),
+  deliveryLat: decimal("delivery_lat", { precision: 10, scale: 7 }),
+  deliveryLng: decimal("delivery_lng", { precision: 10, scale: 7 }),
 
   // Pricing
   subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),

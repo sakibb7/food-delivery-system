@@ -7,6 +7,7 @@ import {
 import { menuItemsTable } from "../db/schema/menuItemSchema.js";
 import { restaurantsTable } from "../db/schema/restaurantSchema.js";
 import { usersTable } from "../db/schema/userSchema.js";
+import { addressesTable } from "../db/schema/addressSchema.js";
 
 const TAX_RATE = 0.05; // 5%
 
@@ -15,6 +16,9 @@ interface CreateOrderInput {
   items: { menuItemId: number; quantity: number }[];
   deliveryAddress: string;
   deliveryPhone: string;
+  deliveryLat?: number | undefined;
+  deliveryLng?: number | undefined;
+  addressId?: number | undefined;
   notes?: string | undefined;
 }
 
@@ -48,7 +52,25 @@ export const createOrder = async (userId: number, data: CreateOrderInput) => {
     throw new Error("Restaurant not found");
   }
 
-  // 3. Calculate pricing
+  // 3. Resolve delivery coordinates
+  let deliveryLat = data.deliveryLat;
+  let deliveryLng = data.deliveryLng;
+
+  // If coordinates not provided directly, try to look up from addressId
+  if ((!deliveryLat || !deliveryLng) && data.addressId) {
+    const [address] = await db
+      .select()
+      .from(addressesTable)
+      .where(and(eq(addressesTable.id, data.addressId), eq(addressesTable.userId, userId)))
+      .limit(1);
+
+    if (address && address.latitude && address.longitude) {
+      deliveryLat = parseFloat(address.latitude);
+      deliveryLng = parseFloat(address.longitude);
+    }
+  }
+
+  // 4. Calculate pricing
   const menuItemMap = new Map(menuItems.map((mi) => [mi.id, mi]));
 
   let subtotal = 0;
@@ -69,7 +91,7 @@ export const createOrder = async (userId: number, data: CreateOrderInput) => {
   const tax = Math.round(subtotal * TAX_RATE * 100) / 100;
   const total = Math.round((subtotal + deliveryFee + tax) * 100) / 100;
 
-  // 4. Insert order + items in a pseudo-transaction
+  // 5. Insert order + items in a pseudo-transaction
   const [order] = await db
     .insert(ordersTable)
     .values({
@@ -80,6 +102,8 @@ export const createOrder = async (userId: number, data: CreateOrderInput) => {
       paymentStatus: "pending",
       deliveryAddress: data.deliveryAddress,
       deliveryPhone: data.deliveryPhone,
+      deliveryLat: deliveryLat?.toFixed(7) ?? null,
+      deliveryLng: deliveryLng?.toFixed(7) ?? null,
       subtotal: subtotal.toFixed(2),
       deliveryFee: deliveryFee.toFixed(2),
       tax: tax.toFixed(2),

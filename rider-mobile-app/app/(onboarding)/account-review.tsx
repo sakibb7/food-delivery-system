@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useCallback, useState } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { privateInstance } from "@/configs/axiosConfig";
-import { showToast } from "@/app/utils/toast";
+import { showToast } from "@/utils/toast";
 
 export default function AccountReviewScreen() {
   const router = useRouter();

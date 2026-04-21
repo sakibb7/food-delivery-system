@@ -78,8 +78,8 @@ export const acceptOrder = async (req: Request, res: Response): Promise<void> =>
   try {
     const userId = req.userId;
     const orderId = parseInt(req.params.id as string, 10);
-    const updated = await riderService.acceptOrder(userId, orderId);
-    res.status(200).json({ data: updated[0], message: "Order accepted" });
+    const orderDetail = await riderService.acceptOrder(userId, orderId);
+    res.status(200).json({ data: orderDetail, message: "Order accepted" });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
   }

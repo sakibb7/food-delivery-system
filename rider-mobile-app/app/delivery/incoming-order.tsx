@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { useOrderStore } from "@/stores/useOrderStore";
 import { privateInstance } from "@/configs/axiosConfig";
-import { showToast } from "@/app/utils/toast";
+import { showToast } from "@/utils/toast";
 
 export default function IncomingOrderScreen() {
   const router = useRouter();
@@ -30,6 +30,7 @@ export default function IncomingOrderScreen() {
       const res = await privateInstance.patch(`/rider/orders/${activeOrder.id}/accept`);
       const updatedOrder = res.data?.data;
       if (updatedOrder) {
+        // Merge the full order detail (includes restaurant and delivery coordinates)
         setActiveOrder({ ...activeOrder, ...updatedOrder });
       }
       showToast({ text: "Order accepted!", type: "success" });

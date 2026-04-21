@@ -1,4 +1,4 @@
-import { showToast } from "@/app/utils/toast";
+import { showToast } from "@/utils/toast";
 import { privateInstance, publicInstance } from "@/configs/axiosConfig";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";

@@ -12,6 +12,8 @@ interface ActiveOrder {
   status: string;
   deliveryAddress: string;
   deliveryPhone: string;
+  deliveryLat?: string;
+  deliveryLng?: string;
   subtotal: string;
   deliveryFee: string;
   tax: string;

@@ -51,6 +51,8 @@ export const getAvailableOrders = async () => {
       paymentStatus: ordersTable.paymentStatus,
       deliveryAddress: ordersTable.deliveryAddress,
       deliveryPhone: ordersTable.deliveryPhone,
+      deliveryLat: ordersTable.deliveryLat,
+      deliveryLng: ordersTable.deliveryLng,
       subtotal: ordersTable.subtotal,
       deliveryFee: ordersTable.deliveryFee,
       tax: ordersTable.tax,
@@ -74,14 +76,16 @@ export const getAvailableOrders = async () => {
 
 export const acceptOrder = async (userId: number, orderId: number) => {
   // We use a fixed earnings amount for now as requested
-  return await db.update(ordersTable)
+  await db.update(ordersTable)
     .set({ 
       riderId: userId, 
       status: "out_for_delivery",
       riderEarnings: "5.00" // Fixed earning per order
     })
-    .where(eq(ordersTable.id, orderId))
-    .returning();
+    .where(eq(ordersTable.id, orderId));
+
+  // Return the full order detail with restaurant and delivery coordinates
+  return await getOrderDetail(orderId);
 };
 
 export const pickupOrder = async (userId: number, orderId: number) => {
@@ -129,6 +133,8 @@ export const getOrderDetail = async (orderId: number) => {
       paymentStatus: ordersTable.paymentStatus,
       deliveryAddress: ordersTable.deliveryAddress,
       deliveryPhone: ordersTable.deliveryPhone,
+      deliveryLat: ordersTable.deliveryLat,
+      deliveryLng: ordersTable.deliveryLng,
       subtotal: ordersTable.subtotal,
       deliveryFee: ordersTable.deliveryFee,
       tax: ordersTable.tax,

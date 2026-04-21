@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
-import { showToast } from "@/app/utils/toast";
+import { showToast } from "@/utils/toast";
 
 export default function EmailVerificationScreen() {
   const router = useRouter();

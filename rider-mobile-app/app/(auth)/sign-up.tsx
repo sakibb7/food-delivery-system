@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { showToast } from "@/app/utils/toast";
+import { showToast } from "@/utils/toast";
 
 export default function SignUpScreen() {
   const router = useRouter();

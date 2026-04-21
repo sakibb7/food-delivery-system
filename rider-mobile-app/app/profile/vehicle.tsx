@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import { privateInstance } from "@/configs/axiosConfig";
-import { showToast } from "@/app/utils/toast";
+import { showToast } from "@/utils/toast";
 
 type VehicleType = "bicycle" | "scooter" | "car";
 

@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useOrderStore } from "@/stores/useOrderStore";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import { privateInstance } from "@/configs/axiosConfig";
-import { showToast } from "@/app/utils/toast";
+import { showToast } from "@/utils/toast";
 
 export default function ConfirmPickupScreen() {
   const router = useRouter();

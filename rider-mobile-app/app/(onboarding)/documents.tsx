@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
-import { showToast } from "@/app/utils/toast";
+import { showToast } from "@/utils/toast";
 import { privateInstance } from "@/configs/axiosConfig";
 
 type VehicleType = "bicycle" | "scooter" | "car";

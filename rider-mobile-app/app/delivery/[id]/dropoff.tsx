@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useOrderStore } from "@/stores/useOrderStore";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import { privateInstance } from "@/configs/axiosConfig";
-import { showToast } from "@/app/utils/toast";
+import { showToast } from "@/utils/toast";
 import DeliveryMap from "@/components/DeliveryMap";
 
 export default function DropoffScreen() {
@@ -24,16 +24,12 @@ export default function DropoffScreen() {
 
   const order = activeOrder?.id === Number(id) ? activeOrder : orderData;
 
-  // For customer location, use an offset from the restaurant coords as a simulation
-  // since there's no lat/lng on the order's delivery address yet
-  const restaurantLat = order?.restaurantLat ? parseFloat(order.restaurantLat) : null;
-  const restaurantLng = order?.restaurantLng ? parseFloat(order.restaurantLng) : null;
-
+  // Use real delivery coordinates from the order
   const customerCoords =
-    restaurantLat && restaurantLng
+    order?.deliveryLat && order?.deliveryLng
       ? {
-          latitude: restaurantLat + 0.008 + Math.random() * 0.005,
-          longitude: restaurantLng + 0.006 + Math.random() * 0.005,
+          latitude: parseFloat(order.deliveryLat),
+          longitude: parseFloat(order.deliveryLng),
         }
       : undefined;
 

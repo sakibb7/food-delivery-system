@@ -33,6 +33,8 @@ interface SavedAddress {
   state: string | null;
   country: string;
   zipcode: string | null;
+  latitude: string | null;
+  longitude: string | null;
   isDefault: boolean;
 }
 
@@ -94,6 +96,9 @@ export default function CheckoutPage() {
         })),
         deliveryAddress,
         deliveryPhone: user.phone,
+        deliveryLat: selectedAddress?.latitude ? parseFloat(selectedAddress.latitude) : undefined,
+        deliveryLng: selectedAddress?.longitude ? parseFloat(selectedAddress.longitude) : undefined,
+        addressId: selectedAddress?.id,
         notes: notes || undefined,
       });
 

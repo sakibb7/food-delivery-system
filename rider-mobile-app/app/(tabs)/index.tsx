@@ -7,7 +7,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useOrderStore } from "@/stores/useOrderStore";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import { privateInstance } from "@/configs/axiosConfig";
-import { showToast } from "@/app/utils/toast";
+import { showToast } from "@/utils/toast";
 import DeliveryMap from "@/components/DeliveryMap";
 
 export default function HomeScreen() {
