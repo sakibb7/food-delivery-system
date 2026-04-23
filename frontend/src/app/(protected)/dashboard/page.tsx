@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuthStore } from "@/store/auth";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
+import { useCurrency } from "@/hooks/useCurrency";
 import {
   Search,
   Clock,
@@ -26,6 +27,8 @@ export default function Dashboard() {
     url: "/restaurant/my-restaurants/analytics",
     enabled: isOwner,
   });
+
+  const { currencySymbol } = useCurrency();
 
   if (isOwner) {
     if (isLoading) {
@@ -65,7 +68,7 @@ export default function Dashboard() {
           {[
             { label: "Total Restaurants", value: stats.totalRestaurants.toString(), icon: Store, color: "text-blue-600", bg: "bg-blue-50" },
             { label: "Today's Orders", value: stats.todaysOrders.toString(), icon: Clock, color: "text-orange-600", bg: "bg-orange-50" },
-            { label: "Total Revenue", value: `$${Number(stats.totalRevenue).toFixed(2)}`, icon: DollarSign, color: "text-green-600", bg: "bg-green-50" },
+            { label: "Total Revenue", value: `${currencySymbol}${Number(stats.totalRevenue).toFixed(2)}`, icon: DollarSign, color: "text-green-600", bg: "bg-green-50" },
             { label: "Total Customers", value: stats.totalCustomers.toString(), icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
           ].map((stat, i) => (
             <div key={i} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
@@ -105,7 +108,7 @@ export default function Dashboard() {
                   <div className="text-right flex items-center gap-6">
                     <div className="hidden sm:block">
                       <p className="text-sm font-semibold text-gray-400">Revenue</p>
-                      <p className="font-bold text-gray-900">${Number(res.revenue).toFixed(2)}</p>
+                      <p className="font-bold text-gray-900">{currencySymbol}{Number(res.revenue).toFixed(2)}</p>
                     </div>
                     <div className={`px-3 py-1 rounded-full text-xs font-bold ${res.status === 'Open' ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-500'}`}>
                       {res.status}
@@ -273,7 +276,7 @@ export default function Dashboard() {
               restaurant: "Pizza Hut",
               date: "Today, 1:30 PM",
               items: "1x Large Pepperoni, 1x Coke",
-              total: "$24.50",
+              total: `${currencySymbol}24.50`,
               status: "Delivered",
             },
             {
@@ -281,7 +284,7 @@ export default function Dashboard() {
               restaurant: "Burger King",
               date: "Yesterday, 7:45 PM",
               items: "2x Whopper, 2x Fries",
-              total: "$18.00",
+              total: `${currencySymbol}18.00`,
               status: "Delivered",
             },
           ].map((order) => (

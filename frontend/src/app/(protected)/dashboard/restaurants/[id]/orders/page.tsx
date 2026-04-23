@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
+import { useCurrency } from "@/hooks/useCurrency";
 import { Clock, CheckCircle, ChefHat, Truck, MapPin, Package, AlertCircle } from "lucide-react";
 
 export default function RestaurantOrdersPage() {
@@ -11,6 +11,7 @@ export default function RestaurantOrdersPage() {
   const router = useRouter();
   const restaurantId = params.id as string;
   const [activeTab, setActiveTab] = useState<"active" | "past">("active");
+  const { currencySymbol } = useCurrency();
 
   const { data, isLoading, refetch } = useGetQuery({
     url: `/restaurant/${restaurantId}/orders`,
@@ -142,7 +143,7 @@ export default function RestaurantOrdersPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-black text-gray-900">${order.total}</div>
+                  <div className="text-2xl font-black text-gray-900">{currencySymbol}{order.total}</div>
                   <div className="text-sm font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-lg mt-1 inline-block uppercase">
                     {order.paymentMethod}
                   </div>
@@ -158,7 +159,7 @@ export default function RestaurantOrdersPage() {
                         <span className="text-red-500 mr-2">{item.quantity}x</span>
                         {item.name}
                       </span>
-                      <span>${(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
+                      <span>{currencySymbol}{(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
                     </li>
                   ))}
                 </ul>

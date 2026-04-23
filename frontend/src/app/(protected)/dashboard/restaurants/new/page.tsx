@@ -22,6 +22,7 @@ import InputField from "@/components/form/InputField";
 import Button from "@/components/ui/button";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
 import AddressMapPicker from "@/components/AddressMapPicker";
+import { useCurrency } from "@/hooks/useCurrency";
 
 export interface RestaurantFormData {
   name: string;
@@ -42,6 +43,7 @@ export interface RestaurantFormData {
 
 export default function NewRestaurantPage() {
   const router = useRouter();
+  const { currencySymbol } = useCurrency();
   const {
     register,
     handleSubmit,
@@ -279,7 +281,7 @@ export default function NewRestaurantPage() {
               <InputField
                 label="Min Order Amount"
                 name="minOrderAmount"
-                placeholder="e.g. $10"
+                placeholder={`e.g. ${currencySymbol}10`}
                 register={register}
                 error={errors.minOrderAmount}
                 required
@@ -288,7 +290,7 @@ export default function NewRestaurantPage() {
               <InputField
                 label="Delivery Fee"
                 name="deliveryFee"
-                placeholder="e.g. $2.99"
+                placeholder={`e.g. ${currencySymbol}2.99`}
                 register={register}
                 error={errors.deliveryFee}
                 required

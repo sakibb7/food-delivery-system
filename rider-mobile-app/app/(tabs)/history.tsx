@@ -4,10 +4,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useCurrency } from "@/hooks/useCurrency";
 
 dayjs.extend(relativeTime);
 
 export default function HistoryScreen() {
+  const { currencySymbol } = useCurrency();
   const { data: history, isLoading, refetch } = useGetQuery<any[]>({
     url: "/rider/history",
     queryKey: "rider-history",
@@ -22,7 +24,7 @@ export default function HistoryScreen() {
             : dayjs(item.createdAt).format("MMM D, h:mm A")}
         </Text>
         <Text className="font-bold text-emerald-600">
-          +${Number(item.riderEarnings || 0).toFixed(2)}
+          +{currencySymbol}{Number(item.riderEarnings || 0).toFixed(2)}
         </Text>
       </View>
       <View className="flex-row justify-between items-center mb-3">
@@ -40,7 +42,7 @@ export default function HistoryScreen() {
         </Text>
         <View className="w-1 h-1 bg-gray-300 rounded-full mx-2" />
         <Text className="text-gray-500 text-sm">
-          ${Number(item.total || 0).toFixed(2)} order
+          {currencySymbol}{Number(item.total || 0).toFixed(2)} order
         </Text>
       </View>
     </TouchableOpacity>

@@ -4,10 +4,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useOrderStore } from "@/stores/useOrderStore";
 import { getQueryClient } from "@/configs/query-client";
+import { useCurrency } from "@/hooks/useCurrency";
 
 export default function DeliverySuccessScreen() {
   const router = useRouter();
   const { activeOrder, clearActiveOrder } = useOrderStore();
+  const { currencySymbol } = useCurrency();
 
   const handleBackToHome = () => {
     // Invalidate earnings and history queries so they refetch
@@ -39,7 +41,7 @@ export default function DeliverySuccessScreen() {
         <View className="w-full border-t border-b border-gray-100 py-6 mb-8 flex-row justify-between">
           <View>
             <Text className="text-gray-500 mb-1">Earned</Text>
-            <Text className="text-3xl font-bold text-emerald-600">${earnings}</Text>
+            <Text className="text-3xl font-bold text-emerald-600">{currencySymbol}{earnings}</Text>
           </View>
           <View className="items-end">
             <Text className="text-gray-500 mb-1">Restaurant</Text>

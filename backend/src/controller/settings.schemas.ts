@@ -9,6 +9,7 @@ export const updateSettingsSchema = z.object({
   timezone: z.string().min(1),
   app_url: z.string().url(),
   company_address: z.string().min(1),
+  currency_symbol: z.string().min(1).default('$'),
   
   // System Configuration
   force_secure_password: z.boolean(),

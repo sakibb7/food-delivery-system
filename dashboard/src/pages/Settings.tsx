@@ -120,6 +120,25 @@ export default function Settings() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
               />
             </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Currency Symbol</label>
+              <select
+                name="currency_symbol"
+                value={formData.currency_symbol || "$"}
+                onChange={handleChange as any}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="$">$ (USD)</option>
+                <option value="€">€ (EUR)</option>
+                <option value="£">£ (GBP)</option>
+                <option value="₹">₹ (INR)</option>
+                <option value="Tk">Tk (BDT)</option>
+                <option value="R$">R$ (BRL)</option>
+                <option value="A$">A$ (AUD)</option>
+                <option value="C$">C$ (CAD)</option>
+                <option value="¥">¥ (JPY/CNY)</option>
+              </select>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -147,7 +166,7 @@ export default function Settings() {
               <p className="text-xs text-gray-500">Global tax rate applied to subtotal.</p>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Delivery Base Fee (₹)</label>
+              <label className="text-sm font-medium text-gray-700">Delivery Base Fee ({formData.currency_symbol || "$"})</label>
               <input 
                 type="number" name="delivery_base_fee" value={formData.delivery_base_fee ?? ""} onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 
@@ -155,7 +174,7 @@ export default function Settings() {
               <p className="text-xs text-gray-500">Fallback base delivery fee.</p>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Extra per KM (₹)</label>
+              <label className="text-sm font-medium text-gray-700">Extra per KM ({formData.currency_symbol || "$"})</label>
               <input 
                 type="number" name="delivery_fee_per_km" value={formData.delivery_fee_per_km ?? ""} onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" 

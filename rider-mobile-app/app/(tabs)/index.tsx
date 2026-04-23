@@ -9,11 +9,13 @@ import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import { privateInstance } from "@/configs/axiosConfig";
 import { showToast } from "@/utils/toast";
 import DeliveryMap from "@/components/DeliveryMap";
+import { useCurrency } from "@/hooks/useCurrency";
 
 export default function HomeScreen() {
   const router = useRouter();
   const { riderProfile, updateOnlineStatus } = useAuthStore();
   const { setActiveOrder } = useOrderStore();
+  const { currencySymbol } = useCurrency();
   const [isOnline, setIsOnline] = useState(riderProfile?.isOnline ?? false);
   const [toggling, setToggling] = useState(false);
 
@@ -172,7 +174,7 @@ export default function HomeScreen() {
                         {order.restaurantName || "Restaurant"}
                       </Text>
                       <Text className="text-emerald-600 font-bold text-lg">
-                        ${Number(order.deliveryFee || 5).toFixed(2)}
+                        {currencySymbol}{Number(order.deliveryFee || 5).toFixed(2)}
                       </Text>
                     </View>
                     <Text className="text-gray-500 text-sm mb-2" numberOfLines={1}>
@@ -199,7 +201,7 @@ export default function HomeScreen() {
           <View className="bg-gray-50 flex-1 p-4 rounded-2xl mr-2 items-center">
             <Text className="text-gray-500 text-sm mb-1">Earnings</Text>
             <Text className="text-2xl font-bold text-emerald-600">
-              ${Number(totalEarnings).toFixed(2)}
+              {currencySymbol}{Number(totalEarnings).toFixed(2)}
             </Text>
           </View>
           <View className="bg-gray-50 flex-1 p-4 rounded-2xl ml-2 items-center">

@@ -2,8 +2,10 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from "rea
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
+import { useCurrency } from "@/hooks/useCurrency";
 
 export default function EarningsScreen() {
+  const { currencySymbol } = useCurrency();
   const { data, isLoading, refetch } = useGetQuery<any>({
     url: "/rider/earnings",
     queryKey: "rider-earnings-detail",
@@ -29,7 +31,7 @@ export default function EarningsScreen() {
           <View className="m-6 bg-emerald-500 p-6 rounded-3xl shadow-sm">
             <Text className="text-emerald-50 text-base mb-1">Total Earnings</Text>
             <Text className="text-white text-4xl font-bold mb-6">
-              ${Number(totalEarnings).toFixed(2)}
+              {currencySymbol}{Number(totalEarnings).toFixed(2)}
             </Text>
 
             <TouchableOpacity className="bg-white py-3 rounded-xl items-center">
@@ -44,7 +46,7 @@ export default function EarningsScreen() {
               <View>
                 <Text className="text-gray-500 mb-1">Total Earned</Text>
                 <Text className="text-xl font-bold text-gray-900">
-                  ${Number(totalEarnings).toFixed(2)}
+                  {currencySymbol}{Number(totalEarnings).toFixed(2)}
                 </Text>
               </View>
               <View className="items-end">
@@ -90,7 +92,7 @@ export default function EarningsScreen() {
                     </View>
                   </View>
                   <Text className="font-bold text-emerald-600">
-                    +${Number(order.riderEarnings || 0).toFixed(2)}
+                    +{currencySymbol}{Number(order.riderEarnings || 0).toFixed(2)}
                   </Text>
                 </View>
               ))

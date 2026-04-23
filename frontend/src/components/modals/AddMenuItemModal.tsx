@@ -7,6 +7,7 @@ import Image from "next/image";
 import Button from "@/components/ui/button";
 import InputField from "@/components/form/InputField";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
+import { useCurrency } from "@/hooks/useCurrency";
 import { toast } from "sonner";
 
 interface MenuItem {
@@ -61,6 +62,7 @@ export default function AddMenuItemModal({
   const isEditMode = !!editItem;
   const [uploadingImage, setUploadingImage] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const { currencySymbol } = useCurrency();
 
   const {
     register,
@@ -259,7 +261,7 @@ export default function AddMenuItemModal({
           {/* Price and Category in a row */}
           <div className="grid grid-cols-2 gap-4">
             <InputField
-              label="Price ($)"
+              label={`Price (${currencySymbol})`}
               name="price"
               type="number"
               placeholder="9.99"

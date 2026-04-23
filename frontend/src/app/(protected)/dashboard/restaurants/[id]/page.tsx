@@ -21,9 +21,9 @@ import {
   ChefHat,
   TrendingUp,
   ShoppingBag,
-} from "lucide-react";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
+import { useCurrency } from "@/hooks/useCurrency";
 import Button from "@/components/ui/button";
 import AddMenuItemModal from "@/components/modals/AddMenuItemModal";
 import { toast } from "sonner";
@@ -72,6 +72,7 @@ export default function RestaurantDetailsPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const { currencySymbol } = useCurrency();
 
   const { data: restaurantData, isLoading: isLoadingRestaurant } = useGetQuery({
     url: `/restaurant/${restaurantId}`,
@@ -243,14 +244,14 @@ export default function RestaurantDetailsPage() {
           {
             icon: DollarSign,
             label: "Min Order",
-            value: `$${restaurant.minOrderAmount || "0"}`,
+            value: `${currencySymbol}${restaurant.minOrderAmount || "0"}`,
             color: "text-green-600",
             bg: "bg-green-50",
           },
           {
             icon: ShoppingBag,
             label: "Delivery Fee",
-            value: `$${restaurant.deliveryFee || "0"}`,
+            value: `${currencySymbol}${restaurant.deliveryFee || "0"}`,
             color: "text-purple-600",
             bg: "bg-purple-50",
           },
@@ -461,7 +462,7 @@ export default function RestaurantDetailsPage() {
 
                         <div className="mt-auto flex items-center justify-between pt-3">
                           <span className="text-lg font-extrabold text-red-600">
-                            ${item.price}
+                            {currencySymbol}{item.price}
                           </span>
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button

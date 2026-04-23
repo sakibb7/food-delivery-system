@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Plus, Store, MapPin, Star, Edit2, Trash2, ExternalLink, Clock, DollarSign } from "lucide-react";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
+import { useCurrency } from "@/hooks/useCurrency";
 import Button from "@/components/ui/button";
 import Image from "next/image";
 
@@ -26,6 +27,7 @@ export default function MyRestaurantsPage() {
   const { data, isLoading } = useGetQuery({
     url: "/restaurant/my-restaurants",
   });
+  const { currencySymbol } = useCurrency();
 
   const restaurants = data?.restaurants || [];
 
@@ -118,7 +120,7 @@ export default function MyRestaurantsPage() {
                     </div>
                     <div className="flex items-center gap-2 text-gray-500">
                       <DollarSign size={16} className="text-green-500" />
-                      <span className="text-sm font-medium">Min ${restaurant.minOrderAmount || "0"}</span>
+                      <span className="text-sm font-medium">Min {currencySymbol}{restaurant.minOrderAmount || "0"}</span>
                     </div>
                   </div>
                 </div>

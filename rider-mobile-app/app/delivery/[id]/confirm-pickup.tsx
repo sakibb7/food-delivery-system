@@ -7,12 +7,14 @@ import { useOrderStore } from "@/stores/useOrderStore";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import { privateInstance } from "@/configs/axiosConfig";
 import { showToast } from "@/utils/toast";
+import { useCurrency } from "@/hooks/useCurrency";
 
 export default function ConfirmPickupScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { activeOrder, setActiveOrder } = useOrderStore();
   const [confirming, setConfirming] = useState(false);
+  const { currencySymbol } = useCurrency();
 
   // Fetch order details with items
   const { data: orderData, isLoading } = useGetQuery<any>({
@@ -117,7 +119,7 @@ export default function ConfirmPickupScreen() {
                     {item.quantity}x {item.name}
                   </Text>
                   <Text className="text-gray-500">
-                    ${Number(item.price).toFixed(2)} each
+                    {currencySymbol}{Number(item.price).toFixed(2)} each
                   </Text>
                 </View>
               </TouchableOpacity>

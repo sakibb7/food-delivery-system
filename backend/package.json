@@ -12,7 +12,8 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:reset": "tsx src/db/reset-db.ts && rm -rf drizzle && npm run db:generate && drizzle-kit push --force",
-    "db:seed": "tsx src/db/seed.ts"
+    "db:seed": "tsx src/db/seed.ts",
+    "db:seed:restaurants": "tsx src/db/seed-restaurants.ts"
   },
   "keywords": [],
   "author": "",

@@ -1,4 +1,6 @@
+"use client";
 import Image from "next/image";
+import { useCurrency } from "@/hooks/useCurrency";
 import Link from "next/link";
 import {
   TrendingUp,
@@ -13,6 +15,7 @@ import {
 } from "lucide-react";
 
 export default function RiderPage() {
+  const { currencySymbol } = useCurrency();
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
       {/* Navbar */}
@@ -85,7 +88,7 @@ export default function RiderPage() {
                 <DollarSign size={32} />
               </div>
               <div>
-                <h4 className="text-2xl font-bold text-gray-900">$25 - $35</h4>
+                <h4 className="text-2xl font-bold text-gray-900">{currencySymbol}25 - {currencySymbol}35</h4>
                 <p className="text-gray-500 font-medium">Avg. Earnings / Hr</p>
               </div>
             </div>
@@ -237,7 +240,7 @@ export default function RiderPage() {
                   <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-white font-medium">Daily Earnings</span>
-                      <span className="text-green-500 font-bold">$184.20</span>
+                      <span className="text-green-500 font-bold">{currencySymbol}184.20</span>
                     </div>
                     <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
                       <div className="h-full bg-red-600 w-3/4"></div>

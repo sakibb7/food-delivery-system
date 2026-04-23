@@ -6,12 +6,14 @@ import { useEffect, useState } from "react";
 import { useOrderStore } from "@/stores/useOrderStore";
 import { privateInstance } from "@/configs/axiosConfig";
 import { showToast } from "@/utils/toast";
+import { useCurrency } from "@/hooks/useCurrency";
 
 export default function IncomingOrderScreen() {
   const router = useRouter();
   const { activeOrder, setActiveOrder, clearActiveOrder } = useOrderStore();
   const [timeLeft, setTimeLeft] = useState(30);
   const [accepting, setAccepting] = useState(false);
+  const { currencySymbol } = useCurrency();
 
   useEffect(() => {
     if (timeLeft === 0) {
@@ -108,13 +110,13 @@ export default function IncomingOrderScreen() {
           <View>
             <Text className="text-gray-500 mb-1">Estimated Earnings</Text>
             <Text className="text-3xl font-bold text-emerald-600">
-              ${Number(activeOrder.deliveryFee || 5).toFixed(2)}
+              {currencySymbol}{Number(activeOrder.deliveryFee || 5).toFixed(2)}
             </Text>
           </View>
           <View className="items-end">
             <Text className="text-gray-500 mb-1">Order Total</Text>
             <Text className="text-2xl font-bold text-gray-900">
-              ${Number(activeOrder.total || 0).toFixed(2)}
+              {currencySymbol}{Number(activeOrder.total || 0).toFixed(2)}
             </Text>
           </View>
         </View>

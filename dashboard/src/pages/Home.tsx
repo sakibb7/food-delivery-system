@@ -1,23 +1,44 @@
-import { Users, Store, FileText, IndianRupee, TrendingUp, Bike } from "lucide-react";
+import { Users, Store, FileText, IndianRupee, Bike, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/Table";
 import { Badge } from "../components/ui/Badge";
-
-const STATS = [
-  { name: "Total Revenue", value: "₹45,231", icon: IndianRupee, trend: "+20.1%", trendUp: true },
-  { name: "Active Orders", value: "123", icon: FileText, trend: "+12%", trendUp: true },
-  { name: "Total Restaurants", value: "48", icon: Store, trend: "+2", trendUp: true },
-  { name: "Total Users", value: "1,204", icon: Users, trend: "+180", trendUp: true },
-];
-
-const RECENT_ORDERS = [
-  { id: "ORD-001", customer: "John Doe", restaurant: "Pizza Hut", amount: "₹450", status: "Delivered" },
-  { id: "ORD-002", customer: "Jane Smith", restaurant: "Burger King", amount: "₹230", status: "Processing" },
-  { id: "ORD-003", customer: "Alice Johnson", restaurant: "KFC", amount: "₹780", status: "On the way" },
-  { id: "ORD-004", customer: "Bob Brown", restaurant: "Subway", amount: "₹320", status: "Cancelled" },
-];
+import { useGetQuery } from "../hooks/mutate/useGetQuery";
+import { useCurrency } from "../hooks/useCurrency";
+import { Link } from "react-router-dom";
 
 export default function Home() {
+  const { data, isLoading, isError } = useGetQuery({
+    url: "/admin-dashboard",
+    queryKey: ["admin-dashboard-stats"],
+  });
+  const { currencySymbol } = useCurrency();
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
+        <Loader2 className="h-8 w-8 text-orange-500 animate-spin mb-4" />
+        <p className="text-gray-500 font-medium">Loading dashboard overview...</p>
+      </div>
+    );
+  }
+
+  if (isError || !data?.data) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[400px]">
+        <p className="text-red-500 font-medium">Failed to load dashboard data.</p>
+      </div>
+    );
+  }
+
+  const { stats, recentOrders, needsAttention } = data.data;
+
+  const dynamicStats = [
+    { name: "Total Revenue", value: `${currencySymbol}${stats.totalRevenue}`, icon: IndianRupee },
+    { name: "Active Orders", value: stats.activeOrders, icon: FileText },
+    { name: "Total Restaurants", value: stats.totalRestaurants, icon: Store },
+    { name: "Total Users", value: stats.totalUsers, icon: Users },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -29,7 +50,7 @@ export default function Home() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {STATS.map((stat) => (
+        {dynamicStats.map((stat) => (
           <Card key={stat.name} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -40,13 +61,6 @@ export default function Home() {
                 <div className="h-12 w-12 rounded-full bg-orange-50 flex items-center justify-center">
                   <stat.icon className="h-6 w-6 text-orange-500" />
                 </div>
-              </div>
-              <div className="mt-4 flex items-center text-sm">
-                <TrendingUp className={`h-4 w-4 mr-1 ${stat.trendUp ? "text-green-500" : "text-red-500"}`} />
-                <span className={stat.trendUp ? "text-green-500 font-medium" : "text-red-500 font-medium"}>
-                  {stat.trend}
-                </span>
-                <span className="text-gray-500 ml-2">vs last month</span>
               </div>
             </CardContent>
           </Card>
@@ -70,26 +84,34 @@ export default function Home() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {RECENT_ORDERS.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium text-gray-900">{order.id}</TableCell>
-                  <TableCell>{order.customer}</TableCell>
-                  <TableCell>{order.restaurant}</TableCell>
-                  <TableCell>{order.amount}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        order.status === "Delivered" ? "success"
-                          : order.status === "Cancelled" ? "error"
-                            : order.status === "Processing" ? "warning"
-                              : "info"
-                      }
-                    >
-                      {order.status}
-                    </Badge>
+              {recentOrders && recentOrders.length > 0 ? (
+                recentOrders.map((order: any) => (
+                  <TableRow key={order.id}>
+                    <TableCell className="font-medium text-gray-900">{order.id}</TableCell>
+                    <TableCell>{order.customer}</TableCell>
+                    <TableCell>{order.restaurant}</TableCell>
+                    <TableCell>{currencySymbol}{order.amount}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          order.status === "Delivered" ? "success"
+                            : order.status === "Cancelled" ? "error"
+                              : order.status === "Pending" ? "info"
+                                : "warning"
+                        }
+                      >
+                        {order.status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell className="text-center py-6 text-gray-500">
+                    No recent orders.
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </Card>
@@ -104,31 +126,33 @@ export default function Home() {
               <div className="flex items-center gap-3">
                 <Store className="h-5 w-5 text-orange-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">3 New Restaurants</p>
+                  <p className="text-sm font-medium text-gray-900">{needsAttention.pendingRestaurants} New Restaurants</p>
                   <p className="text-xs text-gray-500">Pending approval</p>
                 </div>
               </div>
-              <button className="text-sm font-medium text-orange-600 hover:text-orange-700">Review</button>
+              <Link to="/restaurants" className="text-sm font-medium text-orange-600 hover:text-orange-700">Review</Link>
             </div>
+
             <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-100">
               <div className="flex items-center gap-3">
                 <FileText className="h-5 w-5 text-red-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">12 Refund Requests</p>
+                  <p className="text-sm font-medium text-gray-900">{needsAttention.refundRequests} Refund Requests</p>
                   <p className="text-xs text-gray-500">Pending review</p>
                 </div>
               </div>
               <button className="text-sm font-medium text-red-600 hover:text-red-700">Review</button>
             </div>
+
             <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-100">
               <div className="flex items-center gap-3">
                 <Bike className="h-5 w-5 text-blue-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">5 Rider Applications</p>
+                  <p className="text-sm font-medium text-gray-900">{needsAttention.pendingRiders} Rider Applications</p>
                   <p className="text-xs text-gray-500">Awaiting verification</p>
                 </div>
               </div>
-              <button className="text-sm font-medium text-blue-600 hover:text-blue-700">Review</button>
+              <Link to="/riders" className="text-sm font-medium text-blue-600 hover:text-blue-700">Review</Link>
             </div>
           </CardContent>
         </Card>
