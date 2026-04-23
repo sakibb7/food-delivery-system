@@ -497,6 +497,8 @@ export default function OrderDetailsPage() {
           orderId={order.id}
           restaurantId={order.restaurantId}
           riderId={order.riderId}
+          hasRestaurantReview={reviewStatus.hasRestaurantReview}
+          hasRiderReview={reviewStatus.hasRiderReview}
           onSuccess={() => {
             setReviewStatus({ hasRestaurantReview: true, hasRiderReview: !!order.riderId });
           }}

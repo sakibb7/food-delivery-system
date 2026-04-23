@@ -65,7 +65,7 @@ export default function RiderReviewsScreen() {
                     </View>
                   </View>
                   {review.comment && (
-                    <Text className="text-gray-700 mt-2 italic">"{review.comment}"</Text>
+                    <Text className="text-gray-700 mt-2 italic">&quot;{review.comment}&quot;</Text>
                   )}
                 </View>
               ))}

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, Platform } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 import { useLocation } from "@/hooks/useLocation";
 
@@ -56,7 +56,7 @@ export default function DeliveryMap({
     return location
       ? { latitude: location.latitude, longitude: location.longitude }
       : null;
-  }, [location?.latitude, location?.longitude]);
+  }, [location]);
 
   // Auto-fit bounds whenever coordinates change
   useEffect(() => {

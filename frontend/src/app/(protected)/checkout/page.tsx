@@ -64,7 +64,7 @@ export default function CheckoutPage() {
   const selectedAddress = savedAddresses.find((a) => a.id === selectedAddressId);
   const deliveryAddress = selectedAddress
     ? [selectedAddress.address, selectedAddress.city, selectedAddress.country].filter(Boolean).join(", ")
-    : [user?.address, user?.city, user?.country].filter(Boolean).join(", ");
+    : "";
 
   const subtotal = cart.getSubtotal();
   const deliveryFee = 50;
@@ -76,7 +76,7 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async () => {
     if (!cart.items.length || !cart.restaurantId) return;
 
-    if (!deliveryAddress) {
+    if (!deliveryAddress || !selectedAddress) {
       toast.error("Please add a delivery address to proceed.");
       return;
     }

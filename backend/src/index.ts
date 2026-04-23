@@ -8,6 +8,7 @@ import orderRoute from "./routes/order.js";
 import addressRoute from "./routes/address.js";
 import riderRoute from "./routes/rider.js";
 import reviewRoute from "./routes/review.js";
+import settingsRoute from "./routes/settings.js";
 import cors from "cors";
 import { NODE_ENV, PORT, CLIENT_WEB_APP_URL } from "./constants/env.js";
 import errorHandler from "./middlewares/errorHandler.js";
@@ -56,6 +57,7 @@ app.use("/api/v1/order", authenticate, orderRoute);
 app.use("/api/v1/address", authenticate, addressRoute);
 app.use("/api/v1/rider", authenticate, riderRoute);
 app.use("/api/v1/review", authenticate, reviewRoute);
+app.use("/api/v1/settings", settingsRoute);
 
 // Add this AFTER all your app.use() route registrations
 app.get("/debug-routes", (req, res) => {

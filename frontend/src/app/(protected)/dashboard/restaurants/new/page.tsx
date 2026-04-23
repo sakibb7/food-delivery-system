@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import InputField from "@/components/form/InputField";
 import Button from "@/components/ui/button";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
+import AddressMapPicker from "@/components/AddressMapPicker";
 
 export interface RestaurantFormData {
   name: string;
@@ -35,6 +36,8 @@ export interface RestaurantFormData {
   deliveryFee: string;
   logo?: string;
   coverImage?: string;
+  latitude?: string;
+  longitude?: string;
 }
 
 export default function NewRestaurantPage() {
@@ -116,6 +119,25 @@ export default function NewRestaurantPage() {
     });
   });
 
+  const handleLocationSelect = (
+    lat: number,
+    lng: number,
+    addressData: {
+      address: string;
+      city: string;
+      state: string;
+      country: string;
+      zipcode: string;
+    }
+  ) => {
+    setValue("latitude", lat.toString(), { shouldValidate: true });
+    setValue("longitude", lng.toString(), { shouldValidate: true });
+    if (addressData.address) setValue("address", addressData.address, { shouldValidate: true });
+    if (addressData.city) setValue("city", addressData.city, { shouldValidate: true });
+    if (addressData.country) setValue("country", addressData.country, { shouldValidate: true });
+    if (addressData.zipcode) setValue("zipcode", addressData.zipcode, { shouldValidate: true });
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 font-sans">
       <Link
@@ -192,6 +214,17 @@ export default function NewRestaurantPage() {
               </div>
               <h2 className="text-xl font-bold">Location Details</h2>
             </div>
+            
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Pinpoint on Map
+              </label>
+              <AddressMapPicker onLocationSelect={handleLocationSelect} />
+              <p className="text-xs text-gray-500 mt-2">
+                Click "Use Current Location" or drag the pin to auto-fill the details below. This exact location will be used by riders for navigation.
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
                 <InputField

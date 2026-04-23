@@ -1,4 +1,5 @@
 import Logo from "../ui/Logo";
+import Link from "next/link";
 
 
 export default function FooterSection() {
@@ -30,9 +31,9 @@ export default function FooterSection() {
                     </h4>
                     <ul className="space-y-3 font-medium text-sm">
                         <li>
-                            <a href="#" className="hover:text-white transition-colors">
+                            <Link href="/who-we-are" className="hover:text-white transition-colors">
                                 Who We Are
-                            </a>
+                            </Link>
                         </li>
                         <li>
                             <a href="#" className="hover:text-white transition-colors">
@@ -91,9 +92,9 @@ export default function FooterSection() {
                     </h4>
                     <ul className="space-y-3 font-medium text-sm">
                         <li>
-                            <a href="#" className="hover:text-white transition-colors">
+                            <Link href="/privacy" className="hover:text-white transition-colors">
                                 Privacy
-                            </a>
+                            </Link>
                         </li>
                         <li>
                             <a href="#" className="hover:text-white transition-colors">
@@ -101,9 +102,9 @@ export default function FooterSection() {
                             </a>
                         </li>
                         <li>
-                            <a href="#" className="hover:text-white transition-colors">
+                            <Link href="/terms" className="hover:text-white transition-colors">
                                 Terms
-                            </a>
+                            </Link>
                         </li>
                         <li>
                             <a href="#" className="hover:text-white transition-colors">

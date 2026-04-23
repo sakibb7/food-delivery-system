@@ -8,6 +8,8 @@ import { ordersTable } from "../db/schema/orderSchema.js";
 import { restaurantsTable } from "../db/schema/restaurantSchema.js";
 import { riderProfilesTable } from "../db/schema/riderProfileSchema.js";
 import { usersTable } from "../db/schema/userSchema.js";
+import AppError from "../utils/AppError.js";
+import { BAD_REQUEST } from "../constants/http.js";
 
 // ────────────────────────────────────────────────────────────────────────────────
 // Restaurant Reviews
@@ -38,11 +40,11 @@ export const createRestaurantReview = async (
     .limit(1);
 
   if (!order) {
-    throw new Error("Order not found or does not belong to you");
+    throw new AppError(BAD_REQUEST, "Order not found or does not belong to you");
   }
 
   if (order.status !== "delivered") {
-    throw new Error("You can only review an order after it has been delivered");
+    throw new AppError(BAD_REQUEST, "You can only review an order after it has been delivered");
   }
 
   // 2. Check if the user already reviewed this order's restaurant
@@ -53,7 +55,7 @@ export const createRestaurantReview = async (
     .limit(1);
 
   if (existing) {
-    throw new Error("You have already reviewed this order");
+    throw new AppError(BAD_REQUEST, "You have already reviewed this order");
   }
 
   // 3. Insert review
@@ -81,7 +83,7 @@ export const createRestaurantReview = async (
     .update(restaurantsTable)
     .set({
       rating: parseFloat(stats?.avgRating || "0").toFixed(2),
-      totalReviews: stats?.totalReviews ?? 0,
+      totalReviews: Number(stats?.totalReviews || 0),
     })
     .where(eq(restaurantsTable.id, data.restaurantId));
 
@@ -136,11 +138,11 @@ export const createRiderReview = async (
     .limit(1);
 
   if (!order) {
-    throw new Error("Order not found or does not belong to you");
+    throw new AppError(BAD_REQUEST, "Order not found or does not belong to you");
   }
 
   if (order.status !== "delivered") {
-    throw new Error("You can only review an order after it has been delivered");
+    throw new AppError(BAD_REQUEST, "You can only review an order after it has been delivered");
   }
 
   // 2. Check if the user already reviewed this order's rider
@@ -151,7 +153,7 @@ export const createRiderReview = async (
     .limit(1);
 
   if (existing) {
-    throw new Error("You have already reviewed the rider for this order");
+    throw new AppError(BAD_REQUEST, "You have already reviewed the rider for this order");
   }
 
   // 3. Insert review
@@ -179,7 +181,7 @@ export const createRiderReview = async (
     .update(riderProfilesTable)
     .set({
       rating: parseFloat(stats?.avgRating || "0").toFixed(2),
-      totalReviews: stats?.totalReviews ?? 0,
+      totalReviews: Number(stats?.totalReviews || 0),
     })
     .where(eq(riderProfilesTable.userId, data.riderId));
 

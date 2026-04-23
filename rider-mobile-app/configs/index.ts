@@ -1,9 +1,9 @@
-/** @format */
 
 import { Platform } from "react-native";
 
 // export const SERVER_URL =
 //   process.env.EXPO_PUBLIC_APP_ENV === "dev" ? (Platform.OS === "ios" ? process.env.EXPO_PUBLIC_API_BASE_URL_IOS : process.env.EXPO_PUBLIC_API_BASE_URL_ANDROID) : process.env.EXPO_PUBLIC_API_BASE_URL;
+
 
 export const SERVER_URL = "https://fooddeliverysystem.sakibb.com";
 export const API_BASE_URL =

@@ -9,6 +9,8 @@ interface ReviewModalProps {
   orderId: number;
   restaurantId: number;
   riderId: number | null;
+  hasRestaurantReview: boolean;
+  hasRiderReview: boolean;
   onSuccess: () => void;
 }
 
@@ -18,6 +20,8 @@ export function ReviewModal({
   orderId,
   restaurantId,
   riderId,
+  hasRestaurantReview,
+  hasRiderReview,
   onSuccess,
 }: ReviewModalProps) {
   const [restaurantRating, setRestaurantRating] = useState(0);
@@ -29,12 +33,12 @@ export function ReviewModal({
   if (!isOpen) return null;
 
   const handleSubmit = async () => {
-    if (restaurantRating === 0) {
+    if (!hasRestaurantReview && restaurantRating === 0) {
       toast.error("Please provide a rating for the restaurant");
       return;
     }
 
-    if (riderId && riderRating === 0) {
+    if (riderId && !hasRiderReview && riderRating === 0) {
       toast.error("Please provide a rating for the rider");
       return;
     }
@@ -42,15 +46,17 @@ export function ReviewModal({
     setIsSubmitting(true);
     try {
       // Submit Restaurant Review
-      await privateInstance.post("/review/restaurant", {
-        orderId,
-        restaurantId,
-        rating: restaurantRating,
-        comment: restaurantComment || undefined,
-      });
+      if (!hasRestaurantReview) {
+        await privateInstance.post("/review/restaurant", {
+          orderId,
+          restaurantId,
+          rating: restaurantRating,
+          comment: restaurantComment || undefined,
+        });
+      }
 
-      // Submit Rider Review if rider exists
-      if (riderId) {
+      // Submit Rider Review if rider exists and not yet reviewed
+      if (riderId && !hasRiderReview) {
         await privateInstance.post("/review/rider", {
           orderId,
           riderId,
@@ -117,24 +123,26 @@ export function ReviewModal({
 
           <div className="space-y-8 max-h-[60vh] overflow-y-auto pr-2">
             {/* Restaurant Review */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-gray-800">
-                How was the food?
-              </h3>
-              <RatingStars
-                rating={restaurantRating}
-                setRating={setRestaurantRating}
-              />
-              <textarea
-                placeholder="Tell us what you liked or didn't like..."
-                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all resize-none h-24"
-                value={restaurantComment}
-                onChange={(e) => setRestaurantComment(e.target.value)}
-              />
-            </div>
+            {!hasRestaurantReview && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-gray-800">
+                  How was the food?
+                </h3>
+                <RatingStars
+                  rating={restaurantRating}
+                  setRating={setRestaurantRating}
+                />
+                <textarea
+                  placeholder="Tell us what you liked or didn't like..."
+                  className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all resize-none h-24"
+                  value={restaurantComment}
+                  onChange={(e) => setRestaurantComment(e.target.value)}
+                />
+              </div>
+            )}
 
             {/* Rider Review */}
-            {riderId && (
+            {riderId && !hasRiderReview && (
               <div className="space-y-4 pt-6 border-t border-gray-100">
                 <h3 className="text-lg font-bold text-gray-800">
                   How was your delivery?

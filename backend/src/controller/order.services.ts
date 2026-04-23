@@ -8,8 +8,7 @@ import { menuItemsTable } from "../db/schema/menuItemSchema.js";
 import { restaurantsTable } from "../db/schema/restaurantSchema.js";
 import { usersTable } from "../db/schema/userSchema.js";
 import { addressesTable } from "../db/schema/addressSchema.js";
-
-const TAX_RATE = 0.05; // 5%
+import { getSettings } from "./settings.services.js";
 
 interface CreateOrderInput {
   restaurantId: number;
@@ -87,8 +86,13 @@ export const createOrder = async (userId: number, data: CreateOrderInput) => {
     };
   });
 
-  const deliveryFee = parseFloat(restaurant.deliveryFee ?? "0");
-  const tax = Math.round(subtotal * TAX_RATE * 100) / 100;
+  const settings = await getSettings();
+  const taxRate = settings.tax_rate !== undefined ? Number(settings.tax_rate) / 100 : 0.05;
+  const platformBaseFee = settings.delivery_base_fee !== undefined ? Number(settings.delivery_base_fee) : 40;
+
+  const restaurantDeliveryFee = parseFloat(restaurant.deliveryFee ?? "0");
+  const deliveryFee = restaurantDeliveryFee > 0 ? restaurantDeliveryFee : platformBaseFee;
+  const tax = Math.round(subtotal * taxRate * 100) / 100;
   const total = Math.round((subtotal + deliveryFee + tax) * 100) / 100;
 
   // 5. Insert order + items in a pseudo-transaction
@@ -141,6 +145,8 @@ export const getOrdersByUserId = async (userId: number) => {
       tax: ordersTable.tax,
       createdAt: ordersTable.createdAt,
       estimatedDeliveryTime: ordersTable.estimatedDeliveryTime,
+      deliveryLat: ordersTable.deliveryLat,
+      deliveryLng: ordersTable.deliveryLng,
       restaurantId: ordersTable.restaurantId,
       restaurantName: restaurantsTable.name,
       restaurantLogo: restaurantsTable.logo,
@@ -172,6 +178,8 @@ export const getOrderById = async (orderId: number, userId: number) => {
       total: ordersTable.total,
       notes: ordersTable.notes,
       estimatedDeliveryTime: ordersTable.estimatedDeliveryTime,
+      deliveryLat: ordersTable.deliveryLat,
+      deliveryLng: ordersTable.deliveryLng,
       createdAt: ordersTable.createdAt,
       updatedAt: ordersTable.updatedAt,
       restaurantName: restaurantsTable.name,
@@ -222,6 +230,8 @@ export const getAllOrders = async () => {
       tax: ordersTable.tax,
       createdAt: ordersTable.createdAt,
       estimatedDeliveryTime: ordersTable.estimatedDeliveryTime,
+      deliveryLat: ordersTable.deliveryLat,
+      deliveryLng: ordersTable.deliveryLng,
       restaurantId: ordersTable.restaurantId,
       restaurantName: restaurantsTable.name,
       userId: ordersTable.userId,
