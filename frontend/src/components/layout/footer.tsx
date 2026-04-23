@@ -27,7 +27,7 @@ export default function FooterSection() {
 
                 <div>
                     <h4 className="text-white font-bold mb-6 tracking-wide">
-                        ABOUT TOMATO
+                        ABOUT TEKINA
                     </h4>
                     <ul className="space-y-3 font-medium text-sm">
                         <li>
@@ -80,7 +80,7 @@ export default function FooterSection() {
                     <ul className="space-y-3 font-medium text-sm">
                         <li>
                             <a href="#" className="hover:text-white transition-colors">
-                                Tomato For Enterprise
+                                Tekina For Enterprise
                             </a>
                         </li>
                     </ul>
@@ -116,7 +116,7 @@ export default function FooterSection() {
             </div>
 
             <div className="max-w-7xl mx-auto border-t border-gray-800 mt-12 pt-8 text-sm text-gray-500 text-center md:text-left flex flex-col md:flex-row justify-between items-center">
-                <p>© 2026 Tomato Food Delivery. All rights reserved.</p>
+                <p>© 2026 Tekina Food Delivery. All rights reserved.</p>
                 <div className="flex items-center gap-2 mt-4 md:mt-0">
                     <span>Made with</span>
                     <span className="text-red-500 text-lg">♥</span>

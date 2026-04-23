@@ -117,9 +117,9 @@ export default function RestaurantsPage() {
             <div className="bg-gray-100 text-gray-900 p-1.5 rounded-lg font-bold text-lg">
               T
             </div>
-            <span className="font-bold text-xl text-gray-900">Tomato.</span>
+            <span className="font-bold text-xl text-gray-900">Tekina.</span>
           </div>
-          <p className="text-gray-400 text-sm">© 2026 Tomato Food Delivery. Made with love for foodies.</p>
+          <p className="text-gray-400 text-sm">© 2026 Tekina Food Delivery. Made with love for foodies.</p>
           <div className="flex gap-6 text-sm font-medium text-gray-500">
             <Link href="#" className="hover:text-red-600 transition-colors">Privacy</Link>
             <Link href="#" className="hover:text-red-600 transition-colors">Terms</Link>

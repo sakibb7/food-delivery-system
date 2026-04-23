@@ -10,6 +10,8 @@ import riderRoute from "./routes/rider.js";
 import reviewRoute from "./routes/review.js";
 import settingsRoute from "./routes/settings.js";
 import adminDashboardRoute from "./routes/adminDashboard.js";
+import roleRoute from "./routes/role.js";
+import staffRoute from "./routes/staff.js";
 import cors from "cors";
 import { NODE_ENV, PORT, CLIENT_WEB_APP_URL } from "./constants/env.js";
 import errorHandler from "./middlewares/errorHandler.js";
@@ -47,6 +49,7 @@ cloudinary.v2.config({
   cloud_name: CLOUD_NAME,
   api_key: CLOUD_API_KEY,
   api_secret: CLOUD_SECRET_KEY,
+
 });
 
 app.use("/api/v1/auth", authRoute);
@@ -60,6 +63,8 @@ app.use("/api/v1/rider", authenticate, riderRoute);
 app.use("/api/v1/review", authenticate, reviewRoute);
 app.use("/api/v1/settings", settingsRoute);
 app.use("/api/v1/admin-dashboard", adminDashboardRoute);
+app.use("/api/v1/role", roleRoute);
+app.use("/api/v1/staff", staffRoute);
 
 // Add this AFTER all your app.use() route registrations
 app.get("/debug-routes", (req, res) => {

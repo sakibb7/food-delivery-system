@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState, useEffect, useCallback } from "react";
 import type { User } from "../types";
 import { AppContext } from "./app-context";
+import { useGetQuery } from "../hooks/mutate/useGetQuery";
+import { privateInstance } from "../configs/axiosConfig";
+import { resetQueryClient } from "../configs/query-client";
 
 interface AppProviderProps {
   children: React.ReactNode;
@@ -9,40 +11,54 @@ interface AppProviderProps {
 
 export const AppProvider = ({ children }: AppProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isAuth, setIsAuth] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-
-  async function fetchUser() {
-    try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_VERSION_PATH}/user/me`, {
-        withCredentials: true
-      });
-
-      setUser(data?.user);
-      setIsAuth(true);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const {
+    isLoading: queryLoading,
+    isSuccess,
+    data: userData,
+    isFetching,
+    isError,
+  } = useGetQuery({
+    isPublic: false,
+    url: "/user/me",
+    queryKey: ["auth", "me"],
+  });
 
   useEffect(() => {
-    fetchUser();
+    if (isSuccess && userData?.user) {
+      setUser(userData.user);
+      setIsInitialized(true);
+    } else if (isError && !queryLoading && !isFetching) {
+      // Auth check completed but failed (after interceptor refresh attempt)
+      setUser(null);
+      setIsInitialized(true);
+    }
+  }, [isSuccess, isError, userData, queryLoading, isFetching]);
+
+  const logout = useCallback(async () => {
+    try {
+      await privateInstance.post("/auth/logout");
+    } catch {
+      // Logout endpoint may fail if tokens are already expired — that's fine
+    } finally {
+      setUser(null);
+      setIsInitialized(false);
+      resetQueryClient();
+      // Small delay so state clears before redirect
+      window.location.href = "/login";
+    }
   }, []);
-
-
 
   return (
     <AppContext.Provider
       value={{
-        isAuth,
-        isLoading,
-        setIsAuth,
-        setIsLoading,
+        isAuth: !!user,
+        isLoading: queryLoading || isFetching,
+        isInitialized,
         setUser,
         user,
+        logout,
       }}
     >
       {children}

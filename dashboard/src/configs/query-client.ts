@@ -6,7 +6,11 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 60 * 1000, // 1 minute before data is considered stale
       gcTime: 5 * 60 * 1000, // 5 minutes before unused data is garbage collected
-      retry: 1, // Retry failed queries once
+      retry: (failureCount: number, error: any) => {
+        // Don't retry auth errors — the axios interceptor handles token refresh
+        if (error?.response?.status === 401 || error?.status === 401) return false;
+        return failureCount < 1;
+      },
       retryDelay: (attempt: number) => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff with 30s max
       refetchOnWindowFocus: false, // Disable automatic refetching when window regains focus
       refetchOnReconnect: true, // Refetch when reconnecting after losing connection

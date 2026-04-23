@@ -13,6 +13,7 @@ import {
   Bell,
   Search,
   Star,
+  Shield,
 } from "lucide-react";
 import { useContext } from "react";
 import { AppContext } from "../context/app-context";
@@ -26,18 +27,17 @@ const NAVIGATION = [
   { name: "Reviews", href: "/reviews", icon: Star },
   { name: "Riders", href: "/riders", icon: Bike },
   { name: "Payments", href: "/payments", icon: CreditCard },
+  { name: "Staff & Roles", href: "/staff", icon: Shield },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export const AdminLayout = () => {
-  const { user, setIsAuth, setUser } = useContext(AppContext) as AppContextType;
+  const { user, logout } = useContext(AppContext) as AppContextType;
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsAuth(false);
-    setUser(null);
+    logout();
   };
 
   return (
@@ -45,7 +45,7 @@ export const AdminLayout = () => {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200">
         <div className="h-16 flex items-center px-6 border-b border-gray-100">
-          <span className="text-xl font-bold text-orange-500">TomatoAdmin</span>
+          <span className="text-xl font-bold text-orange-500">Tekina</span>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
@@ -58,8 +58,8 @@ export const AdminLayout = () => {
                 key={item.name}
                 to={item.href}
                 className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${isActive
-                    ? "bg-orange-50 text-orange-600"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-orange-50 text-orange-600"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
               >
                 <Icon className={`mr-3 h-5 w-5 ${isActive ? "text-orange-500" : "text-gray-400"}`} />
@@ -136,7 +136,7 @@ export const AdminLayout = () => {
           <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
             <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
               <div className="flex items-center flex-shrink-0 px-4">
-                <span className="text-xl font-bold text-orange-500">TomatoAdmin</span>
+                <span className="text-xl font-bold text-orange-500">Tekina</span>
               </div>
               <nav className="mt-5 px-2 space-y-1">
                 {NAVIGATION.map((item) => {
@@ -148,8 +148,8 @@ export const AdminLayout = () => {
                       to={item.href}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={`flex items-center px-3 py-2.5 rounded-lg text-base font-medium ${isActive
-                          ? "bg-orange-50 text-orange-600"
-                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        ? "bg-orange-50 text-orange-600"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                         }`}
                     >
                       <Icon className={`mr-4 h-6 w-6 ${isActive ? "text-orange-500" : "text-gray-400"}`} />

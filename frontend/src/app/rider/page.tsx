@@ -25,7 +25,7 @@ export default function RiderPage() {
             T
           </div>
           <span className="font-extrabold text-2xl tracking-tight">
-            Tomato. <span className="font-medium text-red-400 text-sm ml-1 uppercase tracking-widest hidden sm:inline-block">Deliver</span>
+            Tekina. <span className="font-medium text-red-400 text-sm ml-1 uppercase tracking-widest hidden sm:inline-block">Deliver</span>
           </span>
         </Link>
 
@@ -61,7 +61,7 @@ export default function RiderPage() {
               Deliver <span className="text-red-500">Freedom</span>, Earn Big.
             </h1>
             <p className="text-xl md:text-2xl text-gray-100 mb-10 font-medium drop-shadow-md max-w-2xl">
-              Turn your bike or scooter into an earnings machine. Join the Tomato fleet and start delivering delicious moments to your city today.
+              Turn your bike or scooter into an earnings machine. Join the Tekina fleet and start delivering delicious moments to your city today.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -118,7 +118,7 @@ export default function RiderPage() {
       <section className="py-24 px-6 lg:px-12 max-w-7xl mx-auto w-full">
         <div className="text-center max-w-3xl mx-auto mb-20">
           <h2 className="text-5xl font-extrabold text-gray-900 mb-6 tracking-tight italic">
-            Why ride with <span className="text-red-600">Tomato?</span>
+            Why ride with <span className="text-red-600">Tekina?</span>
           </h2>
           <p className="text-xl text-gray-600 leading-relaxed">
             We don't just deliver food; we deliver opportunities. Experience the best perks in the delivery industry.
@@ -181,7 +181,7 @@ export default function RiderPage() {
                 Getting started is <span className="text-red-500">Fast & Easy</span>
               </h2>
               <p className="text-xl text-gray-400 mb-12">
-                Join the Tomato fleet in just a few simple steps. Most riders start earning within 48 hours.
+                Join the Tekina fleet in just a few simple steps. Most riders start earning within 48 hours.
               </p>
 
               <div className="space-y-12">
@@ -267,13 +267,13 @@ export default function RiderPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                quote: "Tomato gives me the flexibility I need to balance my studies and my income. The instant payouts are a lifesaver!",
+                quote: "Tekina gives me the flexibility I need to balance my studies and my income. The instant payouts are a lifesaver!",
                 author: "Carlos M.",
                 role: "Rider since 2024",
                 city: "London"
               },
               {
-                quote: "I've tried other platforms, but Tomato's support and rider perks are unmatched. I feel like part of a team here.",
+                quote: "I've tried other platforms, but Tekina's support and rider perks are unmatched. I feel like part of a team here.",
                 author: "Sarah L.",
                 role: "Full-time Rider",
                 city: "Manchester"
@@ -329,7 +329,7 @@ export default function RiderPage() {
           <div className="col-span-1 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-6">
               <div className="bg-red-600 text-white p-2 rounded-xl font-bold text-xl tracking-tight">T</div>
-              <span className="font-extrabold text-2xl tracking-tight">Tomato.</span>
+              <span className="font-extrabold text-2xl tracking-tight">Tekina.</span>
             </Link>
             <p className="text-gray-400 leading-relaxed">
               Join the movement that's changing the way cities eat, deliver, and earn.
@@ -373,7 +373,7 @@ export default function RiderPage() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-gray-500 text-sm">
-          <p>© 2026 Tomato Inc. All rights reserved.</p>
+          <p>© 2026 Tekina Inc. All rights reserved.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <a href="#" className="hover:text-white">Twitter</a>
             <a href="#" className="hover:text-white">Instagram</a>

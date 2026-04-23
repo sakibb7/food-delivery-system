@@ -16,7 +16,6 @@ const addressIdParamSchema = z.object({
 });
 
 export const getAddressesHandler = catchErrors(async (req, res) => {
-  console.log(req, "from get address");
   const userId = req.userId;
   appAssert(userId, UNAUTHORIZED, "User ID not found in request");
 

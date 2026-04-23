@@ -14,12 +14,12 @@ function generateFakeData(count: number, passwordHash: string) {
     const cuisine = cuisines[i % cuisines.length]!;
     const city = cities[i % cities.length]!;
     const area = areas[i % areas.length]!;
-    
+
     data.push({
       user: {
         firstName: `Owner`,
         lastName: `${i}`,
-        email: `owner${i}@tomato.com`,
+        email: `owner${i}@tekina.com`,
         phone: `0170000${i.toString().padStart(4, '0')}`,
         passwordHash,
         role: "restaurant" as const,
@@ -56,7 +56,7 @@ async function seed() {
     for (const data of ownersData) {
       // Check if user exists
       let user = await db.select().from(usersTable).where(eq(usersTable.email, data.user.email)).limit(1);
-      
+
       let currentUserId: number;
 
       if (user.length === 0) {

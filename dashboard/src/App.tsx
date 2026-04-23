@@ -14,6 +14,7 @@ import Riders from "./pages/Riders";
 import Payments from "./pages/Payments";
 import Settings from "./pages/Settings";
 import Reviews from "./pages/Reviews";
+import Staff from "./pages/Staff";
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
               <Route path="/riders" element={<Riders />} />
               <Route path="/payments" element={<Payments />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/staff" element={<Staff />} />
             </Route>
           </Route>
         </Routes>

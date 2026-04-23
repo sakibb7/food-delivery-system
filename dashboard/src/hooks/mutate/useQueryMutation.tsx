@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { toast } from "sonner";
 import { privateInstance, publicInstance } from "../../configs/axiosConfig";
 
 interface MutateProps {
@@ -50,8 +49,8 @@ export const useQueryMutation = ({
       }
 
       return response;
-    } catch (err) {
-      return Promise.reject(err);
+    } catch (err: any) {
+      return Promise.reject(err?.response);
     }
   };
 
@@ -60,50 +59,7 @@ export const useQueryMutation = ({
 
     onSuccess: () => {
       setBackendErrors(null);
-    },
-
-    onError: (err: any) => {
-      let message = "An error occurred";
-      const status = err?.response?.status;
-      const responseData = err?.response?.data;
-
-      switch (status) {
-        case 422:
-          const validationErrors = responseData?.errors;
-
-          setBackendErrors((prev: any) => ({
-            ...prev,
-            ...validationErrors,
-          }));
-
-          message = responseData?.message || message;
-          break;
-
-        case 401:
-          message = "Unauthorized. Please login again.";
-          break;
-
-        case 403:
-          message = "Forbidden access.";
-          break;
-
-        case 404:
-        case 417:
-        case 500:
-          message = responseData?.message || message;
-          break;
-
-        default:
-          message = responseData?.message || message;
-          break;
-      }
-
-      if (message) {
-        toast.error(message, {
-          position: "top-right",
-        });
-      }
-    },
+    }
   });
 
   return {

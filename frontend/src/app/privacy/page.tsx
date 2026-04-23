@@ -5,18 +5,18 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       <Header />
-      
+
       <main className="flex-1 py-16 px-6 lg:px-12 max-w-4xl mx-auto w-full">
         <h1 className="text-4xl font-extrabold text-gray-900 mb-8 tracking-tight">Privacy Policy</h1>
-        
+
         <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6 text-gray-700 leading-relaxed">
           <p className="text-sm text-gray-500 mb-6">Last Updated: April 2026</p>
-          
+
           <p>
-            At Tomato, we take your privacy seriously. This Privacy Policy explains how we collect, use, 
+            At Tekina, we take your privacy seriously. This Privacy Policy explains how we collect, use,
             disclose, and safeguard your information when you visit our website and use our mobile application.
           </p>
-          
+
           <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">1. Information We Collect</h2>
           <p>We may collect information about you in a variety of ways. The information we may collect includes:</p>
           <ul className="list-disc pl-6 space-y-2">
@@ -37,13 +37,13 @@ export default function PrivacyPolicyPage() {
 
           <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">3. Disclosure of Your Information</h2>
           <p>
-            We may share information we have collected about you in certain situations. Your information may be disclosed as follows: 
+            We may share information we have collected about you in certain situations. Your information may be disclosed as follows:
             to third-party service providers (such as restaurants and delivery partners) for the purpose of fulfilling your order.
           </p>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">4. Contact Us</h2>
           <p>
-            If you have questions or comments about this Privacy Policy, please contact us at support@tomato.com.
+            If you have questions or comments about this Privacy Policy, please contact us at support@tekina.com.
           </p>
         </div>
       </main>

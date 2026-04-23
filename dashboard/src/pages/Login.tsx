@@ -1,30 +1,33 @@
-import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useContext, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Lock, Mail, ArrowRight } from "lucide-react";
-import toast from "react-hot-toast";
-import axios from "axios";
 import { AppContext } from "../context/app-context";
 import type { AppContextType } from "../types";
 import { useQueryMutation } from "../hooks/mutate/useQueryMutation";
+import { toast } from "sonner";
 
 export default function Login() {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const context = useContext(AppContext) as AppContextType;
+  const [searchParams] = useSearchParams();
+  const { setUser, isAuth, isInitialized } = useContext(AppContext) as AppContextType;
 
-  // We conditionally use context below just to be safe if it's undefined
-  const setIsAuth = context?.setIsAuth;
-  const setUser = context?.setUser;
+  const redirectUrl = searchParams.get("redirectUrl") || "/";
+
+  // If already authenticated, redirect away from login page
+  useEffect(() => {
+    if (isInitialized && isAuth) {
+      navigate(redirectUrl, { replace: true });
+    }
+  }, [isInitialized, isAuth, navigate, redirectUrl]);
 
   const { mutate, isLoading: isMutationLoading } = useQueryMutation({
     isPublic: true,
     url: "/auth/login",
   });
 
-  const handleSubmit = async (e: React.SubmitEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast.error("Please enter email and password");
@@ -34,50 +37,16 @@ export default function Login() {
     mutate({ email, password }, {
       onSuccess: (data) => {
         const user = data?.data?.data?.user;
-
-        if (setIsAuth) setIsAuth(true);
         if (setUser) setUser(user);
 
         toast.success("Login successful!");
-        navigate("/");
+        navigate(redirectUrl, { replace: true });
       },
-      onError: (error) => {
-        console.log(error, "Error");
+      onError: (error: any) => {
+        toast.error(error?.data?.message || error?.message || "Something went wrong");
       },
     })
 
-    // try {
-    //   // Assuming a backend endpoint for admin login exists, otherwise 
-    //   // replace this with the appropriate authentication logic.
-    //   const response = await axios.post(
-    //     `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_VERSION_PATH}/auth/login`,
-    //     { email, password },
-    //     { withCredentials: true }
-    //   );
-
-    //   const user = response.data?.data?.user;
-
-    //   if (!user) {
-    //     toast.error("Failed to fetch user data.");
-    //     return;
-    //   }
-
-    //   if (user.role !== 'admin' && user.role !== 'Admin') {
-    //     toast.error("Access denied. Admin only.");
-    //     return;
-    //   }
-
-    //   if (setIsAuth) setIsAuth(true);
-    //   if (setUser) setUser(user);
-
-    //   toast.success("Login successful!");
-    //   navigate("/");
-    // } catch (error: any) {
-    //   console.error("Login failed", error);
-    //   toast.error(error.response?.data?.message || "Invalid credentials");
-    // } finally {
-    //   setIsLoading(false);
-    // }
   };
 
   return (
@@ -105,7 +74,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all bg-gray-50 focus:bg-white"
-                placeholder="admin@tomato.com"
+                placeholder="admin@tekina.com"
                 required
               />
             </div>
@@ -132,10 +101,10 @@ export default function Login() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isMutationLoading}
             className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors group"
           >
-            {isLoading ? (
+            {isMutationLoading ? (
               <span className="flex items-center gap-2">
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                 Signing in...

@@ -61,7 +61,10 @@ export default function Users() {
   } = useGetQuery<{ users: User[] }>({
     url: "/user/admin/all",
     queryKey: ["admin-users"],
+    isPublic: false,
   });
+
+  console.log(usersData, "usersData");
 
   // Ban/unban mutation
   const { mutate: toggleBan, isLoading: toggling } = useQueryMutation({
@@ -474,9 +477,8 @@ export default function Users() {
             <div className="p-6">
               {/* Icon */}
               <div
-                className={`mx-auto h-14 w-14 rounded-2xl flex items-center justify-center mb-4 ${
-                  confirmAction.type === "ban" ? "bg-red-50" : "bg-green-50"
-                }`}
+                className={`mx-auto h-14 w-14 rounded-2xl flex items-center justify-center mb-4 ${confirmAction.type === "ban" ? "bg-red-50" : "bg-green-50"
+                  }`}
               >
                 {confirmAction.type === "ban" ? (
                   <ShieldOff className="h-7 w-7 text-red-500" />
@@ -543,11 +545,10 @@ export default function Users() {
               <button
                 onClick={executeAction}
                 disabled={toggling}
-                className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${
-                  confirmAction.type === "ban"
-                    ? "bg-red-500 hover:bg-red-600"
-                    : "bg-green-500 hover:bg-green-600"
-                }`}
+                className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${confirmAction.type === "ban"
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-green-500 hover:bg-green-600"
+                  }`}
               >
                 {toggling && <Loader2 className="h-4 w-4 animate-spin" />}
                 {confirmAction.type === "ban" ? "Ban User" : "Unban User"}

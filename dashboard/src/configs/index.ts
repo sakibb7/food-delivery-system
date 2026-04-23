@@ -46,38 +46,4 @@ export const SERVER_SIDE_API_URLS = {
     cacheKey: "lang",
   },
 };
-/**
- * onboarding steps
- */
-export const ONBOARDING_STEPS = {
-  verification: {
-    value: "verification",
-    url: "/verify-otp",
-  },
-  kyc: {
-    value: "kyc",
-    url: "/kyc",
-  },
-  waiting: {
-    value: "waiting",
-    url: "/waiting",
-  },
-  completed: {
-    value: "completed",
-    url: "/dashboard/profile",
-  },
-};
 
-/**
- * check if the user is trying to access protected paths without a valid token also check if the user is verifying their email or phone
- * if the user is not authenticated, redirect to the sign-in page
- * if the user is authenticated and trying to access the verification or kyc page, redirect
- */
-export const PROTECTED_PATHS = [
-  "/dashboard",
-  "/payment",
-  "/checkout",
-  "/play/contest",
-  "/play/quiz",
-  "/games",
-];

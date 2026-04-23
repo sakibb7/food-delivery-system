@@ -10,8 +10,8 @@ export interface User {
 export interface AppContextType {
   user: User | null;
   isLoading: boolean;
+  isInitialized: boolean;
   isAuth: boolean;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
+  logout: () => void;
 }

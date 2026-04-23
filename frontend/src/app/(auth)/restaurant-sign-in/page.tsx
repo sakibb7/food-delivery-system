@@ -54,7 +54,7 @@ export default function RestaurantSignInPage() {
 
   return (
     <AuthLayout
-      title="Grow your business with Tomato."
+      title="Grow your business with Tekina."
       description="Join thousands of restaurants and reach more customers than ever before. Manage everything from one dashboard."
       statsText="5,000+ restaurant partners"
     >

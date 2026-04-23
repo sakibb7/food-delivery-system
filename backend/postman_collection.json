@@ -1,8 +1,8 @@
 {
   "info": {
     "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    "name": "Tomato Food Delivery — Auth Service",
-    "description": "Complete API collection for the authentication service of Tomato Food Delivery app.\n\n**Base URL:** http://localhost:5000\n\n**Flow:**\n1. Register → auto-sets cookies\n2. Login → auto-sets cookies\n3. Use authenticated endpoints (me, logout)\n4. Refresh token when access token expires\n5. Forgot password → Reset password",
+    "name": "Tekina Food Delivery — Auth Service",
+    "description": "Complete API collection for the authentication service of Tekina Food Delivery app.\n\n**Base URL:** http://localhost:5000\n\n**Flow:**\n1. Register → auto-sets cookies\n2. Login → auto-sets cookies\n3. Use authenticated endpoints (me, logout)\n4. Refresh token when access token expires\n5. Forgot password → Reset password",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -33,8 +33,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                ""
+              ]
             },
             "description": "Check if the auth service is running and healthy."
           },
@@ -61,8 +68,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register/restaurant",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "register", "restaurant"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register",
+                "restaurant"
+              ]
             },
             "description": "Register a restaurant owner account."
           },
@@ -103,8 +118,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
             },
             "description": "Register a new user account. On success, access and refresh token cookies are set automatically."
           },
@@ -126,8 +148,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
             },
             "description": "Register with only the required fields (no phone, address, etc)."
           },
@@ -149,8 +178,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
             },
             "description": "Attempt to register with an email that already exists. Should return 409 Conflict."
           },
@@ -172,8 +208,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
             },
             "description": "Attempt to register with mismatched passwords. Should return 400 Bad Request."
           },
@@ -195,8 +238,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
             },
             "description": "Missing required fields (firstName, lastName, confirmPassword). Should return 400."
           },
@@ -235,8 +285,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
             },
             "description": "Login with valid credentials. Sets accessToken and refreshToken cookies."
           },
@@ -258,8 +315,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
             },
             "description": "Login with incorrect password. Should return 401 Unauthorized."
           },
@@ -281,8 +345,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
             },
             "description": "Login with an email that doesn't exist. Should return 401."
           },
@@ -304,8 +375,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
             },
             "description": "Login with invalid email format. Should return 400 with Zod validation error."
           },
@@ -327,8 +405,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
             },
             "description": "Login with a password shorter than 6 characters. Should fail Zod validation."
           },
@@ -346,8 +431,17 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/email/verify/{{verificationCode}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "email", "verify", "{{verificationCode}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "email",
+                "verify",
+                "{{verificationCode}}"
+              ]
             },
             "description": "Verify email using the verification code from the email. Replace {{verificationCode}} with the UUID from the verification email link.\n\n**How to get the code:** Check your mail server (localhost:1025) or the database `verifications` table for the UUID."
           },
@@ -360,8 +454,17 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/email/verify/resend",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "email", "verify", "resend"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "email",
+                "verify",
+                "resend"
+              ]
             },
             "description": "Resend the email verification link to the authenticated user."
           },
@@ -374,8 +477,17 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/email/verify/00000000-0000-0000-0000-000000000000",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "email", "verify", "00000000-0000-0000-0000-000000000000"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "email",
+                "verify",
+                "00000000-0000-0000-0000-000000000000"
+              ]
             },
             "description": "Attempt to verify with a non-existent code. Should return 404."
           },
@@ -402,8 +514,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/password/forgot",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "password", "forgot"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "forgot"
+              ]
             },
             "description": "Request a password reset email. Always returns 200 regardless of whether the email exists (prevents email enumeration).\n\n**Next step:** Check your mail server or the `verifications` table for the reset code UUID."
           },
@@ -425,8 +545,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/password/forgot",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "password", "forgot"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "forgot"
+              ]
             },
             "description": "Forgot password with non-existent email. Should still return 200 (no enumeration)."
           },
@@ -448,8 +576,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/password/reset",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "password", "reset"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "reset"
+              ]
             },
             "description": "Reset password using the code from the forgot password email.\n\nReplace {{resetCode}} with the UUID from the password reset email or `verifications` table.\n\n**Note:** This clears all existing sessions — the user must log in again."
           },
@@ -471,8 +607,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/password/reset",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "password", "reset"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "reset"
+              ]
             },
             "description": "Attempt to reset password with an invalid/expired code. Should return 404."
           },
@@ -507,8 +651,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh"
+              ]
             },
             "description": "Refresh the access token using the refresh token cookie.\n\n**Requires:** A valid `refreshToken` cookie (set during login/register).\n\n**Note:** The refresh token cookie is scoped to `/api/v1/auth/refresh` path only."
           },
@@ -521,8 +672,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh"
+              ]
             },
             "description": "Attempt to refresh without a refresh token cookie. Should return 401.\n\n**Tip:** Clear cookies in Postman before running this to test."
           },
@@ -557,8 +715,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "user", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                "me"
+              ]
             },
             "description": "Get the authenticated user's profile.\n\n**Requires:** Valid `accessToken` cookie.\n\n**Note:** The `passwordHash` field is never included in the response."
           },
@@ -580,8 +745,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "user", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                "profile"
+              ]
             },
             "description": "Update the authenticated user's profile."
           },
@@ -603,8 +775,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "user", "password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                "password"
+              ]
             },
             "description": "Change the authenticated user's password."
           },
@@ -617,8 +796,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "user", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                "me"
+              ]
             },
             "description": "Attempt to get profile without an access token. Should return 401.\n\n**Tip:** Clear cookies in Postman before running this."
           },
@@ -652,8 +838,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "logout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
             },
             "description": "Logout the current user. Deletes the session from the database and clears auth cookies.\n\n**Method:** POST (not GET — to prevent CSRF via prefetch/crawlers).\n\nTries access token first; falls back to refresh token if access token is expired."
           },
@@ -671,8 +864,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/google",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "google"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "google"
+              ]
             },
             "description": "Initiates Google OAuth flow. Redirects the user to Google's consent screen.\n\n**Note:** This sets an `oauth_state` cookie for CSRF protection. Best tested in a browser rather than Postman.\n\n**Open this URL in a browser:** http://localhost:5000/api/v1/auth/google"
           },
@@ -685,8 +885,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/google/callback?code=AUTHORIZATION_CODE_FROM_GOOGLE&state=STATE_FROM_COOKIE",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "google", "callback"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "google",
+                "callback"
+              ],
               "query": [
                 {
                   "key": "code",
@@ -725,8 +933,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
             },
             "description": "Password under 6 characters. Should fail Zod validation."
           },
@@ -748,8 +963,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
             },
             "description": "Send an empty body. Should return 400 with Zod validation errors."
           },
@@ -771,8 +993,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
             },
             "description": "Login with empty body. Should return 400 with validation error."
           },
@@ -794,8 +1023,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/password/forgot",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "password", "forgot"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "forgot"
+              ]
             },
             "description": "Invalid email format. Should return 400."
           },
@@ -817,8 +1054,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/password/reset",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "password", "reset"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "reset"
+              ]
             },
             "description": "Reset with empty password. Should fail validation."
           },
@@ -831,8 +1076,17 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/email/verify/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "email", "verify", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "email",
+                "verify",
+                ""
+              ]
             },
             "description": "Attempt to verify with empty code. Should return 404 (route not matched)."
           },
@@ -850,8 +1104,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurant",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "restaurant"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurant"
+              ]
             },
             "description": "Retrieve a list of all restaurants (Public)."
           },
@@ -864,8 +1124,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurant/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "restaurant", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurant",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -889,12 +1156,18 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Tomato Pasta Place\",\n  \"description\": \"Best pasta in town\",\n  \"deliveryTime\": 30,\n  \"deliveryFee\": 5.00,\n  \"minOrder\": 15.00\n}"
+              "raw": "{\n  \"name\": \" Pasta Place\",\n  \"description\": \"Best pasta in town\",\n  \"deliveryTime\": 30,\n  \"deliveryFee\": 5.00,\n  \"minOrder\": 15.00\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurant",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "restaurant"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurant"
+              ]
             },
             "description": "Create a new restaurant (Authenticated)."
           },
@@ -907,8 +1180,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurant/my-restaurants",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "restaurant", "my-restaurants"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurant",
+                "my-restaurants"
+              ]
             },
             "description": "Get all restaurants owned by the current authenticated user."
           },
@@ -926,12 +1206,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Tomato Pasta Place (Updated)\",\n  \"deliveryFee\": 3.50\n}"
+              "raw": "{\n  \"name\": \"Tekina Pasta Place (Updated)\",\n  \"deliveryFee\": 3.50\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurant/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "restaurant", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurant",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -950,8 +1237,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurant/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "restaurant", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurant",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",

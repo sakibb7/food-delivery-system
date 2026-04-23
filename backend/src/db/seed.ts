@@ -10,23 +10,23 @@ async function seed() {
     await db.insert(usersTable).values({
       firstName: "Super",
       lastName: "Admin",
-      email: "admin@tomato.com",
+      email: "admin@tekina.com",
       passwordHash,
       role: "admin",
       status: "active",
       provider: "local",
     }).onConflictDoNothing({ target: usersTable.email });
-    console.log("Admin account seeded successfully: admin@tomato.com / admin123");
+    console.log("Admin account seeded successfully: admin@tekina.com / admin123");
 
     console.log("Seeding default settings...");
     await db.insert(settingsTable).values([
       // General Settings
-      { key: "company_name", value: "Tomato Food", type: "string" },
-      { key: "support_email", value: "support@tomato.com", type: "string" },
-      { key: "website_url", value: "https://tomato.com", type: "string" },
+      { key: "company_name", value: "Tekina Food", type: "string" },
+      { key: "support_email", value: "support@tekina.com", type: "string" },
+      { key: "website_url", value: "https://tekina.com", type: "string" },
       { key: "support_phone", value: "+880123456789", type: "string" },
       { key: "timezone", value: "Asia/Dhaka", type: "string" },
-      { key: "app_url", value: "https://app.tomato.com", type: "string" },
+      { key: "app_url", value: "https://app.tekina.com", type: "string" },
       { key: "company_address", value: "123 Food Street, City", type: "string" },
       // System Configuration
       { key: "force_secure_password", value: "true", type: "boolean" },

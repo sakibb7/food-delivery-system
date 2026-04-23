@@ -7,7 +7,9 @@ router.post("/upload", async (req, res) => {
   try {
     const { buffer } = req.body;
 
-    const cloud = await cloudinary.v2.uploader.upload(buffer);
+    const cloud = await cloudinary.v2.uploader.upload(buffer, {
+      folder: "tekina"
+    });
 
     res.json({
       url: cloud.secure_url,

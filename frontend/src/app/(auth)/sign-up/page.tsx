@@ -50,7 +50,6 @@ export default function SignUpPage() {
         router.push("/dashboard");
       },
       onError: (error) => {
-        console.log(backendErrors, "Backend Error");
         console.log(error, "Error");
       },
     });

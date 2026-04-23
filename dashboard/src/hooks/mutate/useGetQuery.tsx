@@ -25,7 +25,8 @@ export const useGetQuery = <T = any>({
       const response = await instance.get(url, {
         params,
       });
-      console.log(response?.data, "Respose");
+      console.log(response, "response");
+
       return response?.data;
     } catch (err) {
       return Promise.reject(err);

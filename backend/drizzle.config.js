@@ -13,6 +13,7 @@ export default defineConfig({
     "./src/db/schema/riderProfileSchema.ts",
     "./src/db/schema/settingsSchema.ts",
     "./src/db/schema/reviewSchema.ts",
+    "./src/db/schema/roleSchema.ts",
   ],
   dialect: "postgresql",
   dbCredentials: {

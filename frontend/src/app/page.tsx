@@ -60,7 +60,7 @@ export default function Home() {
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="text-4xl font-extrabold text-gray-900 mb-6 tracking-tight">
-            Get the Tomato app
+            Get the Tekina app
           </h2>
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
             We will send you a link, open it on your phone to download the app

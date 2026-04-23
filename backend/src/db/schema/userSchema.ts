@@ -6,6 +6,8 @@ import {
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
+import { adminRolesTable } from "./roleSchema.js";
+
 
 export const userStatusEnum = pgEnum("user_status", [
   "active",
@@ -54,6 +56,8 @@ export const usersTable = pgTable("users", {
   status: userStatusEnum().default("active"),
 
   role: roles().default("user"),
+
+  adminRoleId: integer("admin_role_id").references(() => adminRolesTable.id),
 
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 

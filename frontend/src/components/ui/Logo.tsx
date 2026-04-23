@@ -7,7 +7,7 @@ export default function Logo({ isDark }: { isDark?: boolean }) {
         <span>T</span>
       </div>
       <span className={`font-extrabold text-2xl tracking-tight ${isDark ? "" : "text-white"}`}>
-        Tomato.
+        Tekina.
       </span>
     </Link>
   );
