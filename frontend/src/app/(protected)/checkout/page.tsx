@@ -72,7 +72,7 @@ export default function CheckoutPage() {
   const tax = Math.round(subtotal * taxRate * 100) / 100;
   const total = Math.round((subtotal + deliveryFee + tax) * 100) / 100;
 
-  console.log("cart", isSubmitting, !deliveryAddress, !user?.phone, user)
+  console.log("cart", isSubmitting, !deliveryAddress, user?.phone, user)
   const handlePlaceOrder = async () => {
     if (!cart.items.length || !cart.restaurantId) return;
 
@@ -81,10 +81,10 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!user?.phone) {
-      toast.error("Please add a phone number in your profile settings.");
-      return;
-    }
+    // if (!user?.phone) {
+    //   toast.error("Please add a phone number in your profile settings.");
+    //   return;
+    // }
 
     setIsSubmitting(true);
     try {
@@ -95,7 +95,7 @@ export default function CheckoutPage() {
           quantity: item.quantity,
         })),
         deliveryAddress,
-        deliveryPhone: user.phone,
+        deliveryPhone: user?.phone,
         deliveryLat: selectedAddress?.latitude ? parseFloat(selectedAddress.latitude) : undefined,
         deliveryLng: selectedAddress?.longitude ? parseFloat(selectedAddress.longitude) : undefined,
         addressId: selectedAddress?.id,
@@ -474,7 +474,8 @@ export default function CheckoutPage() {
               </div>
               <button
                 onClick={handlePlaceOrder}
-                disabled={isSubmitting || !deliveryAddress || !user?.phone}
+                // TODO: add phone number validation
+                disabled={isSubmitting || !deliveryAddress}
                 className="w-full py-4 bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all shadow-lg hover:shadow-red-600/40 flex justify-center items-center gap-2 text-lg"
               >
                 {isSubmitting ? (

@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { storage } from "@/configs/storage";
 
 interface OrderItem {
   id: number;
@@ -26,6 +28,10 @@ interface ActiveOrder {
   restaurantLogo?: string;
   restaurantLat?: string;
   restaurantLng?: string;
+  restaurantAddress?: string;
+  restaurantPhone?: string;
+  paymentMethod?: string;
+  paymentStatus?: string;
   createdAt: string;
   pickedUpAt?: string;
   deliveredAt?: string;
@@ -39,17 +45,36 @@ interface OrderState {
   clearActiveOrder: () => void;
 }
 
-export const useOrderStore = create<OrderState>((set) => ({
-  activeOrder: null,
+const mmkvStorage = {
+  getItem: (name: string) => {
+    const value = storage.getString(name);
+    return value ? JSON.parse(value) : null;
+  },
+  setItem: (name: string, value: any) => {
+    storage.set(name, JSON.stringify(value));
+  },
+  removeItem: (name: string) => {
+    storage.clearAll();
+  },
+};
 
-  setActiveOrder: (order) => set({ activeOrder: order }),
+export const useOrderStore = create<OrderState>()(
+  persist(
+    (set) => ({
+      activeOrder: null,
 
-  updateActiveOrderStatus: (status) =>
-    set((state) => ({
-      activeOrder: state.activeOrder
-        ? { ...state.activeOrder, status }
-        : null,
-    })),
+      setActiveOrder: (order) => set({ activeOrder: order }),
 
-  clearActiveOrder: () => set({ activeOrder: null }),
-}));
+      updateActiveOrderStatus: (status) =>
+        set((state) => ({
+          activeOrder: state.activeOrder ? { ...state.activeOrder, status } : null,
+        })),
+
+      clearActiveOrder: () => set({ activeOrder: null }),
+    }),
+    {
+      name: "active-order-storage",
+      storage: createJSONStorage(() => mmkvStorage),
+    }
+  )
+);

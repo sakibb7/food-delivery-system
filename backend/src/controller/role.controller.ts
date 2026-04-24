@@ -29,7 +29,7 @@ export const getRoles: RequestHandler = catchErrors(async (req, res) => {
 });
 
 export const updateRole: RequestHandler = catchErrors(async (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id as string);
   const data = updateRoleSchema.parse(req.body);
   const role = await updateRoleService(id, data);
 
@@ -40,7 +40,7 @@ export const updateRole: RequestHandler = catchErrors(async (req, res) => {
 });
 
 export const deleteRole: RequestHandler = catchErrors(async (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id as string);
   await deleteRoleService(id);
 
   res.status(OK).json({

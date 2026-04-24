@@ -59,6 +59,10 @@ export const createStaffService = async (data: any) => {
     status: "active",
   }).returning();
 
+  if (!newStaff) {
+    throw new AppError(500, "Failed to create staff member");
+  }
+
   return {
     id: newStaff.id,
     firstName: newStaff.firstName,
@@ -109,6 +113,10 @@ export const updateStaffService = async (id: number, data: any) => {
     })
     .where(eq(usersTable.id, id))
     .returning();
+
+  if (!updatedStaff) {
+    throw new AppError(500, "Failed to update staff member");
+  }
 
   return {
     id: updatedStaff.id,

@@ -21,6 +21,7 @@ import {
   ChefHat,
   TrendingUp,
   ShoppingBag,
+} from "lucide-react";
 import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import { useQueryMutation } from "@/hooks/mutate/useQueryMutation";
 import { useCurrency } from "@/hooks/useCurrency";
@@ -193,20 +194,18 @@ export default function RestaurantDetailsPage() {
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <span
-                  className={`px-4 py-1.5 rounded-full text-xs font-bold backdrop-blur-md shadow ${
-                    restaurant.isActive
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold backdrop-blur-md shadow ${restaurant.isActive
                       ? "bg-green-500/90 text-white"
                       : "bg-yellow-500/90 text-white"
-                  }`}
+                    }`}
                 >
                   {restaurant.isActive ? "Active" : "Pending Approval"}
                 </span>
                 <span
-                  className={`px-4 py-1.5 rounded-full text-xs font-bold backdrop-blur-md shadow ${
-                    restaurant.isOpen
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold backdrop-blur-md shadow ${restaurant.isOpen
                       ? "bg-blue-500/90 text-white"
                       : "bg-gray-500/90 text-white"
-                  }`}
+                    }`}
                 >
                   {restaurant.isOpen ? "Open" : "Closed"}
                 </span>

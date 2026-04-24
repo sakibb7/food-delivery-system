@@ -16,6 +16,8 @@ export default function IncomingOrderScreen() {
   const { currencySymbol } = useCurrency();
 
   useEffect(() => {
+    if (accepting) return; // Stop timer while API is in flight
+    
     if (timeLeft === 0) {
       clearActiveOrder();
       router.back();
@@ -23,7 +25,7 @@ export default function IncomingOrderScreen() {
     }
     const timer = setInterval(() => setTimeLeft((t) => t - 1), 1000);
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timeLeft, accepting]);
 
   const handleAccept = async () => {
     if (!activeOrder) return;
@@ -40,6 +42,11 @@ export default function IncomingOrderScreen() {
     } catch (err: any) {
       const message = err?.response?.data?.message || "Failed to accept order";
       showToast({ text: message, type: "error" });
+      // If order is taken, go back
+      if (err?.response?.status === 409) {
+        clearActiveOrder();
+        router.back();
+      }
     } finally {
       setAccepting(false);
     }
@@ -61,6 +68,8 @@ export default function IncomingOrderScreen() {
     );
   }
 
+  const isCOD = activeOrder.paymentMethod === "cod";
+
   return (
     <SafeAreaView className="flex-1 bg-gray-900 justify-center items-center p-6">
       <View className="bg-white rounded-3xl w-full p-6 shadow-2xl relative overflow-hidden">
@@ -78,6 +87,13 @@ export default function IncomingOrderScreen() {
             </Text>
           </View>
           <Text className="text-2xl font-bold text-gray-900 text-center">New Delivery Request</Text>
+          
+          {isCOD && (
+            <View className="bg-orange-100 px-3 py-1 rounded-full mt-2 flex-row items-center">
+              <Ionicons name="cash-outline" size={14} color="#ea580c" />
+              <Text className="text-orange-700 font-bold text-[10px] ml-1 uppercase">Cash on Delivery</Text>
+            </View>
+          )}
         </View>
 
         <View className="bg-gray-50 rounded-2xl p-4 mb-6 border border-gray-100">
@@ -114,8 +130,8 @@ export default function IncomingOrderScreen() {
             </Text>
           </View>
           <View className="items-end">
-            <Text className="text-gray-500 mb-1">Order Total</Text>
-            <Text className="text-2xl font-bold text-gray-900">
+            <Text className="text-gray-500 mb-1">{isCOD ? "Collect Cash" : "Order Total"}</Text>
+            <Text className={`text-2xl font-bold ${isCOD ? "text-orange-600" : "text-gray-900"}`}>
               {currencySymbol}{Number(activeOrder.total || 0).toFixed(2)}
             </Text>
           </View>

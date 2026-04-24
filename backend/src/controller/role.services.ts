@@ -8,7 +8,7 @@ import AppErrorCode from "../constants/appErrorCode.js";
 
 export const createRoleService = async (data: {
   name: string;
-  description?: string;
+  description?: string | undefined;
   permissions: string[];
 }) => {
   const [role] = await db.insert(adminRolesTable).values({
@@ -26,9 +26,9 @@ export const getRolesService = async () => {
 export const updateRoleService = async (
   id: number,
   data: {
-    name?: string;
-    description?: string;
-    permissions?: string[];
+    name?: string | undefined;
+    description?: string | undefined;
+    permissions?: string[] | undefined;
   }
 ) => {
   const [existingRole] = await db

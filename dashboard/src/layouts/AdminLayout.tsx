@@ -21,14 +21,14 @@ import type { AppContextType } from "../types";
 
 const NAVIGATION = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Users", href: "/users", icon: Users },
-  { name: "Restaurants", href: "/restaurants", icon: Store },
-  { name: "Orders", href: "/orders", icon: FileText },
-  { name: "Reviews", href: "/reviews", icon: Star },
-  { name: "Riders", href: "/riders", icon: Bike },
-  { name: "Payments", href: "/payments", icon: CreditCard },
-  { name: "Staff & Roles", href: "/staff", icon: Shield },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "Users", href: "/users", icon: Users, permission: "view_users" },
+  { name: "Restaurants", href: "/restaurants", icon: Store, permission: "manage_restaurants" },
+  { name: "Orders", href: "/orders", icon: FileText, permission: "view_orders" },
+  { name: "Reviews", href: "/reviews", icon: Star, permission: "manage_restaurants" },
+  { name: "Riders", href: "/riders", icon: Bike, permission: "manage_restaurants" },
+  { name: "Payments", href: "/payments", icon: CreditCard, permission: "view_financials" },
+  { name: "Staff & Roles", href: "/staff", icon: Shield, permission: "edit_admins" },
+  { name: "Settings", href: "/settings", icon: Settings, permission: "manage_settings" },
 ];
 
 export const AdminLayout = () => {
@@ -40,6 +40,13 @@ export const AdminLayout = () => {
     logout();
   };
 
+  const filteredNavigation = NAVIGATION.filter(item => {
+    if (!item.permission) return true;
+    return user?.adminRole?.permissions?.includes(item.permission);
+  });
+
+  console.log("user", user);
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Desktop Sidebar */}
@@ -49,7 +56,7 @@ export const AdminLayout = () => {
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-          {NAVIGATION.map((item) => {
+          {filteredNavigation.map((item) => {
             const isActive = location.pathname === item.href;
             const Icon = item.icon;
 
@@ -139,7 +146,7 @@ export const AdminLayout = () => {
                 <span className="text-xl font-bold text-orange-500">Tekina</span>
               </div>
               <nav className="mt-5 px-2 space-y-1">
-                {NAVIGATION.map((item) => {
+                {filteredNavigation.map((item) => {
                   const isActive = location.pathname === item.href;
                   const Icon = item.icon;
                   return (

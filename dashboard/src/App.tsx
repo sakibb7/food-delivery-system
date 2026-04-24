@@ -4,6 +4,7 @@ import { AppProvider } from "./context/AppContext";
 
 import Login from "./pages/Login";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { PermissionProtectedRoute } from "./components/PermissionProtectedRoute";
 import { AdminLayout } from "./layouts/AdminLayout";
 
 import Home from "./pages/Home";
@@ -22,18 +23,36 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
-          
+
           <Route element={<ProtectedRoute />}>
             <Route element={<AdminLayout />}>
               <Route path="/" element={<Home />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/restaurants" element={<Restaurants />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/reviews" element={<Reviews />} />
-              <Route path="/riders" element={<Riders />} />
-              <Route path="/payments" element={<Payments />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/staff" element={<Staff />} />
+
+              <Route element={<PermissionProtectedRoute permission="view_users" />}>
+                <Route path="/users" element={<Users />} />
+              </Route>
+
+              <Route element={<PermissionProtectedRoute permission="manage_restaurants" />}>
+                <Route path="/restaurants" element={<Restaurants />} />
+                <Route path="/reviews" element={<Reviews />} />
+                <Route path="/riders" element={<Riders />} />
+              </Route>
+
+              <Route element={<PermissionProtectedRoute permission="view_orders" />}>
+                <Route path="/orders" element={<Orders />} />
+              </Route>
+
+              <Route element={<PermissionProtectedRoute permission="view_financials" />}>
+                <Route path="/payments" element={<Payments />} />
+              </Route>
+
+              <Route element={<PermissionProtectedRoute permission="edit_admins" />}>
+                <Route path="/staff" element={<Staff />} />
+              </Route>
+
+              <Route element={<PermissionProtectedRoute permission="manage_settings" />}>
+                <Route path="/settings" element={<Settings />} />
+              </Route>
             </Route>
           </Route>
         </Routes>

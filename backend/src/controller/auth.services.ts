@@ -10,6 +10,7 @@ import {
 } from "../constants/http.js";
 import { db } from "../db/index.js";
 import { usersTable } from "../db/schema/userSchema.js";
+import { adminRolesTable } from "../db/schema/roleSchema.js";
 import appAssert from "../utils/appAssert.js";
 import AppErrorCode from "../constants/appErrorCode.js";
 import {
@@ -221,13 +222,16 @@ export const loginUser = async ({
   password,
   userAgent,
 }: LoginParams) => {
-  const [user] = await db
+  const [result] = await db
     .select()
     .from(usersTable)
+    .leftJoin(adminRolesTable, eq(usersTable.adminRoleId, adminRolesTable.id))
     .where(eq(usersTable.email, email))
     .limit(1);
 
-  appAssert(user, UNAUTHORIZED, "Invalid email or password");
+  appAssert(result, UNAUTHORIZED, "Invalid email or password");
+
+  const { users: user, admin_roles: adminRole } = result;
 
   appAssert(user.status === "active", FORBIDDEN, "Account is inactive");
 
@@ -257,7 +261,15 @@ export const loginUser = async ({
   const accessToken = signToken(payload);
 
   return {
-    user: omitPassword(user),
+    user: {
+      ...omitPassword(user),
+      adminRole: adminRole
+        ? {
+          name: adminRole.name,
+          permissions: adminRole.permissions,
+        }
+        : null,
+    },
     accessToken,
     refreshToken,
   };
@@ -431,12 +443,12 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
 
   const newRefreshToken = sessionNeedsRefresh
     ? signToken(
-        {
-          userId: session.userId,
-          sessionId: session.id,
-        },
-        refreshTokenSignOptions,
-      )
+      {
+        userId: session.userId,
+        sessionId: session.id,
+      },
+      refreshTokenSignOptions,
+    )
     : undefined;
 
   const accessToken = signToken({
@@ -628,12 +640,38 @@ export const loginWithGoogle = async (
 
 export const getMyProfile = async (userId: number) => {
   const [user] = await db
-    .select()
+    .select({
+      id: usersTable.id,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      email: usersTable.email,
+      phone: usersTable.phone,
+      role: usersTable.role,
+      avatar: usersTable.avatar,
+      emailVerifiedAt: usersTable.emailVerifiedAt,
+      phoneVerifiedAt: usersTable.phoneVerifiedAt,
+      address: usersTable.address,
+      city: usersTable.city,
+      country: usersTable.country,
+      zipcode: usersTable.zipcode,
+      fcmToken: usersTable.fcmToken,
+      provider: usersTable.provider,
+      providerId: usersTable.providerId,
+      status: usersTable.status,
+      createdAt: usersTable.createdAt,
+      updatedAt: usersTable.updatedAt,
+      adminRoleId: usersTable.adminRoleId,
+      adminRole: {
+        name: adminRolesTable.name,
+        permissions: adminRolesTable.permissions,
+      },
+    })
     .from(usersTable)
+    .leftJoin(adminRolesTable, eq(usersTable.adminRoleId, adminRolesTable.id))
     .where(eq(usersTable.id, userId))
     .limit(1);
 
   appAssert(user, NOT_FOUND, "User not found");
 
-  return omitPassword(user);
+  return user;
 };

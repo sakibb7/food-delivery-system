@@ -65,6 +65,8 @@ export const getAvailableOrders = async () => {
       restaurantLogo: restaurantsTable.logo,
       restaurantLat: restaurantsTable.latitude,
       restaurantLng: restaurantsTable.longitude,
+      restaurantAddress: restaurantsTable.address,
+      restaurantPhone: restaurantsTable.phone,
     })
     .from(ordersTable)
     .leftJoin(restaurantsTable, eq(ordersTable.restaurantId, restaurantsTable.id))
@@ -75,17 +77,36 @@ export const getAvailableOrders = async () => {
 };
 
 export const acceptOrder = async (userId: number, orderId: number) => {
-  // We use a fixed earnings amount for now as requested
-  await db.update(ordersTable)
+  // First, read the order to get its delivery fee for rider earnings
+  const [existingOrder] = await db.select({
+    deliveryFee: ordersTable.deliveryFee,
+  })
+    .from(ordersTable)
+    .where(eq(ordersTable.id, orderId))
+    .limit(1);
+
+  const earnings = existingOrder?.deliveryFee ?? "5.00";
+
+  // Race-condition safe: only update if order is still available (status + no rider)
+  const result = await db.update(ordersTable)
     .set({ 
       riderId: userId, 
       status: "out_for_delivery",
-      riderEarnings: "5.00" // Fixed earning per order
+      riderEarnings: earnings,
     })
-    .where(eq(ordersTable.id, orderId));
+    .where(and(
+      eq(ordersTable.id, orderId),
+      eq(ordersTable.status, "ready_for_pickup"),
+      isNull(ordersTable.riderId)
+    ))
+    .returning();
+
+  if (result.length === 0) {
+    throw new Error("Order is no longer available");
+  }
 
   // Return the full order detail with restaurant and delivery coordinates
-  return await getOrderDetail(orderId);
+  return await getOrderDetail(orderId, userId);
 };
 
 export const pickupOrder = async (userId: number, orderId: number) => {
@@ -96,8 +117,30 @@ export const pickupOrder = async (userId: number, orderId: number) => {
 };
 
 export const deliverOrder = async (userId: number, orderId: number) => {
+  // First get the order to check payment method
+  const [order] = await db.select({
+    paymentMethod: ordersTable.paymentMethod,
+  })
+    .from(ordersTable)
+    .where(and(eq(ordersTable.id, orderId), eq(ordersTable.riderId, userId)))
+    .limit(1);
+
+  if (!order) {
+    throw new Error("Order not found or not assigned to this rider");
+  }
+
+  // For COD orders, mark payment as paid upon delivery
+  const updateData: any = { 
+    status: "delivered", 
+    deliveredAt: new Date() 
+  };
+
+  if (order.paymentMethod === "cod") {
+    updateData.paymentStatus = "paid";
+  }
+
   return await db.update(ordersTable)
-    .set({ status: "delivered", deliveredAt: new Date() })
+    .set(updateData)
     .where(and(eq(ordersTable.id, orderId), eq(ordersTable.riderId, userId)))
     .returning();
 };
@@ -125,7 +168,7 @@ export const getRiderHistory = async (userId: number) => {
     ));
 };
 
-export const getOrderDetail = async (orderId: number) => {
+export const getOrderDetail = async (orderId: number, requestingRiderId?: number) => {
   const [order] = await db.select({
       id: ordersTable.id,
       status: ordersTable.status,
@@ -151,6 +194,8 @@ export const getOrderDetail = async (orderId: number) => {
       restaurantLogo: restaurantsTable.logo,
       restaurantLat: restaurantsTable.latitude,
       restaurantLng: restaurantsTable.longitude,
+      restaurantAddress: restaurantsTable.address,
+      restaurantPhone: restaurantsTable.phone,
     })
     .from(ordersTable)
     .leftJoin(restaurantsTable, eq(ordersTable.restaurantId, restaurantsTable.id))
@@ -158,6 +203,12 @@ export const getOrderDetail = async (orderId: number) => {
     .limit(1);
 
   if (!order) return null;
+
+  // Validate rider ownership: if a rider is requesting, they must be assigned
+  // Allow access if order has no rider yet (available orders) or if rider matches
+  if (requestingRiderId && order.riderId && order.riderId !== requestingRiderId) {
+    throw new Error("You are not authorized to view this order");
+  }
 
   const items = await db.select()
     .from(orderItemsTable)

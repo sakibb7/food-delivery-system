@@ -55,7 +55,7 @@ export default function Staff() {
       return toast.error("Please fill in all fields.");
     }
     createStaff(
-      { body: { ...staffForm, adminRoleId: parseInt(staffForm.adminRoleId) } },
+      { ...staffForm, adminRoleId: parseInt(staffForm.adminRoleId) },
       {
         onSuccess: () => {
           toast.success("Staff created successfully");
@@ -72,7 +72,7 @@ export default function Staff() {
       return toast.error("Please provide a name and at least one permission.");
     }
     createRole(
-      { body: roleForm },
+      roleForm,
       {
         onSuccess: () => {
           toast.success("Role created successfully");

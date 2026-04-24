@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert, Linking, Platform } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,12 +8,14 @@ import { useGetQuery } from "@/hooks/mutate/useGetQuery";
 import { privateInstance } from "@/configs/axiosConfig";
 import { showToast } from "@/utils/toast";
 import DeliveryMap from "@/components/DeliveryMap";
+import { useCurrency } from "@/hooks/useCurrency";
 
 export default function DropoffScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { activeOrder, setActiveOrder } = useOrderStore();
   const [delivering, setDelivering] = useState(false);
+  const { currencySymbol } = useCurrency();
 
   // Fetch order details if not in store
   const { data: orderData } = useGetQuery<any>({
@@ -23,6 +25,7 @@ export default function DropoffScreen() {
   });
 
   const order = activeOrder?.id === Number(id) ? activeOrder : orderData;
+  const isCOD = order?.paymentMethod === "cod";
 
   // Use real delivery coordinates from the order
   const customerCoords =
@@ -32,6 +35,38 @@ export default function DropoffScreen() {
           longitude: parseFloat(order.deliveryLng),
         }
       : undefined;
+
+  const handleCall = () => {
+    if (order?.deliveryPhone) {
+      Linking.openURL(`tel:${order.deliveryPhone}`);
+    }
+  };
+
+  const handleDirections = () => {
+    if (customerCoords) {
+      const scheme = Platform.select({ ios: "maps:0,0?q=", android: "geo:0,0?q=" });
+      const latLng = `${customerCoords.latitude},${customerCoords.longitude}`;
+      const label = "Customer";
+      const url = Platform.select({
+        ios: `${scheme}${label}@${latLng}`,
+        android: `${scheme}${latLng}(${label})`,
+      });
+
+      if (url) Linking.openURL(url);
+    }
+  };
+
+  const confirmDelivery = () => {
+    const title = isCOD ? "Collect Cash" : "Confirm Delivery";
+    const message = isCOD 
+      ? `Please collect ${currencySymbol}${Number(order?.total).toFixed(2)} from the customer before completing.` 
+      : "Are you sure you have delivered the order?";
+
+    Alert.alert(title, message, [
+      { text: "Cancel", style: "cancel" },
+      { text: "Complete", style: "default", onPress: handleDeliver },
+    ]);
+  };
 
   const handleDeliver = async () => {
     setDelivering(true);
@@ -89,16 +124,34 @@ export default function DropoffScreen() {
             </View>
           </View>
           <View className="flex-row gap-2">
-            <TouchableOpacity className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center">
-              <Ionicons name="chatbubble" size={18} color="#374151" />
+            <TouchableOpacity 
+              className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center"
+              onPress={handleDirections}
+            >
+              <Ionicons name="navigate" size={18} color="#374151" />
             </TouchableOpacity>
             {order?.deliveryPhone && (
-              <TouchableOpacity className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center">
+              <TouchableOpacity 
+                className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center"
+                onPress={handleCall}
+              >
                 <Ionicons name="call" size={18} color="#374151" />
               </TouchableOpacity>
             )}
           </View>
         </View>
+
+        {isCOD && (
+          <View className="bg-orange-50 p-4 rounded-xl border border-orange-200 mb-4 flex-row justify-between items-center">
+            <View className="flex-row items-center">
+              <Ionicons name="cash" size={20} color="#ea580c" />
+              <Text className="text-orange-800 font-bold ml-2">Collect Cash</Text>
+            </View>
+            <Text className="text-xl font-bold text-orange-700">
+              {currencySymbol}{Number(order?.total).toFixed(2)}
+            </Text>
+          </View>
+        )}
 
         {order?.notes && (
           <View className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 mb-6">
@@ -112,7 +165,7 @@ export default function DropoffScreen() {
 
         <TouchableOpacity
           className={`w-full py-4 rounded-xl items-center ${delivering ? "bg-emerald-400" : "bg-emerald-500"}`}
-          onPress={handleDeliver}
+          onPress={confirmDelivery}
           disabled={delivering}
         >
           {delivering ? (

@@ -29,7 +29,7 @@ export const createStaff: RequestHandler = catchErrors(async (req, res) => {
 });
 
 export const updateStaff: RequestHandler = catchErrors(async (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id as string);
   const data = updateStaffSchema.parse(req.body);
   const staff = await updateStaffService(id, data);
 
@@ -40,7 +40,7 @@ export const updateStaff: RequestHandler = catchErrors(async (req, res) => {
 });
 
 export const deleteStaff: RequestHandler = catchErrors(async (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id as string);
   await deleteStaffService(id);
 
   res.status(OK).json({

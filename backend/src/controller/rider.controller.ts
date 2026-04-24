@@ -78,10 +78,30 @@ export const acceptOrder = async (req: Request, res: Response): Promise<void> =>
   try {
     const userId = req.userId;
     const orderId = parseInt(req.params.id as string, 10);
+
+    // Verify rider is approved and online before accepting
+    const profile = await riderService.getRiderProfile(userId);
+    if (!profile) {
+      res.status(404).json({ message: "Rider profile not found" });
+      return;
+    }
+    if (profile.approvalStatus !== "approved") {
+      res.status(403).json({ message: "Your account is not approved yet" });
+      return;
+    }
+    if (!profile.isOnline) {
+      res.status(400).json({ message: "You must be online to accept orders" });
+      return;
+    }
+
     const orderDetail = await riderService.acceptOrder(userId, orderId);
     res.status(200).json({ data: orderDetail, message: "Order accepted" });
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+  } catch (error: any) {
+    if (error.message === "Order is no longer available") {
+      res.status(409).json({ message: "Order is no longer available. Another rider may have already accepted it." });
+    } else {
+      res.status(500).json({ message: "Internal server error", error });
+    }
   }
 };
 
@@ -102,8 +122,12 @@ export const deliverOrder = async (req: Request, res: Response): Promise<void> =
     const orderId = parseInt(req.params.id as string, 10);
     const updated = await riderService.deliverOrder(userId, orderId);
     res.status(200).json({ data: updated[0], message: "Order delivered" });
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+  } catch (error: any) {
+    if (error.message === "Order not found or not assigned to this rider") {
+      res.status(404).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: "Internal server error", error });
+    }
   }
 };
 
@@ -140,14 +164,19 @@ export const getEarnings = async (req: Request, res: Response): Promise<void> =>
 
 export const getOrderDetail = async (req: Request, res: Response): Promise<void> => {
   try {
+    const userId = req.userId;
     const orderId = parseInt(req.params.id as string, 10);
-    const order = await riderService.getOrderDetail(orderId);
+    const order = await riderService.getOrderDetail(orderId, userId);
     if (!order) {
       res.status(404).json({ message: "Order not found" });
       return;
     }
     res.status(200).json({ data: order });
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+  } catch (error: any) {
+    if (error.message === "You are not authorized to view this order") {
+      res.status(403).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: "Internal server error", error });
+    }
   }
 };

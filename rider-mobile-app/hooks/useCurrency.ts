@@ -2,7 +2,7 @@ import { useGetQuery } from "./mutate/useGetQuery";
 
 export const useCurrency = () => {
   const { data: settings, isLoading } = useGetQuery({
-    url: "/api/v1/settings",
+    url: "/settings",
     queryKey: "settings",
   });
 

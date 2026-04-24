@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, Linking, Platform } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -28,6 +28,26 @@ export default function PickupScreen() {
           longitude: parseFloat(order.restaurantLng),
         }
       : undefined;
+
+  const handleCall = () => {
+    if (order?.restaurantPhone) {
+      Linking.openURL(`tel:${order.restaurantPhone}`);
+    }
+  };
+
+  const handleDirections = () => {
+    if (restaurantCoords) {
+      const scheme = Platform.select({ ios: "maps:0,0?q=", android: "geo:0,0?q=" });
+      const latLng = `${restaurantCoords.latitude},${restaurantCoords.longitude}`;
+      const label = order?.restaurantName || "Restaurant";
+      const url = Platform.select({
+        ios: `${scheme}${label}@${latLng}`,
+        android: `${scheme}${latLng}(${label})`,
+      });
+
+      if (url) Linking.openURL(url);
+    }
+  };
 
   if (isLoading && !order) {
     return (
@@ -66,7 +86,7 @@ export default function PickupScreen() {
               {order?.restaurantName || "Restaurant"}
             </Text>
             <Text className="text-gray-500 text-base" numberOfLines={2}>
-              {order?.deliveryAddress || "Pickup location"}
+              {order?.restaurantAddress || "Pickup location"}
             </Text>
           </View>
           <View className="bg-orange-100 px-3 py-1 rounded-full ml-2">
@@ -75,11 +95,17 @@ export default function PickupScreen() {
         </View>
 
         <View className="flex-row gap-4 mb-6">
-          <TouchableOpacity className="flex-1 bg-gray-100 py-3 rounded-xl items-center flex-row justify-center">
+          <TouchableOpacity 
+            className="flex-1 bg-gray-100 py-3 rounded-xl items-center flex-row justify-center"
+            onPress={handleCall}
+          >
             <Ionicons name="call" size={18} color="#374151" />
             <Text className="font-bold text-gray-700 ml-2">Call Rest.</Text>
           </TouchableOpacity>
-          <TouchableOpacity className="flex-1 bg-gray-100 py-3 rounded-xl items-center flex-row justify-center">
+          <TouchableOpacity 
+            className="flex-1 bg-gray-100 py-3 rounded-xl items-center flex-row justify-center"
+            onPress={handleDirections}
+          >
             <Ionicons name="navigate" size={18} color="#374151" />
             <Text className="font-bold text-gray-700 ml-2">Directions</Text>
           </TouchableOpacity>

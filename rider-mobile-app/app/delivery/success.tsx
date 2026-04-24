@@ -23,6 +23,7 @@ export default function DeliverySuccessScreen() {
   };
 
   const earnings = Number(activeOrder?.riderEarnings || 0).toFixed(2);
+  const isCOD = activeOrder?.paymentMethod === "cod";
 
   return (
     <SafeAreaView className="flex-1 bg-emerald-500 justify-center items-center p-6">
@@ -38,17 +39,31 @@ export default function DeliverySuccessScreen() {
           Great job! You've successfully delivered the order.
         </Text>
 
-        <View className="w-full border-t border-b border-gray-100 py-6 mb-8 flex-row justify-between">
-          <View>
-            <Text className="text-gray-500 mb-1">Earned</Text>
-            <Text className="text-3xl font-bold text-emerald-600">{currencySymbol}{earnings}</Text>
+        <View className="w-full border-t border-b border-gray-100 py-6 mb-8">
+          <View className="flex-row justify-between mb-4">
+            <View>
+              <Text className="text-gray-500 mb-1">Earned</Text>
+              <Text className="text-3xl font-bold text-emerald-600">{currencySymbol}{earnings}</Text>
+            </View>
+            <View className="items-end">
+              <Text className="text-gray-500 mb-1">Restaurant</Text>
+              <Text className="text-lg font-bold text-gray-900" numberOfLines={1}>
+                {activeOrder?.restaurantName || "—"}
+              </Text>
+            </View>
           </View>
-          <View className="items-end">
-            <Text className="text-gray-500 mb-1">Restaurant</Text>
-            <Text className="text-lg font-bold text-gray-900" numberOfLines={1}>
-              {activeOrder?.restaurantName || "—"}
-            </Text>
-          </View>
+          
+          {isCOD && (
+            <View className="bg-emerald-50 p-3 rounded-xl flex-row items-center justify-between">
+              <View className="flex-row items-center">
+                <Ionicons name="cash" size={16} color="#10b981" />
+                <Text className="text-emerald-700 font-bold ml-2">Payment Collected</Text>
+              </View>
+              <Text className="text-emerald-700 font-bold">
+                {currencySymbol}{Number(activeOrder?.total).toFixed(2)}
+              </Text>
+            </View>
+          )}
         </View>
 
         <TouchableOpacity
