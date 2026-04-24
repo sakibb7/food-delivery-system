@@ -16,6 +16,7 @@ import Payments from "./pages/Payments";
 import Settings from "./pages/Settings";
 import Reviews from "./pages/Reviews";
 import Staff from "./pages/Staff";
+import Support from "./pages/Support";
 
 export default function App() {
   return (
@@ -52,6 +53,10 @@ export default function App() {
 
               <Route element={<PermissionProtectedRoute permission="manage_settings" />}>
                 <Route path="/settings" element={<Settings />} />
+              </Route>
+              
+              <Route element={<PermissionProtectedRoute permission="manage_support" />}>
+                <Route path="/support" element={<Support />} />
               </Route>
             </Route>
           </Route>

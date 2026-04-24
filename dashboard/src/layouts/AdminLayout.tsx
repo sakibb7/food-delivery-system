@@ -14,6 +14,7 @@ import {
   Search,
   Star,
   Shield,
+  MessageSquare,
 } from "lucide-react";
 import { useContext } from "react";
 import { AppContext } from "../context/app-context";
@@ -27,6 +28,7 @@ const NAVIGATION = [
   { name: "Reviews", href: "/reviews", icon: Star, permission: "manage_restaurants" },
   { name: "Riders", href: "/riders", icon: Bike, permission: "manage_restaurants" },
   { name: "Payments", href: "/payments", icon: CreditCard, permission: "view_financials" },
+  { name: "Support Tickets", href: "/support", icon: MessageSquare, permission: "manage_support" },
   { name: "Staff & Roles", href: "/staff", icon: Shield, permission: "edit_admins" },
   { name: "Settings", href: "/settings", icon: Settings, permission: "manage_settings" },
 ];

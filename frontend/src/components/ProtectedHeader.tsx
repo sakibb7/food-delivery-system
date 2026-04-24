@@ -54,6 +54,7 @@ export default function ProtectedHeader() {
           { name: "Orders", href: "/orders" },
           { name: "Favorites", href: "/favorites" },
         ]),
+    { name: "Support", href: "/dashboard/support" },
   ];
 
   const { mutate } = useQueryMutation({

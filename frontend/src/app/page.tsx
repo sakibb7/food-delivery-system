@@ -2,6 +2,10 @@ import Image from "next/image";
 import Header from "@/components/layout/Header";
 import FooterSection from "@/components/layout/footer";
 import HeroSection from "@/components/sections/home-page/hero-section";
+import DeliveryCitiesSection from "@/components/sections/home-page/delivery-cities-section";
+import JoinUsSection from "@/components/sections/home-page/join-us-section";
+import FeaturesSection from "@/components/sections/home-page/features-section";
+import AppDownloadSection from "@/components/sections/home-page/app-download-section";
 
 export default function Home() {
   return (
@@ -52,33 +56,10 @@ export default function Home() {
         </div>
       </section>
 
-
-      {/* CTA Section */}
-      <section className="bg-red-50 py-20 px-6 lg:px-12 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-red-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-yellow-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 translate-y-1/2 -translate-x-1/2"></div>
-
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <h2 className="text-4xl font-extrabold text-gray-900 mb-6 tracking-tight">
-            Get the Tekina app
-          </h2>
-          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            We will send you a link, open it on your phone to download the app
-            and experience order tracking and much more!
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Email address"
-              className="px-5 py-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent flex-1 shadow-sm"
-            />
-            <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-xl transition-all hover:shadow-lg hover:shadow-red-600/30">
-              Share App Link
-            </button>
-          </div>
-        </div>
-      </section>
+      <DeliveryCitiesSection />
+      <JoinUsSection />
+      <FeaturesSection />
+      <AppDownloadSection />
 
       <FooterSection />
     </div>
