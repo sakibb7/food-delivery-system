@@ -17,6 +17,31 @@ jobs:
         with:
           node-version: 20
 
+      # Create Backend .env
+      - name: Create Backend .env
+        run: |
+          touch backend/.env
+          echo "PORT=5000" >> backend/.env
+          echo "NODE_ENV=production" >> backend/.env
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> backend/.env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> backend/.env
+          echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}" >> backend/.env
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> backend/.env
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> backend/.env
+          echo "CLOUD_NAME=${{ secrets.CLOUD_NAME }}" >> backend/.env
+          echo "CLOUD_API_KEY=${{ secrets.CLOUD_API_KEY }}" >> backend/.env
+          echo "CLOUD_SECRET_KEY=${{ secrets.CLOUD_SECRET_KEY }}" >> backend/.env
+          echo "APP_ORIGIN=${{ secrets.APP_ORIGIN }}" >> backend/.env
+          echo "CLIENT_WEB_APP_URL=${{ secrets.CLIENT_WEB_APP_URL }}" >> backend/.env
+
+      # Create Frontend .env
+      - name: Create Frontend .env
+        run: |
+          touch frontend/.env
+          echo "NODE_ENV=production" >> frontend/.env
+          echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" >> frontend/.env
+          echo "NEXT_PUBLIC_API_VERSION_PATH=${{ secrets.NEXT_PUBLIC_API_VERSION_PATH }}" >> frontend/.env
+
       # Build Backend
       - name: Install Backend dependencies
         working-directory: ./backend
@@ -59,13 +84,13 @@ jobs:
             # Backend
             cd ${{ secrets.PROJECT_PATH }}/backend
             npm install --production
-            pm2 delete food-delivery-system || true
-            pm2 start dist/index.js --name "food-delivery-system"
+            pm2 delete food-backend || true
+            pm2 start dist/index.js --name "food-backend"
 
             # Frontend
             cd ${{ secrets.PROJECT_PATH }}/frontend
             npm install --production
-            pm2 delete tekina-frontend || true
-            pm2 start npm --name "tekina-frontend" -- start
+            pm2 delete food-frontend || true
+            pm2 start npm --name "food-frontend" -- start
 
             pm2 save
