@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 import { ArrowRight } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -14,7 +15,7 @@ export interface ChangePasswordFormData {
   verificationCode: string;
 }
 
-export default function ChangePasswordPage() {
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
@@ -44,44 +45,52 @@ export default function ChangePasswordPage() {
   });
 
   return (
+    <div className="max-w-md w-full mx-auto sm:mx-0 mt-16 lg:mt-0">
+      <h1 className="text-4xl font-extrabold text-gray-900 mb-2 tracking-tight">
+        Change Password
+      </h1>
+      <p className="text-gray-500 mb-10">
+        Change your password to keep your account secure.
+      </p>
+
+      <form onSubmit={onSubmit} className="space-y-6">
+        <PasswordField
+          label="Password"
+          name="password"
+          register={register}
+          error={errors.password}
+          required
+        />
+
+        <PasswordField
+          label="Confirm Password"
+          name="confirmPassword"
+          register={register}
+          watch={watch}
+          compareWith="password"
+          error={errors.confirmPassword}
+          required
+        />
+
+        <Button
+          type="submit"
+          fullWidth
+          rightIcon={<ArrowRight size={20} />}
+          loading={isLoading}
+        >
+          Save Changes
+        </Button>
+      </form>
+    </div>
+  );
+}
+
+export default function ChangePasswordPage() {
+  return (
     <AuthLayout>
-      <div className="max-w-md w-full mx-auto sm:mx-0 mt-16 lg:mt-0">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-2 tracking-tight">
-          Change Password
-        </h1>
-        <p className="text-gray-500 mb-10">
-          Change your password to keep your account secure.
-        </p>
-
-        <form onSubmit={onSubmit} className="space-y-6">
-          <PasswordField
-            label="Password"
-            name="password"
-            register={register}
-            error={errors.password}
-            required
-          />
-
-          <PasswordField
-            label="Confirm Password"
-            name="confirmPassword"
-            register={register}
-            watch={watch}
-            compareWith="password"
-            error={errors.confirmPassword}
-            required
-          />
-
-          <Button
-            type="submit"
-            fullWidth
-            rightIcon={<ArrowRight size={20} />}
-            loading={isLoading}
-          >
-            Save Changes
-          </Button>
-        </form>
-      </div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <ResetPasswordContent />
+      </Suspense>
     </AuthLayout>
   );
 }

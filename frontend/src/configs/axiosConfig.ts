@@ -50,20 +50,6 @@ const processQueue = (error: unknown) => {
   failedQueue = [];
 };
 
-// ─── Request interceptor (single, deduplicated) ───────────────────────────────
-privateInstance.interceptors.request.use(
-  (config) => {
-    const token = Cookies.get(process.env.NEXT_PUBLIC_TOKEN_NAME ?? "token");
-
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
-
 // ─── Response interceptor ─────────────────────────────────────────────────────
 privateInstance.interceptors.response.use(
   (response) => response,
