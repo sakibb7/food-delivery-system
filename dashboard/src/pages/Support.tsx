@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   MessageSquare, 
   Search, 
-  Filter, 
   Clock, 
   CheckCircle2, 
   AlertCircle,
@@ -12,147 +11,203 @@ import {
   MoreVertical,
   User,
   Bike,
-  Store
+  Store,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { privateInstance } from "../configs/axiosConfig";
 
-// Mock Data
-const MOCK_TICKETS = [
-  {
-    id: "TKT-001",
-    sender: "John Doe",
-    role: "User",
-    email: "john@example.com",
-    subject: "Issue with recent order #ORD-123",
-    type: "Order Issue",
-    status: "Open",
-    date: "2023-10-25T10:30:00Z",
-    messages: [
-      { sender: "user", text: "Hi, my order #ORD-123 arrived cold and some items were missing.", date: "2023-10-25T10:30:00Z" }
-    ]
-  },
-  {
-    id: "TKT-002",
-    sender: "Pizza Express",
-    role: "Restaurant",
-    email: "contact@pizzaexpress.com",
-    subject: "Cannot update payout method",
-    type: "Account Management",
-    status: "Resolved",
-    date: "2023-10-20T14:15:00Z",
-    messages: [
-      { sender: "user", text: "I keep getting an error when I try to link my new bank account.", date: "2023-10-20T14:15:00Z" },
-      { sender: "staff", text: "Hi there, we've refreshed your session. Please try again now.", date: "2023-10-20T15:00:00Z" },
-      { sender: "user", text: "It worked! Thank you.", date: "2023-10-20T16:15:00Z" }
-    ]
-  },
-  {
-    id: "TKT-003",
-    sender: "Mike Smith",
-    role: "Rider",
-    email: "mike.rider@example.com",
-    subject: "Question about delivery fees",
-    type: "General Inquiry",
-    status: "In Progress",
-    date: "2023-10-22T09:45:00Z",
-    messages: [
-      { sender: "user", text: "Can someone explain how the distance fee is calculated?", date: "2023-10-22T09:45:00Z" }
-    ]
-  }
-];
+interface TicketMessage {
+  id: number;
+  senderType: string;
+  senderId: number;
+  text: string;
+  createdAt: string;
+  senderName: string;
+}
+
+interface Ticket {
+  id: number;
+  ticketNumber: string;
+  subject: string;
+  type: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  sender: string;
+  senderEmail: string;
+  senderRole: string;
+}
+
+interface TicketDetail extends Ticket {
+  userId: number;
+  messages: TicketMessage[];
+}
 
 export default function Support() {
-  const [tickets, setTickets] = useState(MOCK_TICKETS);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
+  const [isLoading, setIsLoading] = useState(true);
   
-  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [selectedTicket, setSelectedTicket] = useState<TicketDetail | null>(null);
   const [replyMessage, setReplyMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
-  const filteredTickets = tickets.filter(ticket => {
-    const matchesSearch = ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          ticket.sender.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = filterRole === "All" || ticket.role === filterRole;
-    const matchesStatus = filterStatus === "All" || ticket.status === filterStatus;
-    
-    return matchesSearch && matchesRole && matchesStatus;
-  });
+  // Fetch all tickets on mount and when filters change
+  useEffect(() => {
+    fetchTickets();
+  }, [filterRole, filterStatus, searchTerm]);
+
+  const fetchTickets = async () => {
+    try {
+      setIsLoading(true);
+      const params = new URLSearchParams();
+      if (filterStatus !== "All") params.append("status", filterStatus);
+      if (filterRole !== "All") params.append("role", filterRole);
+      if (searchTerm) params.append("search", searchTerm);
+
+      const res = await privateInstance.get(`/support/admin/all?${params.toString()}`);
+      setTickets(res.data.tickets);
+    } catch (error) {
+      console.error("Failed to fetch tickets:", error);
+      toast.error("Failed to load tickets.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchTicketDetail = async (ticketId: number) => {
+    try {
+      setIsLoadingDetail(true);
+      const res = await privateInstance.get(`/support/${ticketId}`);
+      setSelectedTicket({
+        ...res.data.ticket,
+        messages: res.data.messages,
+      });
+    } catch (error) {
+      console.error("Failed to fetch ticket detail:", error);
+      toast.error("Failed to load ticket details.");
+    } finally {
+      setIsLoadingDetail(false);
+    }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "Open": return <AlertCircle size={16} className="text-orange-500" />;
-      case "In Progress": return <Clock size={16} className="text-blue-500" />;
-      case "Resolved": return <CheckCircle2 size={16} className="text-green-500" />;
+      case "open": return <AlertCircle size={16} className="text-orange-500" />;
+      case "in_progress": return <Clock size={16} className="text-blue-500" />;
+      case "resolved": return <CheckCircle2 size={16} className="text-green-500" />;
       default: return null;
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "Open": return "bg-orange-50 text-orange-700 border-orange-200";
-      case "In Progress": return "bg-blue-50 text-blue-700 border-blue-200";
-      case "Resolved": return "bg-green-50 text-green-700 border-green-200";
+      case "open": return "bg-orange-50 text-orange-700 border-orange-200";
+      case "in_progress": return "bg-blue-50 text-blue-700 border-blue-200";
+      case "resolved": return "bg-green-50 text-green-700 border-green-200";
       default: return "bg-gray-50 text-gray-700 border-gray-200";
     }
   };
 
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case "User": return <User size={14} className="text-gray-500" />;
-      case "Rider": return <Bike size={14} className="text-indigo-500" />;
-      case "Restaurant": return <Store size={14} className="text-emerald-500" />;
-      default: return null;
+  const formatStatus = (status: string) => {
+    switch (status) {
+      case "open": return "Open";
+      case "in_progress": return "In Progress";
+      case "resolved": return "Resolved";
+      default: return status;
     }
   };
 
-  const handleReply = (e: React.FormEvent) => {
+  const formatType = (type: string) => {
+    return type
+      .split("_")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+  };
+
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case "user": return <User size={14} className="text-gray-500" />;
+      case "rider": return <Bike size={14} className="text-indigo-500" />;
+      case "restaurant": return <Store size={14} className="text-emerald-500" />;
+      default: return <User size={14} className="text-gray-500" />;
+    }
+  };
+
+  const formatRole = (role: string) => {
+    return role.charAt(0).toUpperCase() + role.slice(1);
+  };
+
+  const handleReply = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyMessage.trim() || !selectedTicket) return;
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      const updatedTickets = tickets.map(t => {
-        if (t.id === selectedTicket.id) {
-          const updatedTicket = {
-            ...t,
-            status: "In Progress",
-            messages: [
-              ...t.messages,
-              { sender: "staff", text: replyMessage, date: new Date().toISOString() }
-            ]
-          };
-          setSelectedTicket(updatedTicket);
-          return updatedTicket;
-        }
-        return t;
+    try {
+      await privateInstance.post(`/support/${selectedTicket.id}/reply`, {
+        text: replyMessage,
       });
 
-      setTickets(updatedTickets);
       setReplyMessage("");
-      setIsSubmitting(false);
       toast.success("Reply sent successfully");
-    }, 1000);
+
+      // Refresh ticket detail and list
+      await fetchTicketDetail(selectedTicket.id);
+      await fetchTickets();
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message || "Failed to send reply.";
+      toast.error(errorMsg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleResolve = () => {
+  const handleResolve = async () => {
     if (!selectedTicket) return;
     
-    const updatedTickets = tickets.map(t => {
-      if (t.id === selectedTicket.id) {
-        const updatedTicket = { ...t, status: "Resolved" };
-        setSelectedTicket(updatedTicket);
-        return updatedTicket;
-      }
-      return t;
-    });
+    try {
+      await privateInstance.patch(`/support/${selectedTicket.id}/status`, {
+        status: "resolved",
+      });
 
-    setTickets(updatedTickets);
-    toast.success("Ticket marked as resolved");
+      toast.success("Ticket marked as resolved");
+
+      // Refresh
+      await fetchTicketDetail(selectedTicket.id);
+      await fetchTickets();
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message || "Failed to update ticket.";
+      toast.error(errorMsg);
+    }
+  };
+
+  const handleReopen = async () => {
+    if (!selectedTicket) return;
+    
+    try {
+      await privateInstance.patch(`/support/${selectedTicket.id}/status`, {
+        status: "open",
+      });
+
+      toast.success("Ticket reopened");
+
+      // Refresh
+      await fetchTicketDetail(selectedTicket.id);
+      await fetchTickets();
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message || "Failed to reopen ticket.";
+      toast.error(errorMsg);
+    }
+  };
+
+  const handleSelectTicket = (ticket: Ticket) => {
+    fetchTicketDetail(ticket.id);
   };
 
   return (
@@ -171,7 +226,7 @@ export default function Support() {
           <div className="flex gap-2">
              <div className="px-4 py-2 bg-orange-50 text-orange-700 rounded-lg font-semibold text-sm border border-orange-100 flex items-center gap-2">
                <AlertCircle size={16} />
-               {tickets.filter(t => t.status === "Open").length} Open Tickets
+               {tickets.filter(t => t.status === "open").length} Open Tickets
              </div>
           </div>
         </div>
@@ -215,7 +270,12 @@ export default function Support() {
 
         {/* Tickets List */}
         <div className="flex-1 overflow-y-auto">
-          {filteredTickets.length === 0 ? (
+          {isLoading ? (
+            <div className="h-full flex flex-col items-center justify-center text-gray-400">
+               <Loader2 size={40} className="animate-spin mb-4" />
+               <p className="font-medium text-gray-500">Loading tickets...</p>
+            </div>
+          ) : tickets.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-gray-400">
                <MessageSquare size={48} className="mb-4 opacity-20" />
                <p className="font-medium text-gray-500">No tickets found</p>
@@ -232,24 +292,24 @@ export default function Support() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filteredTickets.map((ticket) => (
+                {tickets.map((ticket) => (
                   <tr 
                     key={ticket.id} 
-                    onClick={() => setSelectedTicket(ticket)}
+                    onClick={() => handleSelectTicket(ticket)}
                     className={`cursor-pointer hover:bg-orange-50/50 transition-colors ${selectedTicket?.id === ticket.id ? 'bg-orange-50' : ''}`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-bold text-gray-900">{ticket.id}</span>
-                      <p className="text-xs text-gray-500 mt-0.5">{ticket.type}</p>
+                      <span className="text-sm font-bold text-gray-900">{ticket.ticketNumber}</span>
+                      <p className="text-xs text-gray-500 mt-0.5">{formatType(ticket.type)}</p>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
                         <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                          {getRoleIcon(ticket.role)}
+                          {getRoleIcon(ticket.senderRole)}
                         </div>
                         <div>
                           <p>{ticket.sender}</p>
-                          <p className="text-xs text-gray-500 font-normal">{ticket.role}</p>
+                          <p className="text-xs text-gray-500 font-normal">{formatRole(ticket.senderRole)}</p>
                         </div>
                       </div>
                     </td>
@@ -259,11 +319,11 @@ export default function Support() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${getStatusBadge(ticket.status)}`}>
                         {getStatusIcon(ticket.status)}
-                        {ticket.status}
+                        {formatStatus(ticket.status)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {format(new Date(ticket.date), "MMM d, yyyy")}
+                      {format(new Date(ticket.createdAt), "MMM d, yyyy")}
                     </td>
                   </tr>
                 ))}
@@ -275,7 +335,7 @@ export default function Support() {
 
       {/* Slide-out / Detail Panel */}
       {selectedTicket && (
-        <div className={`w-full lg:w-[500px] flex-shrink-0 bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden ${!selectedTicket ? 'hidden' : 'flex'}`}>
+        <div className={`w-full lg:w-[500px] flex-shrink-0 bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden`}>
           {/* Header */}
           <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
             <div className="flex items-center gap-3">
@@ -287,18 +347,18 @@ export default function Support() {
               </button>
               <div>
                 <h2 className="font-bold text-gray-900 flex items-center gap-2">
-                  {selectedTicket.id}
+                  {selectedTicket.ticketNumber}
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                    selectedTicket.status === 'Resolved' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                    selectedTicket.status === 'resolved' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
                   }`}>
-                    {selectedTicket.status}
+                    {formatStatus(selectedTicket.status)}
                   </span>
                 </h2>
-                <p className="text-xs text-gray-500">{selectedTicket.type}</p>
+                <p className="text-xs text-gray-500">{formatType(selectedTicket.type)}</p>
               </div>
             </div>
             <div className="flex gap-2">
-               {selectedTicket.status !== "Resolved" && (
+               {selectedTicket.status !== "resolved" && (
                  <button 
                    onClick={handleResolve}
                    className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-700 hover:bg-green-50 hover:text-green-600 hover:border-green-200 transition-colors"
@@ -315,11 +375,11 @@ export default function Support() {
           {/* User Info */}
           <div className="p-4 border-b border-gray-100 flex items-center gap-4">
              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-500">
-               {getRoleIcon(selectedTicket.role)}
+               {getRoleIcon(selectedTicket.senderRole)}
              </div>
              <div className="flex-1">
                <h3 className="font-bold text-gray-900">{selectedTicket.sender}</h3>
-               <p className="text-sm text-gray-500">{selectedTicket.email} • {selectedTicket.role}</p>
+               <p className="text-sm text-gray-500">{selectedTicket.senderEmail} • {formatRole(selectedTicket.senderRole)}</p>
              </div>
           </div>
 
@@ -330,39 +390,41 @@ export default function Support() {
 
           {/* Messages Thread */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
-            {selectedTicket.messages.map((msg: any, idx: number) => (
-              <div key={idx} className={`flex flex-col ${msg.sender === 'staff' ? 'items-end' : 'items-start'}`}>
-                 <div className="flex items-center gap-2 mb-1 px-1">
-                   <span className="text-xs font-bold text-gray-500">
-                     {msg.sender === 'staff' ? 'Support Team' : selectedTicket.sender}
-                   </span>
-                   <span className="text-[10px] text-gray-400">
-                     {format(new Date(msg.date), "h:mm a")}
-                   </span>
-                 </div>
-                 <div className={`p-3 max-w-[85%] rounded-2xl text-sm ${
-                   msg.sender === 'staff' 
-                    ? 'bg-orange-500 text-white rounded-tr-sm' 
-                    : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm'
-                 }`}>
-                   {msg.text}
-                 </div>
+            {isLoadingDetail ? (
+              <div className="h-full flex items-center justify-center">
+                <Loader2 size={32} className="animate-spin text-gray-400" />
               </div>
-            ))}
+            ) : (
+              selectedTicket.messages?.map((msg) => (
+                <div key={msg.id} className={`flex flex-col ${msg.senderType === 'staff' ? 'items-end' : 'items-start'}`}>
+                   <div className="flex items-center gap-2 mb-1 px-1">
+                     <span className="text-xs font-bold text-gray-500">
+                       {msg.senderType === 'staff' ? 'Support Team' : selectedTicket.sender}
+                     </span>
+                     <span className="text-[10px] text-gray-400">
+                       {format(new Date(msg.createdAt), "h:mm a")}
+                     </span>
+                   </div>
+                   <div className={`p-3 max-w-[85%] rounded-2xl text-sm ${
+                     msg.senderType === 'staff' 
+                      ? 'bg-orange-500 text-white rounded-tr-sm' 
+                      : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm'
+                   }`}>
+                     {msg.text}
+                   </div>
+                </div>
+              ))
+            )}
           </div>
 
           {/* Reply Box */}
           <div className="p-4 border-t border-gray-200 bg-white">
-            {selectedTicket.status === "Resolved" ? (
+            {selectedTicket.status === "resolved" ? (
               <div className="text-center py-4 bg-gray-50 rounded-xl border border-gray-200">
                 <CheckCircle2 className="mx-auto h-8 w-8 text-green-500 mb-2" />
                 <p className="text-sm font-medium text-gray-600">This ticket has been resolved.</p>
                 <button 
-                  onClick={() => {
-                     const updatedTickets = tickets.map(t => t.id === selectedTicket.id ? { ...t, status: "Open" } : t);
-                     setTickets(updatedTickets);
-                     setSelectedTicket({ ...selectedTicket, status: "Open" });
-                  }}
+                  onClick={handleReopen}
                   className="mt-2 text-sm font-bold text-orange-600 hover:text-orange-700"
                 >
                   Reopen Ticket

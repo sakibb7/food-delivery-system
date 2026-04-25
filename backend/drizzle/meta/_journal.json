@@ -22,6 +22,20 @@
       "when": 1776964740779,
       "tag": "0002_real_blizzard",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1777101601705,
+      "tag": "0003_dapper_whizzer",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1777101773264,
+      "tag": "0004_lucky_lord_hawal",
+      "breakpoints": true
     }
   ]
 }

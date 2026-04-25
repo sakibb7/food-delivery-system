@@ -1,4 +1,5 @@
-import { Bike, Search, CheckCircle, Ban, Star, Navigation } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Bike, Search, CheckCircle, Ban, Star, Navigation, Eye } from "lucide-react";
 import { Card, CardContent } from "../components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/Table";
 import { Badge } from "../components/ui/Badge";
@@ -11,6 +12,8 @@ const RIDERS = [
 ];
 
 export default function Riders() {
+  const navigate = useNavigate();
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -93,7 +96,11 @@ export default function Riders() {
           </TableHeader>
           <TableBody>
             {RIDERS.map((rider) => (
-              <TableRow key={rider.id}>
+              <TableRow
+                key={rider.id}
+
+                className="cursor-pointer hover:bg-gray-50 transition-colors"
+              >
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-medium">
@@ -106,12 +113,12 @@ export default function Riders() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge 
+                  <Badge
                     variant={
-                      rider.status === "Available" ? "success" 
-                      : rider.status === "On Delivery" ? "warning"
-                      : rider.status === "Suspended" ? "error"
-                      : "default"
+                      rider.status === "Available" ? "success"
+                        : rider.status === "On Delivery" ? "warning"
+                          : rider.status === "Suspended" ? "error"
+                            : "default"
                     }
                   >
                     {rider.status}
@@ -128,14 +135,27 @@ export default function Riders() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2 text-gray-400">
-                    <button className="p-1 hover:bg-gray-50 hover:text-orange-600 rounded" title="View Logs">
+                    <button
+                      className="p-1 hover:bg-gray-50 hover:text-orange-600 rounded"
+                      title="View Logs"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Navigation className="h-4 w-4" />
                     </button>
                     {rider.status !== "Suspended" && (
-                      <button className="p-1 hover:bg-red-50 hover:text-red-600 rounded" title="Suspend">
+                      <button
+                        className="p-1 hover:bg-red-50 hover:text-red-600 rounded"
+                        title="Suspend"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Ban className="h-4 w-4" />
                       </button>
                     )}
+                    <button
+                      className="p-1 hover:bg-blue-50 hover:text-blue-600 rounded"
+                      onClick={() => navigate(`/riders/${rider.id}`)}>
+                      <Eye className="h-4 w-4" />
+                    </button>
                   </div>
                 </TableCell>
               </TableRow>

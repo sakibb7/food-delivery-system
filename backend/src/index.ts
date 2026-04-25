@@ -12,6 +12,8 @@ import settingsRoute from "./routes/settings.js";
 import adminDashboardRoute from "./routes/adminDashboard.js";
 import roleRoute from "./routes/role.js";
 import staffRoute from "./routes/staff.js";
+import supportRoute from "./routes/support.js";
+import couponRoute from "./routes/coupon.js";
 import cors from "cors";
 import { NODE_ENV, PORT, CLIENT_WEB_APP_URL } from "./constants/env.js";
 import errorHandler from "./middlewares/errorHandler.js";
@@ -65,6 +67,8 @@ app.use("/api/v1/settings", settingsRoute);
 app.use("/api/v1/admin-dashboard", adminDashboardRoute);
 app.use("/api/v1/role", roleRoute);
 app.use("/api/v1/staff", staffRoute);
+app.use("/api/v1/support", authenticate, supportRoute);
+app.use("/api/v1/coupon", authenticate, couponRoute);
 
 // Add this AFTER all your app.use() route registrations
 app.get("/debug-routes", (req, res) => {

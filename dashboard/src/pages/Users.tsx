@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Search,
   Ban,
@@ -48,6 +49,7 @@ type ConfirmAction = {
 } | null;
 
 export default function Users() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -373,10 +375,14 @@ export default function Users() {
             </TableHeader>
             <TableBody>
               {filteredUsers.map((user) => (
-                <TableRow key={user.id}>
+                <TableRow
+                  key={user.id}
+
+                  className="cursor-pointer hover:bg-gray-50 transition-colors"
+                >
                   {/* User Info */}
                   <TableCell>
-                    <div className="flex items-center gap-3">
+                    <Link to={`/users/${user.id}`} className="flex items-center gap-3">
                       <div className="h-9 w-9 rounded-full bg-gradient-to-br from-orange-100 to-orange-50 flex items-center justify-center text-orange-600 font-semibold text-sm flex-shrink-0">
                         {user.avatar ? (
                           <img
@@ -396,7 +402,7 @@ export default function Users() {
                           {user.email}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   </TableCell>
 
                   {/* Role */}
@@ -428,7 +434,10 @@ export default function Users() {
                           {user.status === "banned" ? (
                             <button
                               id={`unban-${user.id}`}
-                              onClick={() => handleUnban(user)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleUnban(user);
+                              }}
                               className="p-1.5 hover:bg-green-50 hover:text-green-600 rounded-md transition-colors text-gray-400"
                               title="Unban User"
                             >
@@ -437,7 +446,10 @@ export default function Users() {
                           ) : (
                             <button
                               id={`ban-${user.id}`}
-                              onClick={() => handleBan(user)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleBan(user);
+                              }}
                               className="p-1.5 hover:bg-red-50 hover:text-red-600 rounded-md transition-colors text-gray-400"
                               title="Ban User"
                             >

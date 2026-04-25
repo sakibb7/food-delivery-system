@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   LifeBuoy, 
   Send, 
@@ -8,69 +8,97 @@ import {
   Clock, 
   CheckCircle2, 
   AlertCircle,
-  X
+  X,
+  Loader2
 } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth";
+import { privateInstance } from "@/configs/axiosConfig";
 
-const MOCK_TICKETS = [
-  {
-    id: "TKT-001",
-    subject: "Issue with recent order #ORD-123",
-    type: "Order Issue",
-    status: "Open",
-    date: "2023-10-25T10:30:00Z",
-  },
-  {
-    id: "TKT-002",
-    subject: "Cannot update payout method",
-    type: "Account Management",
-    status: "Resolved",
-    date: "2023-10-20T14:15:00Z",
-  },
-  {
-    id: "TKT-003",
-    subject: "Question about delivery fees",
-    type: "General Inquiry",
-    status: "In Progress",
-    date: "2023-10-22T09:45:00Z",
-  }
-];
+interface Ticket {
+  id: number;
+  ticketNumber: string;
+  subject: string;
+  type: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function SupportPage() {
   const { user } = useAuthStore();
+  const [subject, setSubject] = useState("");
   const [topic, setTopic] = useState("");
   const [message, setMessage] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tickets, setTickets] = useState(MOCK_TICKETS);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Fetch user's tickets on mount
+  useEffect(() => {
+    fetchTickets();
+  }, []);
+
+  const fetchTickets = async () => {
+    try {
+      setIsLoading(true);
+      const res = await privateInstance.get("/support");
+      setTickets(res.data.tickets);
+    } catch (error) {
+      console.error("Failed to fetch tickets:", error);
+      toast.error("Failed to load tickets.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!topic || !message) {
+    if (!subject || !topic || !message) {
       toast.error("Please fill in all required fields.");
       return;
     }
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      const newTicket = {
-        id: `TKT-00${tickets.length + 1}`,
-        subject: message.length > 30 ? message.substring(0, 30) + "..." : message,
-        type: topic,
-        status: "Open",
-        date: new Date().toISOString(),
-      };
+    try {
+      let attachmentUrl = undefined;
+      
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        
+        const uploadRes = await privateInstance.post("/cloudinary/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        attachmentUrl = uploadRes.data.url;
+      }
 
-      setTickets([newTicket, ...tickets]);
+      await privateInstance.post("/support", {
+        subject,
+        type: topic,
+        message: message,
+        attachmentUrl,
+      });
+
+      setSubject("");
       setTopic("");
       setMessage("");
       setFile(null);
-      setIsSubmitting(false);
       toast.success("Support ticket submitted successfully. We'll get back to you soon!");
-    }, 1500);
+      
+      // Refresh the ticket list
+      await fetchTickets();
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message || "Failed to submit ticket.";
+      toast.error(errorMsg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,20 +109,36 @@ export default function SupportPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "Open": return <AlertCircle size={16} className="text-orange-500" />;
-      case "In Progress": return <Clock size={16} className="text-blue-500" />;
-      case "Resolved": return <CheckCircle2 size={16} className="text-green-500" />;
+      case "open": return <AlertCircle size={16} className="text-orange-500" />;
+      case "in_progress": return <Clock size={16} className="text-blue-500" />;
+      case "resolved": return <CheckCircle2 size={16} className="text-green-500" />;
       default: return null;
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "Open": return "bg-orange-50 text-orange-700 border-orange-200";
-      case "In Progress": return "bg-blue-50 text-blue-700 border-blue-200";
-      case "Resolved": return "bg-green-50 text-green-700 border-green-200";
+      case "open": return "bg-orange-50 text-orange-700 border-orange-200";
+      case "in_progress": return "bg-blue-50 text-blue-700 border-blue-200";
+      case "resolved": return "bg-green-50 text-green-700 border-green-200";
       default: return "bg-gray-50 text-gray-700 border-gray-200";
     }
+  };
+
+  const formatStatus = (status: string) => {
+    switch (status) {
+      case "open": return "Open";
+      case "in_progress": return "In Progress";
+      case "resolved": return "Resolved";
+      default: return status;
+    }
+  };
+
+  const formatType = (type: string) => {
+    return type
+      .split("_")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
   };
 
   return (
@@ -121,6 +165,20 @@ export default function SupportPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Subject / Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Brief summary of your issue"
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-2xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all font-medium text-gray-700"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Topic / Category <span className="text-red-500">*</span>
                   </label>
                   <select
@@ -130,11 +188,11 @@ export default function SupportPage() {
                     required
                   >
                     <option value="" disabled>Select a topic</option>
-                    <option value="Order Issue">Order Issue</option>
-                    <option value="Payment Issue">Payment Issue</option>
-                    <option value="Account Management">Account Management</option>
-                    <option value="Bug Report">Report a Bug</option>
-                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="order_issue">Order Issue</option>
+                    <option value="payment_issue">Payment Issue</option>
+                    <option value="account_management">Account Management</option>
+                    <option value="bug_report">Report a Bug</option>
+                    <option value="general_inquiry">General Inquiry</option>
                   </select>
                 </div>
 
@@ -224,7 +282,12 @@ export default function SupportPage() {
             </div>
             
             <div className="divide-y divide-gray-50 max-h-[600px] overflow-y-auto">
-              {tickets.length === 0 ? (
+              {isLoading ? (
+                <div className="p-8 flex flex-col items-center justify-center text-gray-400">
+                  <Loader2 size={32} className="animate-spin mb-3" />
+                  <p className="text-sm font-medium text-gray-500">Loading tickets...</p>
+                </div>
+              ) : tickets.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   <div className="w-16 h-16 mx-auto bg-gray-50 rounded-full flex items-center justify-center text-gray-400 mb-3">
                     <LifeBuoy size={24} />
@@ -233,12 +296,12 @@ export default function SupportPage() {
                 </div>
               ) : (
                 tickets.map((ticket) => (
-                  <div key={ticket.id} className="p-5 hover:bg-gray-50 transition-colors cursor-pointer group">
+                  <Link href={`/dashboard/support/${ticket.id}`} key={ticket.id} className="block p-5 hover:bg-gray-50 transition-colors cursor-pointer group">
                     <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-bold text-gray-400">{ticket.id}</span>
+                      <span className="text-xs font-bold text-gray-400">{ticket.ticketNumber}</span>
                       <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${getStatusBadge(ticket.status)}`}>
                         {getStatusIcon(ticket.status)}
-                        {ticket.status}
+                        {formatStatus(ticket.status)}
                       </div>
                     </div>
                     <h3 className="font-bold text-gray-900 text-sm mb-1 group-hover:text-red-600 transition-colors line-clamp-2">
@@ -246,13 +309,13 @@ export default function SupportPage() {
                     </h3>
                     <div className="flex items-center justify-between mt-3">
                       <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
-                        {ticket.type}
+                        {formatType(ticket.type)}
                       </span>
                       <span className="text-xs font-medium text-gray-400">
-                        {new Date(ticket.date).toLocaleDateString()}
+                        {new Date(ticket.createdAt).toLocaleDateString()}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 ))
               )}
             </div>

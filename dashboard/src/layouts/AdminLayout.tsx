@@ -15,6 +15,7 @@ import {
   Star,
   Shield,
   MessageSquare,
+  Tag,
 } from "lucide-react";
 import { useContext } from "react";
 import { AppContext } from "../context/app-context";
@@ -31,6 +32,7 @@ const NAVIGATION = [
   { name: "Support Tickets", href: "/support", icon: MessageSquare, permission: "manage_support" },
   { name: "Staff & Roles", href: "/staff", icon: Shield, permission: "edit_admins" },
   { name: "Settings", href: "/settings", icon: Settings, permission: "manage_settings" },
+  { name: "Coupons", href: "/coupons", icon: Tag, permission: "manage_settings" },
 ];
 
 export const AdminLayout = () => {

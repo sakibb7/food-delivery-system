@@ -125,7 +125,12 @@ export default function ProfileScreen() {
 
           <View className="bg-white border-y border-gray-100 mb-8">
             <MenuItem icon="settings-outline" title="Settings" />
-            <MenuItem icon="help-buoy-outline" title="Help & Support" />
+            <MenuItem
+              icon="help-buoy-outline"
+              title="Help & Support"
+              subtitle="Get help with your account"
+              onPress={() => router.push("/profile/support" as any)}
+            />
             <MenuItem icon="document-text-outline" title="Terms & Privacy" />
           </View>
         </ScrollView>

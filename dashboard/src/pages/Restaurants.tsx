@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   MapPin,
@@ -13,6 +14,7 @@ import {
   X,
   Loader2,
   RefreshCw,
+  Eye,
 } from "lucide-react";
 import { Card } from "../components/ui/Card";
 import {
@@ -61,6 +63,7 @@ type ConfirmAction = {
 } | null;
 
 export default function Restaurants() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
@@ -390,7 +393,11 @@ export default function Restaurants() {
             </TableHeader>
             <TableBody>
               {filteredRestaurants.map((restaurant) => (
-                <TableRow key={restaurant.id}>
+                <TableRow
+                  key={restaurant.id}
+
+                  className="cursor-pointer hover:bg-gray-50 transition-colors"
+                >
                   {/* Restaurant Info */}
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -451,11 +458,10 @@ export default function Restaurants() {
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <Star
-                        className={`h-3.5 w-3.5 ${
-                          Number(restaurant.rating) > 0
-                            ? "text-yellow-400 fill-current"
-                            : "text-gray-300"
-                        }`}
+                        className={`h-3.5 w-3.5 ${Number(restaurant.rating) > 0
+                          ? "text-yellow-400 fill-current"
+                          : "text-gray-300"
+                          }`}
                       />
                       <span className="text-sm font-medium text-gray-700">
                         {Number(restaurant.rating) > 0
@@ -480,7 +486,7 @@ export default function Restaurants() {
                         <>
                           <button
                             id={`approve-${restaurant.id}`}
-                            onClick={() => handleApprove(restaurant)}
+                            onClick={(e) => { e.stopPropagation(); handleApprove(restaurant); }}
                             className="p-1.5 hover:bg-green-50 hover:text-green-600 rounded-md transition-colors text-gray-400"
                             title="Approve"
                           >
@@ -488,7 +494,7 @@ export default function Restaurants() {
                           </button>
                           <button
                             id={`reject-${restaurant.id}`}
-                            onClick={() => handleReject(restaurant)}
+                            onClick={(e) => { e.stopPropagation(); handleReject(restaurant); }}
                             className="p-1.5 hover:bg-red-50 hover:text-red-600 rounded-md transition-colors text-gray-400"
                             title="Reject"
                           >
@@ -499,7 +505,7 @@ export default function Restaurants() {
                       {restaurant.status === "approved" && (
                         <button
                           id={`suspend-${restaurant.id}`}
-                          onClick={() => handleSuspend(restaurant)}
+                          onClick={(e) => { e.stopPropagation(); handleSuspend(restaurant); }}
                           className="p-1.5 hover:bg-amber-50 hover:text-amber-600 rounded-md transition-colors text-gray-400"
                           title="Suspend"
                         >
@@ -509,7 +515,7 @@ export default function Restaurants() {
                       {restaurant.status === "suspended" && (
                         <button
                           id={`reactivate-${restaurant.id}`}
-                          onClick={() => handleApprove(restaurant)}
+                          onClick={(e) => { e.stopPropagation(); handleApprove(restaurant); }}
                           className="p-1.5 hover:bg-green-50 hover:text-green-600 rounded-md transition-colors text-gray-400"
                           title="Reactivate"
                         >
@@ -518,11 +524,14 @@ export default function Restaurants() {
                       )}
                       <button
                         id={`delete-${restaurant.id}`}
-                        onClick={() => handleDelete(restaurant)}
+                        onClick={(e) => { e.stopPropagation(); handleDelete(restaurant); }}
                         className="p-1.5 hover:bg-red-50 hover:text-red-600 rounded-md transition-colors text-gray-400"
                         title="Delete"
                       >
                         <Trash2 className="h-4 w-4" />
+                      </button>
+                      <button onClick={() => navigate(`/restaurants/${restaurant.id}`)}>
+                        <Eye className="h-4 w-4" />
                       </button>
                     </div>
                   </TableCell>
@@ -555,13 +564,12 @@ export default function Restaurants() {
             <div className="p-6">
               {/* Icon */}
               <div
-                className={`mx-auto h-14 w-14 rounded-2xl flex items-center justify-center mb-4 ${
-                  confirmAction.type === "approve"
-                    ? "bg-green-50"
-                    : confirmAction.type === "suspend"
+                className={`mx-auto h-14 w-14 rounded-2xl flex items-center justify-center mb-4 ${confirmAction.type === "approve"
+                  ? "bg-green-50"
+                  : confirmAction.type === "suspend"
                     ? "bg-amber-50"
                     : "bg-red-50"
-                }`}
+                  }`}
               >
                 {confirmAction.type === "approve" ? (
                   <CheckCircle className="h-7 w-7 text-green-500" />
@@ -578,10 +586,10 @@ export default function Restaurants() {
                 {confirmAction.type === "approve"
                   ? "Approve Restaurant"
                   : confirmAction.type === "suspend"
-                  ? "Suspend Restaurant"
-                  : confirmAction.type === "reject"
-                  ? "Reject Application"
-                  : "Delete Restaurant"}
+                    ? "Suspend Restaurant"
+                    : confirmAction.type === "reject"
+                      ? "Reject Application"
+                      : "Delete Restaurant"}
               </h3>
 
               <p className="text-sm text-gray-500 text-center mt-2">
@@ -652,13 +660,12 @@ export default function Restaurants() {
               <button
                 onClick={executeAction}
                 disabled={isActionLoading}
-                className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${
-                  confirmAction.type === "approve"
-                    ? "bg-green-500 hover:bg-green-600"
-                    : confirmAction.type === "suspend"
+                className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${confirmAction.type === "approve"
+                  ? "bg-green-500 hover:bg-green-600"
+                  : confirmAction.type === "suspend"
                     ? "bg-amber-500 hover:bg-amber-600"
                     : "bg-red-500 hover:bg-red-600"
-                }`}
+                  }`}
               >
                 {isActionLoading && (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -666,10 +673,10 @@ export default function Restaurants() {
                 {confirmAction.type === "approve"
                   ? "Approve"
                   : confirmAction.type === "suspend"
-                  ? "Suspend"
-                  : confirmAction.type === "reject"
-                  ? "Reject"
-                  : "Delete"}
+                    ? "Suspend"
+                    : confirmAction.type === "reject"
+                      ? "Reject"
+                      : "Delete"}
               </button>
             </div>
           </div>

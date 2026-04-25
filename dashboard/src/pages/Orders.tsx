@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, Filter, Eye, Loader2 } from "lucide-react";
 import { Card } from "../components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/Table";
@@ -17,6 +18,7 @@ interface Order {
 }
 
 export default function Orders() {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -122,7 +124,12 @@ export default function Orders() {
             <TableBody>
               {filteredOrders.length > 0 ? (
                 filteredOrders.map((order) => (
-                  <TableRow key={order.id}>
+                  <TableRow
+                    key={order.id}
+                    className="cursor-pointer hover:bg-gray-50/50"
+                    onClick={() => navigate(`/orders/${order.id}`)}
+                  >
+
                     <TableCell className="font-medium text-orange-600">
                       ORD-{order.id}
                     </TableCell>
@@ -142,7 +149,7 @@ export default function Orders() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <button className="p-1 hover:bg-gray-100 hover:text-blue-600 rounded text-gray-400 transition-colors" title="View Details">
+                      <button onClick={() => navigate(`/orders/${order.id}`)}>
                         <Eye className="h-4 w-4" />
                       </button>
                     </TableCell>

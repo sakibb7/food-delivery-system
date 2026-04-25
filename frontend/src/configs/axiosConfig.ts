@@ -110,24 +110,11 @@ privateInstance.interceptors.response.use(
       try {
         await TokenRefreshClient.get("/auth/refresh");
 
-        // Re-read the new JWT set by the server (via cookie) and update defaults
-        const newToken = Cookies.get(
-          process.env.NEXT_PUBLIC_TOKEN_NAME ?? "token",
-        );
-        if (newToken) {
-          privateInstance.defaults.headers.common["Authorization"] =
-            `Bearer ${newToken}`;
-        }
-
-        console.log(newToken);
-
         processQueue(null);
         return privateInstance(config); // retry original request
       } catch (refreshError) {
         console.log(refreshError, "Refresh Error");
         processQueue(refreshError);
-
-        Cookies.remove(process.env.NEXT_PUBLIC_TOKEN_NAME ?? "token");
         window.location.href = `/sign-in?redirectUrl=${encodeURIComponent(window.location.pathname)}`;
         return Promise.reject(refreshError);
       } finally {
@@ -137,7 +124,6 @@ privateInstance.interceptors.response.use(
 
     // ── Existing 401 redirect (non-refresh-related) ────────────────────────────
     if (status === 401) {
-      Cookies.remove(process.env.NEXT_PUBLIC_TOKEN_NAME ?? "token");
       const pathname = window.location.pathname;
       if (
         pathname.startsWith("/profile") ||
@@ -149,7 +135,6 @@ privateInstance.interceptors.response.use(
 
     // ── Maintenance mode ───────────────────────────────────────────────────────
     if (status === 503) {
-      Cookies.remove(process.env.NEXT_PUBLIC_TOKEN_NAME ?? "token");
       Cookies.set(MAINTENANCE, "true");
       window.location.href = "/maintenance";
     } else if (
@@ -182,7 +167,3 @@ publicInstance.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-
-export const updatePrivateAxiosInstance = (token: string) => {
-  privateInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-};

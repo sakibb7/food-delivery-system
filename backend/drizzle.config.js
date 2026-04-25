@@ -14,6 +14,8 @@ export default defineConfig({
     "./src/db/schema/settingsSchema.ts",
     "./src/db/schema/reviewSchema.ts",
     "./src/db/schema/roleSchema.ts",
+    "./src/db/schema/supportTicketSchema.ts",
+    "./src/db/schema/couponSchema.ts",
   ],
   dialect: "postgresql",
   dbCredentials: {
