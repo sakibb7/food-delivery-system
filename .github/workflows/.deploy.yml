@@ -1,0 +1,71 @@
+name: Deploy Backend and Frontend
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # Build Backend
+      - name: Install Backend dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Build Backend
+        working-directory: ./backend
+        run: npm run build
+
+      # Build Frontend
+      - name: Install Frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      # Deploy to VPS
+      - name: Copy Backend and Frontend to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          source: "backend,frontend"
+          target: ${{ secrets.PROJECT_PATH }}
+
+      # Restart Apps
+      - name: Restart Apps on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          script: |
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+            # Backend
+            cd ${{ secrets.PROJECT_PATH }}/backend
+            npm install --production
+            pm2 delete food-delivery-system || true
+            pm2 start dist/index.js --name "food-delivery-system"
+
+            # Frontend
+            cd ${{ secrets.PROJECT_PATH }}/frontend
+            npm install --production
+            pm2 delete tekina-frontend || true
+            pm2 start npm --name "tekina-frontend" -- start
+
+            pm2 save
