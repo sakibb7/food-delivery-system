@@ -1,19 +1,25 @@
 import Image from "next/image";
 import { Settings } from "lucide-react";
+import dhakaImg from "@/../public/dhaka.jpg";
+import chattogramImg from "@/../public/chattogram.webp";
+import rangpur from "@/../public/rangpur.jpg";
+import sylhetImg from "@/../public/sylhet.jpg";
+import khulnaImg from "@/../public/khulna.jpg";
+import rajshahiImg from "@/../public/rajshahi.jpg";
+import mymensinghImg from "@/../public/mymensing.jpg";
+import barishal from "@/../public/barisal.jpg";
+
 
 const cities = [
-  { name: "Dhaka", count: "3453", image: "https://images.unsplash.com/photo-1608928095147-380e227090b8?auto=format&fit=crop&q=80&w=400&h=400" },
-  { name: "Chattogram", count: "368", image: "https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?auto=format&fit=crop&q=80&w=400&h=400" },
-  { name: "Narayanganj", count: "186", image: "https://images.unsplash.com/photo-1546412414-e1885259563a?auto=format&fit=crop&q=80&w=400&h=400" },
-  { name: "Sylhet", count: "170", image: "https://images.unsplash.com/photo-1587313632749-0197779d7494?auto=format&fit=crop&q=80&w=400&h=400" },
-  { name: "Khulna", count: "163", image: "https://images.unsplash.com/photo-1580327484310-745a3598db4c?auto=format&fit=crop&q=80&w=400&h=400" },
-  { name: "Bogra", count: "118", image: "https://images.unsplash.com/photo-1610313063851-40915f2122fb?auto=format&fit=crop&q=80&w=400&h=400" },
-  { name: "Rajshahi", count: "116", image: "https://images.unsplash.com/photo-1622396113615-5ec7968db75e?auto=format&fit=crop&q=80&w=400&h=400" },
-  { name: "Cumilla", count: "91", image: "https://images.unsplash.com/photo-1605648834466-24e0544a0e10?auto=format&fit=crop&q=80&w=400&h=400" },
-  { name: "Mymensingh", count: "84", image: "https://images.unsplash.com/photo-1584061845116-43baf2bd673d?auto=format&fit=crop&q=80&w=400&h=400" },
-  { name: "Tangail", count: "43", image: "https://images.unsplash.com/photo-1599827056636-f08916d7a421?auto=format&fit=crop&q=80&w=400&h=400" },
-  { name: "Gazipur", count: "39", image: "https://images.unsplash.com/photo-1570183188574-d421d0033100?auto=format&fit=crop&q=80&w=400&h=400" },
-  { name: "Coxs Bazar", count: "30", image: "https://images.unsplash.com/photo-1588607185078-2d83b9cfab13?auto=format&fit=crop&q=80&w=400&h=400" },
+  { name: "Dhaka", count: "3453", image: dhakaImg },
+  { name: "Chattogram", count: "368", image: chattogramImg },
+  { name: "Sylhet", count: "170", image: sylhetImg },
+  { name: "Khulna", count: "163", image: khulnaImg },
+  { name: "Rajshahi", count: "116", image: rajshahiImg },
+  { name: "Mymensingh", count: "84", image: mymensinghImg },
+  { name: "Rangpur", count: "118", image: rangpur },
+  { name: "Barishal", count: "118", image: barishal },
+
 ];
 
 export default function DeliveryCitiesSection() {
@@ -23,7 +29,7 @@ export default function DeliveryCitiesSection() {
         We deliver to:
       </h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {cities.map((city, i) => (
           <div
             key={i}

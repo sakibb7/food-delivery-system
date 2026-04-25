@@ -6,6 +6,12 @@ import DeliveryCitiesSection from "@/components/sections/home-page/delivery-citi
 import JoinUsSection from "@/components/sections/home-page/join-us-section";
 import FeaturesSection from "@/components/sections/home-page/features-section";
 import AppDownloadSection from "@/components/sections/home-page/app-download-section";
+import food1 from "@/../public/restaurents/restaurant-1.jpg"
+import food2 from "@/../public/restaurents/restaurant-2.jpg"
+import food3 from "@/../public/restaurents/restaurant-3.jpg"
+import food4 from "@/../public/restaurents/restaurant-4.jpg"
+import food5 from "@/../public/restaurents/restaurant-5.jpg"
+import food6 from "@/../public/restaurents/restaurant-6.jpg"
 
 export default function Home() {
   return (
@@ -26,29 +32,27 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
           {[
-            { name: "Burger", img: "/burger.png" },
-            { name: "Pizza", img: "/pizza.png" },
-            { name: "Sushi", img: "/sushi.png" },
-            { name: "Healthy", img: "/hero-bg.png" },
-            { name: "Fast Food", img: "/burger.png" },
-            { name: "Drinks", img: "/pizza.png" },
+            { name: "Burger", img: food1 },
+            { name: "Pizza", img: food2 },
+            { name: "Sushi", img: food3 },
+            { name: "Healthy", img: food4 },
+            { name: "Fast Food", img: food5 },
+            { name: "Drinks", img: food6 },
           ].map((item, i) => (
             <div
               key={i}
               className="flex flex-col items-center group cursor-pointer"
             >
-              <div className="w-24 h-24 rounded-full overflow-hidden shadow-md group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 ring-4 ring-transparent group-hover:ring-red-100 mb-3 relative">
+              <div className="size-32 xl:size-40 rounded-full overflow-hidden shadow-md group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 ring-4 ring-transparent group-hover:ring-red-100 mb-3 relative">
                 <Image
                   src={item.img}
                   alt={item.name}
-                  width={96}
-                  height={96}
-                  className="object-cover"
+                  className="object-cover w-full h-full"
                 />
               </div>
-              <span className="font-semibold text-gray-700 group-hover:text-red-500 transition-colors">
+              <span className="font-semibold text-gray-700 group-hover:text-red-500 transition-colors text-lg sm:text-xl">
                 {item.name}
               </span>
             </div>

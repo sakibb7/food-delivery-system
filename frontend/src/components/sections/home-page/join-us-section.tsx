@@ -1,4 +1,7 @@
 import Image from "next/image";
+import restaurantImg1 from "@/../public/restaurents/restaurant-10.jpg"
+import restaurantImg2 from "@/../public/restaurents/restaurant-2.jpg"
+
 
 export default function JoinUsSection() {
   const cards = [
@@ -7,15 +10,15 @@ export default function JoinUsSection() {
       description:
         "Would you like millions of new customers to enjoy your amazing food and groceries? Let's start our partnership today!",
       buttonText: "Become a Partner",
-      image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=800&h=600",
-      link: "#",
+      image: restaurantImg1,
+      link: "/restaurant-sign-up",
     },
     {
       title: "Become A Foodi Hero",
       description:
         "Are you a man of speed and a master of navigation? Become a Foodi Hero and earn up to 25,000 TK each month while spreading joy to the doorsteps.",
       buttonText: "Become a Hero",
-      image: "https://images.unsplash.com/photo-1632154917424-6028c2e6f98c?auto=format&fit=crop&q=80&w=800&h=600",
+      image: restaurantImg2,
       link: "#",
     },
   ];
