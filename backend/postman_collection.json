@@ -1,0 +1,837 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Food Delivery System API",
+    "description": "Complete API collection for the Food Delivery System.\n\n**Base URL:** http://localhost:5000\n\n**Flow:**\n1. Register/Login\n2. Manage Profile/Addresses\n3. Browse Restaurants/Menu\n4. Place Order\n5. Track Order (User/Rider/Restaurant/Admin)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "verificationCode",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "resetCode",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "restaurantId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "addressId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "couponId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth & Registration",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auth/",
+            "description": "Check if the auth service is running and healthy."
+          }
+        },
+        {
+          "name": "Register — User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"Password123!\",\n  \"confirmPassword\": \"Password123!\",\n  \"phone\": \"1234567890\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/register"
+          }
+        },
+        {
+          "name": "Register — Restaurant Owner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Bob\",\n  \"lastName\": \"Burger\",\n  \"email\": \"owner@bobsburgers.com\",\n  \"password\": \"Password123!\",\n  \"confirmPassword\": \"Password123!\",\n  \"phone\": \"1234567890\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/register/restaurant"
+          }
+        },
+        {
+          "name": "Register — Rider",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Rick\",\n  \"lastName\": \"Rider\",\n  \"email\": \"rick.rider@example.com\",\n  \"password\": \"Password123!\",\n  \"confirmPassword\": \"Password123!\",\n  \"phone\": \"0987654321\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/register/rider"
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auth/refresh"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/logout"
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/password/forgot"
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"NewPassword123!\",\n  \"verificationCode\": \"{{resetCode}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/password/reset"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/user/me"
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Smith\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/user/profile"
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"OldPassword123!\",\n  \"newPassword\": \"NewPassword123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/user/password"
+          }
+        },
+        {
+          "name": "Admin: Get All Users",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/user/admin/all"
+          }
+        },
+        {
+          "name": "Admin: Ban User",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/user/:id/ban",
+            "variable": [
+              {
+                "key": "id",
+                "value": "USER_ID"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Addresses",
+      "item": [
+        {
+          "name": "Get My Addresses",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/address"
+          }
+        },
+        {
+          "name": "Create Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address\": \"123 Main St\",\n  \"city\": \"Dhaka\",\n  \"country\": \"Bangladesh\",\n  \"zipcode\": \"1205\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/address"
+          }
+        },
+        {
+          "name": "Delete Address",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/address/:id",
+            "variable": [
+              {
+                "key": "id",
+                "value": "{{addressId}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restaurants",
+      "item": [
+        {
+          "name": "Get All Restaurants",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/restaurant"
+          }
+        },
+        {
+          "name": "Search Restaurants",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurant/search?query=pizza",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurant",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "pizza"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Popular Cuisines",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/restaurant/cuisines"
+          }
+        },
+        {
+          "name": "Get Cities",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/restaurant/cities"
+          }
+        },
+        {
+          "name": "Get Restaurant Details",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/restaurant/:id",
+            "variable": [
+              {
+                "key": "id",
+                "value": "{{restaurantId}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Create Restaurant (Owner)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pasta Place\",\n  \"description\": \"Best pasta\",\n  \"deliveryTime\": 30,\n  \"deliveryFee\": 5,\n  \"minOrder\": 15\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/restaurant"
+          }
+        },
+        {
+          "name": "My Restaurants (Owner)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/restaurant/my-restaurants"
+          }
+        },
+        {
+          "name": "Owner Analytics",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/restaurant/my-restaurants/analytics"
+          }
+        },
+        {
+          "name": "Admin: Approve Restaurant",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/restaurant/:id/approve",
+            "variable": [
+              {
+                "key": "id",
+                "value": "{{restaurantId}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Menu Management",
+      "item": [
+        {
+          "name": "Get Menu",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/menu/:restaurantId",
+            "variable": [
+              {
+                "key": "restaurantId",
+                "value": "{{restaurantId}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Add Menu Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cheeseburger\",\n  \"description\": \"Classic cheeseburger\",\n  \"price\": 10.99,\n  \"category\": \"Burgers\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/menu/:restaurantId",
+            "variable": [
+              {
+                "key": "restaurantId",
+                "value": "{{restaurantId}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Delete Menu Item",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/menu/:restaurantId/:itemId",
+            "variable": [
+              {
+                "key": "restaurantId",
+                "value": "{{restaurantId}}"
+              },
+              {
+                "key": "itemId",
+                "value": "ITEM_ID"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Place Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"uuid\",\n  \"items\": [{ \"menuItemId\": \"uuid\", \"quantity\": 2 }],\n  \"addressId\": \"uuid\",\n  \"paymentMethod\": \"cash_on_delivery\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/order"
+          }
+        },
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/order"
+          }
+        },
+        {
+          "name": "Get Order Details",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/order/:id",
+            "variable": [
+              {
+                "key": "id",
+                "value": "{{orderId}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/order/:id/cancel",
+            "variable": [
+              {
+                "key": "id",
+                "value": "{{orderId}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Admin: All Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/order/admin/all"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rider",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/rider/profile"
+          }
+        },
+        {
+          "name": "Update Online Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isOnline\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/rider/online"
+          }
+        },
+        {
+          "name": "Update Location",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 23.8103, \"longitude\": 90.4125\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/rider/location"
+          }
+        },
+        {
+          "name": "Get Available Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/rider/orders/available"
+          }
+        },
+        {
+          "name": "Accept Order",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/rider/orders/:id/accept",
+            "variable": [
+              {
+                "key": "id",
+                "value": "{{orderId}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Pickup Order",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/rider/orders/:id/pickup",
+            "variable": [
+              {
+                "key": "id",
+                "value": "{{orderId}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Deliver Order",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/rider/orders/:id/deliver",
+            "variable": [
+              {
+                "key": "id",
+                "value": "{{orderId}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get History",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/rider/history"
+          }
+        },
+        {
+          "name": "Get Earnings",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/rider/earnings"
+          }
+        },
+        {
+          "name": "Request Withdrawal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 50, \"paymentMethod\": \"bkash\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/rider/withdrawals"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Coupons",
+      "item": [
+        {
+          "name": "Get Active Coupons",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/coupon/active"
+          }
+        },
+        {
+          "name": "Validate Coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"WELCOME10\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/coupon/validate"
+          }
+        },
+        {
+          "name": "Admin: List Coupons",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/coupon"
+          }
+        },
+        {
+          "name": "Admin: Create Coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"OFFER20\", \"discountType\": \"percentage\", \"discountValue\": 20, \"minOrder\": 100, \"expiry\": \"2026-12-31\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/coupon"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Get Restaurant Reviews",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/review/restaurant/:id",
+            "variable": [
+              {
+                "key": "id",
+                "value": "{{restaurantId}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Post Restaurant Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"uuid\", \"orderId\": \"uuid\", \"rating\": 5, \"comment\": \"Great food!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/review/restaurant"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Support & Admin",
+      "item": [
+        {
+          "name": "Create Support Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Order issue\", \"message\": \"I haven't received my order yet.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/support"
+          }
+        },
+        {
+          "name": "Get My Tickets",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/support"
+          }
+        },
+        {
+          "name": "Admin: Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/admin-dashboard"
+          }
+        },
+        {
+          "name": "Admin: List Staff",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/staff"
+          }
+        },
+        {
+          "name": "Admin: List Roles",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/role"
+          }
+        },
+        {
+          "name": "Admin: List Zones",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/zone"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Settings & Info",
+      "item": [
+        {
+          "name": "Get Settings",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/settings"
+          }
+        },
+        {
+          "name": "Update Settings (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"app_name\": \"New Food Delivery\", \"delivery_fee_base\": 10\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/settings"
+          }
+        },
+        {
+          "name": "Get Info",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/info"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cloudinary",
+      "item": [
+        {
+          "name": "Upload Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"buffer\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/cloudinary/upload"
+          }
+        }
+      ]
+    }
+  ]
+}

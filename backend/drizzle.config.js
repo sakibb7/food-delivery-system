@@ -1,0 +1,30 @@
+import { defineConfig } from "drizzle-kit";
+import "dotenv/config";
+export default defineConfig({
+  out: "./drizzle",
+  schema: [
+    "./src/db/schema/userSchema.ts",
+    "./src/db/schema/sessionSchema.ts",
+    "./src/db/schema/verificationSchema.ts",
+    "./src/db/schema/restaurantSchema.ts",
+    "./src/db/schema/menuItemSchema.ts",
+    "./src/db/schema/orderSchema.ts",
+    "./src/db/schema/addressSchema.ts",
+    "./src/db/schema/riderProfileSchema.ts",
+    "./src/db/schema/settingsSchema.ts",
+    "./src/db/schema/reviewSchema.ts",
+    "./src/db/schema/roleSchema.ts",
+    "./src/db/schema/supportTicketSchema.ts",
+    "./src/db/schema/couponSchema.ts",
+    "./src/db/schema/zoneSchema.ts",
+    "./src/db/schema/withdrawalSchema.ts",
+    "./src/db/schema/codRemittanceSchema.ts",
+    "./src/db/schema/restaurantPayoutSchema.ts",
+  ],
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL,
+  },
+  verbose: true,
+  strict: true,
+});

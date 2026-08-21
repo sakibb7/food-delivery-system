@@ -1,0 +1,61 @@
+import Image from "next/image";
+import restaurantImg1 from "@/../public/restaurents/restaurant-10.jpg"
+import restaurantImg2 from "@/../public/restaurents/restaurant-2.jpg"
+import Link from "next/link";
+
+
+export default function JoinUsSection() {
+  const cards = [
+    {
+      title: "List Your Restaurant on Tekina",
+      description:
+        "Would you like millions of new customers to enjoy your amazing food and groceries? Let's start our partnership today!",
+      buttonText: "Become a Partner",
+      image: restaurantImg1,
+      link: "/restaurant/sign-up",
+    },
+    {
+      title: "Become A Tekina Hero",
+      description:
+        "Are you a man of speed and a master of navigation? Become a Tekina Hero and earn up to 25,000 TK each month while spreading joy to the doorsteps.",
+      buttonText: "Become a Hero",
+      image: restaurantImg2,
+      link: "/rider/sign-up",
+    },
+  ];
+
+  return (
+    <section className="py-16 px-6 lg:px-12 max-w-7xl mx-auto w-full">
+      <div className="grid md:grid-cols-2 gap-8">
+        {cards.map((card, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col md:flex-row h-full group"
+          >
+            <div className="md:w-1/2 relative h-64 md:h-auto overflow-hidden">
+              <Image
+                src={card.image}
+                alt={card.title}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <div className="md:w-1/2 p-8 flex flex-col justify-center">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 leading-tight">
+                {card.title}
+              </h3>
+              <p className="text-gray-500 mb-8 text-sm leading-relaxed">
+                {card.description}
+              </p>
+              <div>
+                <Link href={card.link} className="inline-block bg-[#E60000] hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition-all shadow-md hover:shadow-red-600/20">
+                  {card.buttonText}
+                </Link>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}

@@ -1,0 +1,216 @@
+import { View, Text, TouchableOpacity, Switch, ActivityIndicator, ScrollView } from "react-native";
+import { useState, useEffect } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useOrderStore } from "@/stores/useOrderStore";
+import { useGetQuery } from "@/hooks/mutate/useGetQuery";
+import { privateInstance } from "@/configs/axiosConfig";
+import { showToast } from "@/utils/toast";
+import DeliveryMap from "@/components/DeliveryMap";
+import { useCurrency } from "@/hooks/useCurrency";
+
+export default function HomeScreen() {
+  const router = useRouter();
+  const { riderProfile, updateOnlineStatus } = useAuthStore();
+  const { setActiveOrder } = useOrderStore();
+  const { currencySymbol } = useCurrency();
+  const [isOnline, setIsOnline] = useState(riderProfile?.isOnline ?? false);
+  const [toggling, setToggling] = useState(false);
+
+  // Fetch earnings for today's summary
+  const { data: earningsData, refetch: refetchEarnings } = useGetQuery<any>({
+    url: "/rider/earnings",
+    queryKey: "rider-earnings",
+  });
+
+  // Fetch available orders when online
+  const { data: availableOrders, refetch: refetchOrders } = useGetQuery<any[]>({
+    url: "/rider/orders/available",
+    queryKey: "available-orders",
+    enabled: isOnline,
+  });
+
+  // Poll for available orders when online
+  useEffect(() => {
+    if (!isOnline) return;
+    const interval = setInterval(() => {
+      refetchOrders();
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [isOnline]);
+
+  const handleToggleOnline = async (value: boolean) => {
+    setToggling(true);
+    try {
+      await privateInstance.patch("/rider/online", { isOnline: value });
+      setIsOnline(value);
+      updateOnlineStatus(value);
+      showToast({
+        text: value ? "You are now online!" : "You are now offline",
+        type: value ? "success" : "info",
+      });
+      if (value) {
+        refetchOrders();
+      }
+    } catch (err: any) {
+      const message = err?.response?.data?.message || "Failed to update status";
+      showToast({ text: message, type: "error" });
+    } finally {
+      setToggling(false);
+    }
+  };
+
+  const handleAcceptOrder = (order: any) => {
+    setActiveOrder(order);
+    router.push("/delivery/incoming-order");
+  };
+
+  const totalEarnings = earningsData?.totalEarnings ?? 0;
+  const totalDeliveries = earningsData?.deliveries ?? 0;
+
+  // Build restaurant markers from available orders
+  const restaurantMarkers = (availableOrders || [])
+    .filter((o: any) => o.restaurantLat && o.restaurantLng)
+    .map((o: any) => ({
+      latitude: parseFloat(o.restaurantLat),
+      longitude: parseFloat(o.restaurantLng),
+      name: o.restaurantName || "Restaurant",
+    }));
+
+  return (
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+      {/* Header / Status Toggle */}
+      <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-100 bg-white z-10 shadow-sm">
+        <View className="flex-row items-center">
+          <View className={`w-3 h-3 rounded-full mr-2 ${isOnline ? "bg-emerald-500" : "bg-gray-400"}`} />
+          <Text className="text-lg font-bold text-gray-900">
+            {isOnline ? "Online" : "Offline"}
+          </Text>
+          {toggling && <ActivityIndicator size="small" color="#10b981" className="ml-2" />}
+        </View>
+        <View className="flex-row items-center gap-3">
+          <TouchableOpacity onPress={() => router.push("/profile")}>
+            <Ionicons name="person-circle-outline" size={28} color="#374151" />
+          </TouchableOpacity>
+          <Switch
+            value={isOnline}
+            onValueChange={handleToggleOnline}
+            trackColor={{ false: "#d1d5db", true: "#a7f3d0" }}
+            thumbColor={isOnline ? "#10b981" : "#f3f4f6"}
+            disabled={toggling}
+          />
+        </View>
+      </View>
+
+      {/* Main Content Area */}
+      <View className="flex-1 relative">
+        <View className="absolute inset-0">
+          <DeliveryMap
+            showRestaurant={false}
+            showCustomer={false}
+            showRider={true}
+            enableLocationTracking={true}
+            restaurantMarkers={restaurantMarkers}
+          />
+        </View>
+
+        {!isOnline ? (
+          <View className="absolute inset-0 items-center justify-center p-6 bg-white/70">
+            <View className="bg-white p-6 rounded-3xl shadow-lg border border-gray-100 items-center w-11/12 max-w-sm">
+              <View className="w-16 h-16 bg-gray-100 rounded-full items-center justify-center mb-4">
+                <Ionicons name="moon" size={32} color="#9ca3af" />
+              </View>
+              <Text className="text-2xl font-bold text-gray-900 mb-2">You are Offline</Text>
+              <Text className="text-gray-500 text-center mb-6">
+                Go online to start receiving delivery requests.
+              </Text>
+              <TouchableOpacity
+                onPress={() => handleToggleOnline(true)}
+                disabled={toggling}
+                className="w-full bg-emerald-500 py-3.5 rounded-xl flex-row items-center justify-center shadow-sm"
+              >
+                {toggling ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <>
+                    <Ionicons name="power" size={20} color="white" />
+                    <Text className="text-white font-bold text-lg ml-2">Go Online</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <View className="absolute bottom-0 left-0 right-0 max-h-[55%]">
+            <View className="bg-white rounded-t-3xl shadow-lg border-t border-gray-100 px-5 pt-4 pb-2">
+              <View className="w-10 h-1 bg-gray-300 rounded-full self-center mb-3" />
+              <Text className="text-lg font-bold text-gray-900 mb-3">
+                Available Orders ({availableOrders?.length ?? 0})
+              </Text>
+            </View>
+            <ScrollView
+              className="bg-white px-5 pb-4"
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+            >
+              {(!availableOrders || availableOrders.length === 0) ? (
+                <View className="items-center py-8">
+                  <Ionicons name="search-outline" size={40} color="#9ca3af" />
+                  <Text className="text-gray-500 mt-3 font-medium text-center">
+                    No orders available right now.{"\n"}We'll notify you when one comes in.
+                  </Text>
+                </View>
+              ) : (
+                availableOrders.map((order: any) => (
+                  <TouchableOpacity
+                    key={order.id}
+                    className="bg-gray-50 p-4 rounded-2xl border border-gray-100 mb-3"
+                    onPress={() => handleAcceptOrder(order)}
+                    activeOpacity={0.7}
+                  >
+                    <View className="flex-row justify-between mb-2">
+                      <Text className="text-lg font-bold text-gray-900">
+                        {order.restaurantName || "Restaurant"}
+                      </Text>
+                      <Text className="text-emerald-600 font-bold text-lg">
+                        {currencySymbol}{Number(order.deliveryFee || 5).toFixed(2)}
+                      </Text>
+                    </View>
+                    <Text className="text-gray-500 text-sm mb-2" numberOfLines={1}>
+                      {order.deliveryAddress}
+                    </Text>
+                    <View className="flex-row items-center">
+                      <Ionicons name="restaurant-outline" size={14} color="#6b7280" />
+                      <Text className="text-gray-500 text-sm ml-1">Ready for pickup</Text>
+                      <View className="w-1 h-1 bg-gray-300 rounded-full mx-2" />
+                      <Text className="text-emerald-600 font-medium text-sm">Tap to view</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))
+              )}
+            </ScrollView>
+          </View>
+        )}
+      </View>
+
+      {/* Bottom Summary Sheet */}
+      <View className="bg-white rounded-t-3xl shadow-lg px-6 pt-6 pb-8 border-t border-gray-100">
+        <Text className="text-lg font-bold text-gray-900 mb-4">Today's Summary</Text>
+        <View className="flex-row justify-between">
+          <View className="bg-gray-50 flex-1 p-4 rounded-2xl mr-2 items-center">
+            <Text className="text-gray-500 text-sm mb-1">Earnings</Text>
+            <Text className="text-2xl font-bold text-emerald-600">
+              {currencySymbol}{Number(totalEarnings).toFixed(2)}
+            </Text>
+          </View>
+          <View className="bg-gray-50 flex-1 p-4 rounded-2xl ml-2 items-center">
+            <Text className="text-gray-500 text-sm mb-1">Deliveries</Text>
+            <Text className="text-2xl font-bold text-gray-900">{totalDeliveries}</Text>
+          </View>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}

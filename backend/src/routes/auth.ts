@@ -1,0 +1,42 @@
+import express from "express";
+import {
+  loginHandler,
+  logoutHandler,
+  refreshHandler,
+  registerHandler,
+  registerRestaurantHandler,
+  registerRiderHandler,
+  verifyEmailHandler,
+  resendVerificationHandler,
+  forgotPasswordHandler,
+  resetPasswordHandler,
+  googleAuthHandler,
+  googleAuthCallbackHandler,
+} from "../controller/auth.controller.js";
+import catchErrors from "../utils/catchErrors.js";
+import { OK } from "../constants/http.js";
+import authenticate from "../middlewares/authenticate.js";
+
+const router = express.Router();
+router.get(
+  "/",
+  catchErrors(async (req, res, next) => {
+    return res.status(OK).json({
+      status: "healthy",
+    });
+  }),
+);
+router.post("/register", registerHandler);
+router.post("/register/restaurant", registerRestaurantHandler);
+router.post("/register/rider", registerRiderHandler);
+router.post("/login", loginHandler);
+router.post("/logout", logoutHandler);
+router.get("/refresh", refreshHandler);
+router.get("/email/verify/:code", verifyEmailHandler);
+router.post("/email/verify/resend", authenticate, resendVerificationHandler);
+router.post("/password/forgot", forgotPasswordHandler);
+router.post("/password/reset", resetPasswordHandler);
+router.get("/google", googleAuthHandler);
+router.get("/google/callback", googleAuthCallbackHandler);
+
+export default router;

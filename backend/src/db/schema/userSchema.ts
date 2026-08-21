@@ -1,0 +1,68 @@
+import {
+  boolean,
+  integer,
+  pgEnum,
+  pgTable,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
+import { adminRolesTable } from "./roleSchema.js";
+
+
+export const userStatusEnum = pgEnum("user_status", [
+  "active",
+  "inactive",
+  "banned",
+]);
+
+export const roles = pgEnum("user_role", [
+  "admin",
+  "restaurant",
+  "rider",
+  "user",
+]);
+
+export const authProviderEnum = pgEnum("auth_provider", [
+  "local",
+  "google",
+]);
+
+export const usersTable = pgTable("users", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+
+  firstName: varchar({ length: 255 }).notNull(),
+  lastName: varchar({ length: 255 }).notNull(),
+
+  avatar: varchar({ length: 1024 }),
+
+  passwordHash: varchar({ length: 255 }),
+
+  email: varchar({ length: 255 }).notNull().unique(),
+  phone: varchar({ length: 255 }).unique(),
+
+  emailVerifiedAt: timestamp({ mode: "date" }),
+  phoneVerifiedAt: timestamp({ mode: "date" }),
+
+  address: varchar({ length: 255 }),
+  city: varchar({ length: 255 }),
+  country: varchar({ length: 255 }),
+  zipcode: varchar({ length: 20 }),
+
+  fcmToken: varchar({ length: 255 }),
+
+  provider: authProviderEnum().default("local"),
+  providerId: varchar("provider_id", { length: 255 }),
+
+  status: userStatusEnum().default("active"),
+
+  role: roles().default("user"),
+
+  adminRoleId: integer("admin_role_id").references(() => adminRolesTable.id),
+
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});

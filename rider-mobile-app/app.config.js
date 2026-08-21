@@ -1,0 +1,78 @@
+import 'dotenv/config';
+
+export default {
+    expo: {
+        name: "rider-mobile-app",
+        slug: "rider-mobile-app",
+        version: "1.0.0",
+        orientation: "portrait",
+        icon: "./assets/images/icon.png",
+        scheme: "ridermobileapp",
+        userInterfaceStyle: "automatic",
+        newArchEnabled: true,
+
+        android: {
+            adaptiveIcon: {
+                backgroundColor: "#E6F4FE",
+                foregroundImage: "./assets/images/android-icon-foreground.png",
+                backgroundImage: "./assets/images/android-icon-background.png",
+                monochromeImage:
+                    "./assets/images/android-icon-monochrome.png",
+            },
+
+            edgeToEdgeEnabled: true,
+            predictiveBackGestureEnabled: false,
+            package: "com.sakibb.ridermobileapp",
+
+            permissions: [
+                "android.permission.ACCESS_COARSE_LOCATION",
+                "android.permission.ACCESS_FINE_LOCATION",
+            ],
+
+            config: {
+                googleMaps: {
+                    apiKey: process.env.EXPO_PUBLIC_GCP_API_KEY,
+                },
+            },
+        },
+
+        plugins: [
+            "expo-router",
+
+            [
+                "expo-location",
+                {
+                    locationAlwaysAndWhenInUsePermission:
+                        "Allow Rider App to use your location for deliveries.",
+                },
+            ],
+
+            [
+                "expo-splash-screen",
+                {
+                    image: "./assets/images/splash-icon.png",
+                    imageWidth: 200,
+                    resizeMode: "contain",
+                    backgroundColor: "#ffffff",
+
+                    dark: {
+                        backgroundColor: "#000000",
+                    },
+                },
+            ],
+        ],
+
+        experiments: {
+            typedRoutes: true,
+            reactCompiler: true,
+        },
+
+        extra: {
+            router: {},
+
+            eas: {
+                projectId: "bbbcdf85-b7f5-4e4e-bfcb-8b2b8335e0dd",
+            },
+        },
+    },
+};
